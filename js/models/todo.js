@@ -4,23 +4,37 @@ var app = app || {};
 (function () {
 	'use strict';
 
-	// Todo Model
-	// ----------
+    // Our basic Message model.
+    app.Message = Backbone.Model.extend({
 
-	// Our basic **Todo** model has `title`, `order`, and `completed` attributes.
-	app.Todo = Backbone.Model.extend({
-		// Default attributes for the todo
-		// and ensure that each todo created has `title` and `completed` keys.
-		defaults: {
-			title: '',
-			completed: false
-		},
+        // Default attributes for a message
+        // and ensure that each message created has essential keys.
+        defaults: {
+            messageId: 0,
+            title: '',
+            body: '',
+            postDate: new Date(),
+            author: '',
+            suppressed: false
+        }
 
-		// Toggle the `completed` state of this todo item.
-		toggle: function () {
-			this.save({
-				completed: !this.get('completed')
-			});
-		}
-	});
+    });
+
+
+    // Our basic Thread model.
+    app.Thread = Backbone.Model.extend({
+
+        // Default attributes for a thread
+        defaults: {
+            threadId: 0,
+            title: '',
+            messageList: [],
+            startDate: false,
+            initiatingUser: '',
+            suppressed: false
+        }
+
+    });
+
+
 })();

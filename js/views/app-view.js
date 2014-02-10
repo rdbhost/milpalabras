@@ -2,6 +2,7 @@
 var app = app || {};
 
 (function ($) {
+
 	'use strict';
 
 	// The Application
@@ -12,117 +13,119 @@ var app = app || {};
 
 		// Instead of generating a new element, bind to the existing skeleton of
 		// the App already present in the HTML.
-		el: '#todoapp',
+		el: '#mpapp',
 
 		// Our template for the line of statistics at the bottom of the app.
 		statsTemplate: _.template($('#stats-template').html()),
 
 		// Delegated events for creating new items, and clearing completed ones.
 		events: {
-			'keypress #new-todo': 'createOnEnter',
-			'click #clear-completed': 'clearCompleted',
-			'click #toggle-all': 'toggleAllComplete'
+			'keypress #new-message': 'createOnEnter'
+			//'click #clear-completed': 'clearCompleted',
+			//'click #toggle-all': 'toggleAllComplete'
 		},
 
-		// At initialization we bind to the relevant events on the `Todos`
+		// At initialization we bind to the relevant events on the `Threads` and 'Messages'
 		// collection, when items are added or changed. Kick things off by
-		// loading any preexisting todos that might be saved in *localStorage*.
+		// loading preexisting threads
 		initialize: function () {
-			this.allCheckbox = this.$('#toggle-all')[0];
-			this.$input = this.$('#new-todo');
+
+			this.$input = this.$('#new-message');
 			this.$footer = this.$('#footer');
 			this.$main = this.$('#main');
-			this.$list = $('#todo-list');
+			this.$list = $('#thread-list');
 
-			this.listenTo(app.todos, 'add', this.addOne);
-			this.listenTo(app.todos, 'reset', this.addAll);
-			this.listenTo(app.todos, 'change:completed', this.filterOne);
-			this.listenTo(app.todos, 'filter', this.filterAll);
-			this.listenTo(app.todos, 'all', this.render);
+			this.listenTo(app.threads, 'add', this.addOneThread);
+			this.listenTo(app.threads, 'reset', this.addAll);
+			this.listenTo(app.threads, 'change:completed', this.filterOne);
+			// this.listenTo(app.threads, 'filter', this.filterAll);
+			this.listenTo(app.threads, 'all', this.render);
 
 			// Suppresses 'add' events with {reset: true} and prevents the app view
 			// from being re-rendered for every model. Only renders when the 'reset'
 			// event is triggered at the end of the fetch.
-			app.todos.fetch({reset: true});
+			app.threads.fetch({reset: true});
 		},
 
 		// Re-rendering the App just means refreshing the statistics -- the rest
 		// of the app doesn't change.
 		render: function () {
-			var completed = app.todos.completed().length;
-			var remaining = app.todos.remaining().length;
 
-			if (app.todos.length) {
+			var threadCount = app.threads.length;
+			// var remaining = app.threads.remaining().length;
+
+			if (app.threads.length) {
+
 				this.$main.show();
 				this.$footer.show();
 
 				this.$footer.html(this.statsTemplate({
-					completed: completed,
-					remaining: remaining
+					completed: threadCount
 				}));
 
-				this.$('#filters li a')
-					.removeClass('selected')
-					.filter('[href="#/' + (app.TodoFilter || '') + '"]')
-					.addClass('selected');
-			} else {
+				//this.$('#filters li a')
+				//	.removeClass('selected')
+				//	.filter('[href="#/' + (app.threadFilter || '') + '"]')
+				//	.addClass('selected');
+			}
+            else {
 				this.$main.hide();
 				this.$footer.hide();
 			}
 
-			this.allCheckbox.checked = !remaining;
+			// this.allCheckbox.checked = !remaining;
 		},
 
-		// Add a single todo item to the list by creating a view for it, and
+		// Add a single thread item to the list by creating a view for it, and
 		// appending its element to the `<ul>`.
-		addOne: function (todo) {
-			var view = new app.TodoView({ model: todo });
+		addOneThread: function (thread) {
+			var view = new app.ThreadView({ model: thread });
 			this.$list.append(view.render().el);
 		},
 
-		// Add all items in the **Todos** collection at once.
+		// Add all items in the **threads** collection at once.
 		addAll: function () {
 			this.$list.html('');
-			app.todos.each(this.addOne, this);
+			app.threads.each(this.addOneThread, this);
 		},
 
-		filterOne: function (todo) {
-			todo.trigger('visible');
+		filterOne: function (thread) {
+			thread.trigger('visible');
 		},
 
 		filterAll: function () {
-			app.todos.each(this.filterOne, this);
+			app.threads.each(this.filterOne, this);
 		},
 
-		// Generate the attributes for a new Todo item.
+		// Generate the attributes for a new thread item.
 		newAttributes: function () {
 			return {
 				title: this.$input.val().trim(),
-				order: app.todos.nextOrder(),
+				order: app.threads.nextOrder(),
 				completed: false
 			};
 		},
 
-		// If you hit return in the main input field, create new **Todo** model,
+		// If you hit return in the main input field, create new **thread** model,
 		// persisting it to *localStorage*.
 		createOnEnter: function (e) {
 			if (e.which === ENTER_KEY && this.$input.val().trim()) {
-				app.todos.create(this.newAttributes());
+				app.threads.create(this.newAttributes());
 				this.$input.val('');
 			}
 		},
 
-		// Clear all completed todo items, destroying their models.
+		// Clear all completed thread items, destroying their models.
 		clearCompleted: function () {
-			_.invoke(app.todos.completed(), 'destroy');
+			_.invoke(app.threads.completed(), 'destroy');
 			return false;
 		},
 
 		toggleAllComplete: function () {
 			var completed = this.allCheckbox.checked;
 
-			app.todos.each(function (todo) {
-				todo.save({
+			app.threads.each(function (thread) {
+				thread.save({
 					'completed': completed
 				});
 			});

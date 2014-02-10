@@ -4,29 +4,30 @@ var app = app || {};
 (function ($) {
 	'use strict';
 
-	// Todo Item View
+	// Thread Item View
 	// --------------
 
-	// The DOM element for a todo item...
-	app.TodoView = Backbone.View.extend({
+	// The DOM element for a thread item...
+	app.ThreadView = Backbone.View.extend({
+
 		//... is a list tag.
 		tagName:  'li',
 
 		// Cache the template function for a single item.
-		template: _.template($('#item-template').html()),
+		template: _.template($('#thread-item-template').html()),
 
 		// The DOM events specific to an item.
 		events: {
-			'click .toggle': 'toggleCompleted',
-			'dblclick label': 'edit',
-			'click .destroy': 'clear',
+			//'click .toggle': 'toggleCompleted',
+			//'dblclick label': 'edit',
+			//'click .destroy': 'clear',
 			'keypress .edit': 'updateOnEnter',
 			'keydown .edit': 'revertOnEscape',
 			'blur .edit': 'close'
 		},
 
-		// The TodoView listens for changes to its model, re-rendering. Since there's
-		// a one-to-one correspondence between a **Todo** and a **TodoView** in this
+		// The ThreadView listens for changes to its model, re-rendering. Since there's
+		// a one-to-one correspondence between a **Thread** and a **ThreadView** in this
 		// app, we set a direct reference on the model for convenience.
 		initialize: function () {
 			this.listenTo(this.model, 'change', this.render);
@@ -34,19 +35,19 @@ var app = app || {};
 			this.listenTo(this.model, 'visible', this.toggleVisible);
 		},
 
-		// Re-render the titles of the todo item.
+		// Re-render the titles of the thread item.
 		render: function () {
 			// Backbone LocalStorage is adding `id` attribute instantly after creating a model.
-			// This causes our TodoView to render twice. Once after creating a model and once on `id` change.
+			// This causes our ThreadView to render twice. Once after creating a model and once on `id` change.
 			// We want to filter out the second redundant render, which is caused by this `id` change.
 			// It's known Backbone LocalStorage bug, therefore we've to create a workaround.
-			// https://github.com/tastejs/todomvc/issues/469
+			// https://github.com/tastejs/threadmvc/issues/469
 			if (this.model.changed.id !== undefined) {
 				return;
 			}
 
 			this.$el.html(this.template(this.model.toJSON()));
-			this.$el.toggleClass('completed', this.model.get('completed'));
+			//this.$el.toggleClass('completed', this.model.get('completed'));
 			this.toggleVisible();
 			this.$input = this.$('.edit');
 			return this;
@@ -57,11 +58,7 @@ var app = app || {};
 		},
 
 		isHidden: function () {
-			var isCompleted = this.model.get('completed');
-			return (// hidden cases only
-				(!isCompleted && app.TodoFilter === 'completed') ||
-				(isCompleted && app.TodoFilter === 'active')
-			);
+			return false; // this.model.get('hidden');
 		},
 
 		// Toggle the `"completed"` state of the model.
@@ -75,8 +72,9 @@ var app = app || {};
 			this.$input.focus();
 		},
 
-		// Close the `"editing"` mode, saving changes to the todo.
+		// Close the `"editing"` mode, saving changes to the thread
 		close: function () {
+
 			var value = this.$input.val();
 			var trimmedValue = value.trim();
 
@@ -89,6 +87,7 @@ var app = app || {};
 			}
 
 			if (trimmedValue) {
+
 				this.model.save({ title: trimmedValue });
 
 				if (value !== trimmedValue) {
@@ -97,7 +96,8 @@ var app = app || {};
 					// And if yes, we've to trigger change event ourselves
 					this.model.trigger('change');
 				}
-			} else {
+			}
+            else {
 				this.clear();
 			}
 

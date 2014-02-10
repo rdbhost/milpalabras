@@ -4,23 +4,30 @@ var app = app || {};
 (function () {
 	'use strict';
 
-	// Todo Router
-	// ----------
-	var TodoRouter = Backbone.Router.extend({
-		routes: {
-			'*filter': 'setFilter'
-		},
+    // MilPalabras Router
+    // ----------
+    var MilPalabrasRouter = Backbone.Router.extend({
+        routes: {
+            't/:thread': 'showThread',
+            '':          'showIndex'
+        },
 
-		setFilter: function (param) {
-			// Set the current filter to be used
-			app.TodoFilter = param || '';
+        showThread: function (param) {
 
-			// Trigger a collection filter event, causing hiding/unhiding
-			// of Todo view items
-			app.todos.trigger('filter');
-		}
-	});
+            // Trigger display of given thread
+            app.threads.trigger('show:thread', param);
+        },
 
-	app.TodoRouter = new TodoRouter();
-	Backbone.history.start();
+        showIndex: function () {
+
+            // Trigger display of threads
+            app.threads.trigger('show:index');
+        }
+    });
+
+
+    app.MilPalabrasRouter = new MilPalabrasRouter();
+
+    Backbone.history.start();
+
 })();
