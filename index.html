@@ -9,23 +9,33 @@
 		<section id="mpapp">
 			<header id="header">
 				<h1>Topics</h1>
-				<input id="new-message" placeholder="What needs to be done?" autofocus>
 			</header>
-			<section id="main">
-				<input id="toggle-all" type="checkbox">
-				<!-- label for="toggle-all">Mark all as complete</label -->
-				<ul id="thread-list"></ul>
-			</section>
+
+            <table id="main">
+                <thead>
+                    <tr>
+                        <th>topic</th>
+                        <th>owner</th>
+                        <th>started</th>
+                        <th>message ct</th>
+                    </tr>
+                </thead>
+                <tbody id="thread-list">
+
+                </tbody>
+            </table>
 			<footer id="footer"></footer>
 		</section>
-		<footer id="info">
-		</footer>
+
 		<script type="text/template" id="thread-item-template">
-			<div class="view">
-				<input class="toggle" type="checkbox" <%= completed ? 'checked' : '' %>>
-				<label><%- title %></label>
-				<button class="destroy"></button>
-			</div>
+			<!-- tr class="view" -->
+				<!-- input class="toggle" type="checkbox" <%= completed ? 'checked' : '' %> -->
+				<td><%- title %></td>
+                <td><%- initiatingUser %></td>
+                <td><%- startDate %></td>
+                <td><!-- %- message_ct % --></td>
+				<!-- button class="destroy"></button -->
+			<!-- /tr -->
 			<input class="edit" value="<%- title %>">
 		</script>
 		<script type="text/template" id="stats-template">
