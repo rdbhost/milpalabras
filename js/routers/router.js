@@ -1,5 +1,4 @@
-/*global Backbone */
-var app = app || {};
+/*global Backbone $ */
 
 (function () {
 	'use strict';
@@ -7,6 +6,7 @@ var app = app || {};
     // MilPalabras Router
     // ----------
     var MilPalabrasRouter = Backbone.Router.extend({
+
         routes: {
             't/:thread': 'showThread',
             '':          'showIndex'
@@ -14,19 +14,46 @@ var app = app || {};
 
         showThread: function (param) {
 
-            // Trigger display of given thread
-            app.threads.trigger('show:thread', param);
+            app.thread = new app.Thread({thread_id: param});
+            app.threadView = new app.ThreadView({model: app.thread});
+
+            app.thread.fetch({
+                success: function(resp) {
+
+                    //alert('threads loaded');
+                    app.threadView.render();
+                },
+                error: function(err) {
+
+                    alert('error in thread loading ' + err);
+                }
+            });
+
         },
 
         showIndex: function () {
 
-            // Trigger display of threads
-            app.threads.trigger('show:index');
+            app.threadsView = new app.ThreadsView();
+
+            // Suppresses 'add' events with {reset: true} and prevents the app view
+            // from being re-rendered for every model. Only renders when the 'reset'
+            // event is triggered at the end of the fetch.
+            app.threads.fetch({
+                success: function(resp) {
+
+                    //alert('threads loaded');
+                    app.threadsView.render();
+                },
+                error: function(err) {
+
+                    alert('error in thread loading ' + err);
+                }
+            });
         }
     });
 
 
-    app.MilPalabrasRouter = new MilPalabrasRouter();
+    app.milPalabrasRouter = new MilPalabrasRouter();
 
     Backbone.history.start();
 
