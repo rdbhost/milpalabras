@@ -9,6 +9,7 @@
 
         routes: {
             't/:thread': 'showThread',
+            'login':     'login',
             '':          'showIndex'
         },
 
@@ -28,7 +29,6 @@
                     alert('error in thread loading ' + err);
                 }
             });
-
         },
 
         showIndex: function () {
@@ -49,6 +49,13 @@
                     alert('error in thread loading ' + err);
                 }
             });
+        },
+
+        login: function() {
+
+            // app.loginView = new app.LoginView();
+            $('#login').show();
+
         }
     });
 

@@ -5,28 +5,6 @@
 
     var R = window.Rdbhost;
 
-    // Our basic Message model.
-    app.Message = Backbone.Model.extend({
-
-        // Default attributes for a message
-        // and ensure that each message created has essential keys.
-        defaults: {
-            message_id: 1,
-            title: '',
-            body: '',
-            post_date: new Date(),
-            author: '',
-            suppressed: false
-        },
-
-        sync: function(method, model, params) {
-
-            alert('syncing Message')
-        }
-
-    });
-
-
     // Object for each thread in threads list.
     app.ThreadSummary = Backbone.Model.extend({
 
@@ -64,15 +42,6 @@
 
             switch(method) {
 
-                case 'create':
-                    break;
-
-                case 'update':
-                    break;
-
-                case 'delete':
-                    break;
-
                 case 'read':
                     var p = R.preauthPostData({
                         q: 'SELECT * FROM messages WHERE thread_id = %s ORDER BY post_date ASC LIMIT 100',
@@ -86,6 +55,10 @@
                         options.error(err);
                     });
                     break;
+
+                default:
+
+                    throw new Error('bad method in Thread.sync ' + method);
             }
             //alert('syncing Thread')
         }

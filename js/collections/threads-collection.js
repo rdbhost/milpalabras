@@ -4,13 +4,6 @@
 	'use strict';
 
     var R = window.Rdbhost;
-    var PREAUTH_ROLE = 'p0000001355',
-        DOMAIN = 'www.rdbhost.com';
-
-    R.rdbHostConfig({
-        domain: DOMAIN,
-        userName: PREAUTH_ROLE
-    });
 
     // Thread Collection
 	// ---------------

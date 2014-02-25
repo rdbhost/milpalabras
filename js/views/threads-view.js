@@ -34,11 +34,6 @@
 		// Our template for the line of statistics at the bottom of the app.
 		statsTemplate: _.template($('#stats-template').html()),
 
-        // Delegated events for creating new items, and clearing completed ones.
-		events: {
-			'keypress #new-message': 'createOnEnter'
-		},
-
 		// At initialization we bind to the relevant events on the `Threads` and 'Messages'
 		// collection, when items are added or changed. Kick things off by
 		// loading preexisting threads
@@ -90,15 +85,6 @@
 		addOneThread: function (thread) {
 			var topicView = new app.TopicView({ model: thread });
 			this.$list.append(topicView.render().el);
-		},
-
-		// Generate the attributes for a new thread item.
-		newAttributes: function () {
-			return {
-				title: this.$input.val().trim(),
-				order: app.threads.nextOrder(),
-				completed: false
-			};
 		}
 
 	});

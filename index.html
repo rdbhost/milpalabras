@@ -11,7 +11,9 @@
             <div id="topics" class="page">
                 <header>
                     <h1>Topics</h1>
-                    <a href="#/login">login</a>
+                    <!-- a href="#">home</a -->
+                    <span class="user-id"></span>
+                    <a href="#/login" class="loginLink">login</a>
                 </header>
 
                 <table id="topics-main">
@@ -40,8 +42,9 @@
             <div id="thread" class="page" style="display: none">
                 <header>
                     <h1></h1>
-                    <a href="#/login">login</a>
                     <a href="#">home</a>
+                    <span class="user-id"></span>
+                    <a href="#/login" class="loginLink">login</a>
                 </header>
 
                 <table id="thread-main">
@@ -56,7 +59,8 @@
                         </tr -->
                     </thead>
                 </table>
-                <button id="add-post-button">Post New Message</button>
+                <button id="add-post-button">Reply to Thread</button>
+                <a class="edit-insert-point"></a>
                 <footer></footer>
             </div>
 
@@ -76,34 +80,61 @@
             </script>
 
 
-            <script type="text/template" id="post-message-form">
-                <div id="postform" class="page" style="display: none">
+            <div id="postform" class="page" style="display: none">
+            </div>
 
-                    <textarea id="new-message">
-                    </textarea>
+            <script type="text/template" id="postform-template">
+                <div>
+                    Subject: <input name="subject" />
+                    <input type="hidden" name="thread_id" value="<%- thread_id %>" />
+                    <input type="hidden" name="message_id" value="<%- message_id %>" />
+                    <input type="hidden" name="author" value="<%- author %>" />
+                </div>
 
+                <textarea name="new-message"></textarea>
+
+                <div>
                     <button id="post-message">Post</button>
                     <button id="post-cancel">Cancel</button>
                 </div>
             </script>
 
-
             <script type="text/template" id="stats-template">
                 <span id="thread-count">Stats to be here</span>
             </script>
 
+            <div id="login" class="page modal-body" style="display: none">
+                <form id="openidForm"  action="~" method="post">
+                    <p>Provide your OpenId identifier, complete with http: <br/>
+                        Examples: <ul><li>http://example.livejournal.com</li>
+                    <li>http://example.myopenid.com</li></ul>,
+                    or click one of the host buttons below.
+                    </p>
+                    OpenID Identifier URL<input name="openidurl" size="75"/>  <br/>
+                    <input type="submit" class="btn" />
+                    <div>
+                        <input type="submit" value="Google" id="google" class="btn" />
+                        <input type="submit" value="Yahoo" id="yahoo" class="btn" />
+                    </div>
+                </form>
+            </div>
+
         </section>
 
 		<script src="https://www.rdbhost.com/vendor/jquery/1.8/jquery-1.8.3.js"></script>
+        <script src="https://www.rdbhost.com/js/jquery.cookie.js"></script>
 		<script src="https://www.rdbhost.com/vendor/underscore/1.5/underscore.js"></script>
 		<script src="https://www.rdbhost.com/vendor/backbone/1.1/backbone.js"></script>
-        <script src="https://www.rdbhost.com/js/jquery.rdbhost.js"></script>
-		<!-- script src="js/backbone.rdbhost.js"></script -->
+        <!-- script src="https://dev.rdbhost.com/js/jquery.rdbhost.js"></script -->
+        <script src="http://www.paginaswww.com/rdb/js/jquery.rdbhost.js"></script>
+        <!-- script src="js/backbone.rdbhost.js"></script -->
         <script src="js/app.js"></script>
+        <script src="js/models/message-model.js"></script>
 		<script src="js/models/thread-model.js"></script>
 		<script src="js/collections/threads-collection.js"></script>
 		<script src="js/views/thread-view.js"></script>
 		<script src="js/views/threads-view.js"></script>
+        <script src="js/views/edit-view.js"></script>
         <script src="js/routers/router.js"></script>
 	</body>
 </html>

@@ -24,6 +24,14 @@ textarea {
     height: 250px;
 }
 
+#postform {
+    position: fixed;
+    width: 500px;
+    height: 500px;
+    bottom: 20px;
+    right: 20px;
+}
+
 
 footer {
     margin-left: auto;

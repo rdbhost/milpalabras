@@ -35,7 +35,7 @@
 
         headerTemplate: _.template($('#header-template').html()),
 
-        postFormTemplate: _.template($('#post-message-form').html()),
+        //postFormTemplate: _.template($('#post-message-form').html()),
 
 		// The DOM events specific to an item.
 		events: {
@@ -47,16 +47,13 @@
 		// app, we set a direct reference on the model for convenience.
 		initialize: function () {
 
-            this.$input = this.$('#new-message');
+            //this.$input = this.$('.edit-insert-point');
             this.$header = this.$('header h1');
             this.$footer = this.$('footer');
             this.$main = this.$('#thread');
             this.$tMain = $('#thread-main');
 
             this.listenTo(app.thread, 'reset', this.render);
-
-			// this.listenTo(this.model, 'change', this.render);
-			// this.listenTo(this.model, 'destroy', this.remove);
 		},
 
 		// Re-render the titles of the thread item.
@@ -92,18 +89,13 @@
 
         showAddPostForm: function(ev) {
 
-            $('#postform').remove();
-            var btn = ev.currentTarget;
-
-            var txt = this.postFormTemplate({
-                thread_id: null,
-                body: null
+            var newMsg = new app.Message({
+                thread_id: parseInt(app.thread.models[0].get('thread_id'), 10),
+                message_id: parseInt(app.thread.models[app.thread.models.length-1].get('message_id'), 10) + 1,
+                author: app.userId // todo - fix this with loggedin value
             });
-            $(btn).after(txt); // not working
-            var $postform = $('#postform');
-            $postform.show();
-
-            // todo - create mew form view and bind to postFormTemplate
+            var edView = new app.EditView({ model: newMsg });
+            edView.render();
         },
 
         // Add a single thread item to the list by creating a view for it, and
