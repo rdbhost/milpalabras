@@ -26,9 +26,9 @@
                         </tr>
                     </thead>
                     <tbody id="topic-list">
-
                     </tbody>
                 </table>
+                <button id="add-topic-button">Create new Topic</button>
                 <footer></footer>
             </div>
 
@@ -36,7 +36,7 @@
                 <td class="topic"><a href="#t/<%- thread_id %>"><%- topic %></a></td>
                 <td class="inituser"><%- initiating_user %></td>
                 <td class="startdate"><%- start_date %></td>
-                <td><!-- % - message_ct % --></td>
+                <td class="msgct"><%- message_ct %></td>
             </script>
 
             <div id="thread" class="page" style="display: none">
@@ -60,7 +60,6 @@
                     </thead>
                 </table>
                 <button id="add-post-button">Reply to Thread</button>
-                <a class="edit-insert-point"></a>
                 <footer></footer>
             </div>
 

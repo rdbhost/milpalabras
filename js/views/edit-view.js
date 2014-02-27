@@ -42,7 +42,7 @@
                 });
 
             newModel.save();
-            alert('message posted ' + ev);
+            // alert('message posted ' + ev);
             this._cleanup(ev);
         },
 

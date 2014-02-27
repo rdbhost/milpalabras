@@ -11,11 +11,6 @@
         // Default attributes for a message
         // and ensure that each message created has essential keys.
         defaults: {
-            message_id: 1,
-            title: '',
-            body: '',
-            post_date: (new Date()).toUTCString(),
-            author: '',
             suppressed: false
         },
 
@@ -23,23 +18,33 @@
 
             options = options || {};
 
-            var namedParams = _.clone(model.attributes);
-            //namedParams.
-
             switch(method) {
 
                 case 'create':
 
+                    var q = 'INSERT INTO messages (thread_id, message_id, author, title, body) ' +
+                            '  SELECT %(thread_id), %(message_id), o.idx, %(title), %(body) ' +
+                            '   FROM auth.openid_accounts o ' +
+                            '  WHERE o.identifier = %s AND o.key = %s; ' +
+                            ' UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; ';
+
+                    if ( _.contains( ['', undefined], model.attributes.thread_id )) {
+                        q = q.replace('%(thread_id)', 'NULL');
+                    }
+
+                    if ( _.contains( ['', undefined], model.attributes.message_id ) ) {
+                        q = q.replace('%(message_id),', '').replace(', message_id,', ', ');
+                    }
+
+                    //model.attributes.post_date = (new Date()).toUTCString();
+
                     var p = R.preauthPostData({
-                        q: 'INSERT INTO messages (thread_id, message_id, author, title, body) ' +
-                           '  SELECT %(thread_id), %(message_id), idx, %(title), %(body) ' +
-                           '  FROM auth.openid_accounts o ' +
-                            'WHERE o.identifier = %s AND o.key = %s; ',
+                        q: q,
                         namedParams: model.attributes,
                         args: [app.userId, app.userKey]
                     });
                     p.then(function(resp) {
-                        options.success(resp.row_count[0]);
+                        options.success(resp);
                     });
                     p.fail(function(err) {
                         options.error(err);

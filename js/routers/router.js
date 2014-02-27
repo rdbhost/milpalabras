@@ -15,16 +15,16 @@
 
         showThread: function (param) {
 
-            app.thread = new app.Thread({thread_id: param});
+            app.thread = new app.Thread([], {thread_id: param});
             app.threadView = new app.ThreadView({model: app.thread});
 
             app.thread.fetch({
-                success: function(resp) {
+                success: function(mdl, resp, opt) {
 
                     //alert('threads loaded');
                     app.threadView.render();
                 },
-                error: function(err) {
+                error: function(mdl, err, opt) {
 
                     alert('error in thread loading ' + err);
                 }
@@ -39,12 +39,12 @@
             // from being re-rendered for every model. Only renders when the 'reset'
             // event is triggered at the end of the fetch.
             app.threads.fetch({
-                success: function(resp) {
+                success: function(mdl, resp, opts) {
 
                     //alert('threads loaded');
                     app.threadsView.render();
                 },
-                error: function(err) {
+                error: function(mdl, err, opts) {
 
                     alert('error in thread loading ' + err);
                 }

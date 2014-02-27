@@ -22,26 +22,27 @@
 
             switch(method) {
 
-                case 'create':
-                    break;
-
-                case 'update':
-                    break;
-
-                case 'delete':
-                    break;
-
                 case 'read':
                     var p = R.preauthPostData({
-                        q: 'SELECT * FROM threads ORDER BY start_date DESC LIMIT 100'
+                        q: 'SELECT thread_id, topic, start_date, o.identifier AS initiating_user, suppressed, message_ct ' +
+                           ' FROM threads t ' +
+                           '  JOIN auth.openid_accounts o ON t.initiating_user = o.idx ' +
+                           'ORDER BY start_date DESC LIMIT 100; '
                     });
                     p.then(function(resp) {
                         options.success(resp.records.rows);
+                        app.trigger('show:index');
                     });
                     p.fail(function(err) {
                         options.error(err);
                     });
                     break;
+
+                default:
+
+                    throw new Error('bad method in Thread.sync ' + method);
+                    break;
+
             }
         },
 

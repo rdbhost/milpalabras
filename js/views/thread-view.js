@@ -26,8 +26,6 @@
 	app.ThreadView = Backbone.View.extend({
 
 		//... is a list tag.
-		// tagName:  'tr',
-
         el: '#thread',
 
         // Our template for the line of statistics at the bottom of the app.
@@ -35,11 +33,9 @@
 
         headerTemplate: _.template($('#header-template').html()),
 
-        //postFormTemplate: _.template($('#post-message-form').html()),
-
 		// The DOM events specific to an item.
 		events: {
-            'click #add-post-button': 'showAddPostForm'
+            'click #add-post-button': 'showAddTopicForm'
 		},
 
 		// The ThreadView listens for changes to its model, re-rendering. Since there's
@@ -47,7 +43,6 @@
 		// app, we set a direct reference on the model for convenience.
 		initialize: function () {
 
-            //this.$input = this.$('.edit-insert-point');
             this.$header = this.$('header h1');
             this.$footer = this.$('footer');
             this.$main = this.$('#thread');
@@ -68,11 +63,12 @@
 
                 // Add all items in the **threads** collection at once.
                 var hd = this.$tMain.find('#thead');
+                this.$tMain.empty();
                 this.$tMain.html(hd.html());
                 app.thread.each(this.addOneMessageToDisplay, this);
 
                 this.$header.html(this.headerTemplate({
-                    topic: app.thread.models[0].get('title') // todo - change to use thread topic
+                    topic: app.thread.models[0].get('title')
                 }));
                 this.$footer.html(this.statsTemplate({
                     completed: app.thread.length
@@ -87,12 +83,12 @@
 			return this;
 		},
 
-        showAddPostForm: function(ev) {
+        showAddTopicForm: function(ev) {
 
             var newMsg = new app.Message({
                 thread_id: parseInt(app.thread.models[0].get('thread_id'), 10),
-                message_id: parseInt(app.thread.models[app.thread.models.length-1].get('message_id'), 10) + 1,
-                author: app.userId // todo - fix this with loggedin value
+                message_id: undefined,
+                author: app.userId
             });
             var edView = new app.EditView({ model: newMsg });
             edView.render();

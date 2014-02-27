@@ -34,7 +34,12 @@
 		// Our template for the line of statistics at the bottom of the app.
 		statsTemplate: _.template($('#stats-template').html()),
 
-		// At initialization we bind to the relevant events on the `Threads` and 'Messages'
+        // The DOM events specific to an item.
+        events: {
+            'click #add-topic-button': 'showAddTopicForm'
+        },
+
+        // At initialization we bind to the relevant events on the `Threads` and 'Messages'
 		// collection, when items are added or changed. Kick things off by
 		// loading preexisting threads
 		initialize: function () {
@@ -67,7 +72,7 @@
 				this.$footer.show();
 
                 // Add all items in the **threads** collection at once.
-                this.$list.html('');
+                this.$list.empty();
                 app.threads.each(this.addOneThread, this);
 
                 this.$footer.html(this.statsTemplate({
@@ -79,6 +84,17 @@
 				this.$footer.hide();
 			}
 		},
+
+        showAddTopicForm: function(ev) {
+
+            var nullMsg = new app.Message({
+                thread_id: undefined,
+                message_id: undefined,
+                author: app.userId
+            });
+            var edView = new app.EditView({ model: nullMsg });
+            edView.render();
+        },
 
         // Add a single thread item to the list by creating a view for it, and
 		// appending its element to the `<ul>`.
