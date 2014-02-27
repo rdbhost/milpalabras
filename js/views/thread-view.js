@@ -1,4 +1,4 @@
-/*global Backbone, jQuery, _, ENTER_KEY, ESC_KEY */
+/*global Backbone, jQuery, _, ENTER_KEY, ESC_KEY, Showdown */
 
 (function ($) {
 	'use strict';
@@ -6,17 +6,24 @@
     app.MessageView = Backbone.View.extend({
 
         tagName: 'tbody',
+        className: "message-body",
 
         template: _.template($('#message-template').html()),
 
         // Re-render the titles of the thread item.
         render: function () {
 
+            this.model.attributes.body_markdown = app.MessageView.markdown.makeHtml(this.model.attributes.body);
+
             this.$el.html(this.template(this.model.toJSON()));
             this.$el.show();
 
             return this;
         }
+    },
+    { // class properties
+
+        markdown: new Showdown.converter()
     });
 
     // Thread Item View
@@ -73,6 +80,11 @@
                 this.$footer.html(this.statsTemplate({
                     completed: app.thread.length
                 }));
+
+                if (app.userId)
+                    $('#add-post-button').removeAttr('disabled');
+                else
+                    $('#add-post-button').attr('disabled', 'disabled');
             }
             else  {
                 // todo - change to 'no messages found' error

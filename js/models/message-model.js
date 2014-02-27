@@ -45,6 +45,7 @@
                     });
                     p.then(function(resp) {
                         options.success(resp);
+                        app.thread.trigger('reset');
                     });
                     p.fail(function(err) {
                         options.error(err);

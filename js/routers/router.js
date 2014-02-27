@@ -10,6 +10,7 @@
         routes: {
             't/:thread': 'showThread',
             'login':     'login',
+            'logout':    'logout',
             '':          'showIndex'
         },
 
@@ -39,9 +40,9 @@
             // from being re-rendered for every model. Only renders when the 'reset'
             // event is triggered at the end of the fetch.
             app.threads.fetch({
+
                 success: function(mdl, resp, opts) {
 
-                    //alert('threads loaded');
                     app.threadsView.render();
                 },
                 error: function(mdl, err, opts) {
@@ -53,9 +54,23 @@
 
         login: function() {
 
-            // app.loginView = new app.LoginView();
             $('#login').show();
 
+        },
+
+        logout: function() {
+
+            window.console.log('logged out as ' + app.userId);
+
+            app.userId = '';
+            app.userKey = '';
+            $.cookie(myKeyName, '');
+
+            $('a.loginLink').attr('href', '#/login');
+            $('a.loginLink').text('login');
+            $('span.user-id').text('');
+
+            app.milPalabrasRouter.navigate('', {trigger: true});
         }
     });
 

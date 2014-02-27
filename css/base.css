@@ -15,7 +15,7 @@
 .topic { width: 250px; }
 .inituser { width: 100px; }
 .startdate { width: 250px; }
-.body { width: 550px; border: solid 3px #00f; }
+.body { width: 550px; border: solid 3px #033; }
 /* td.body { column-span: all; -webkit-column-span: all; } */
 
 
@@ -32,6 +32,9 @@ textarea {
     right: 20px;
 }
 
+.row-group-spacer {
+    height: 20px;
+}
 
 footer {
     margin-left: auto;

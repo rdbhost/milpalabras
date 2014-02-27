@@ -44,16 +44,13 @@
 		// loading preexisting threads
 		initialize: function () {
 
-            this.$input = this.$('#new-message');
 			this.$footer = this.$('footer');
 			this.$main = this.$('#topics');
 			this.$list = $('#topic-list');
 
 			this.listenTo(app, 'add', this.addOneThread);
-			// this.listenTo(app.threads, 'reset', this.addAll);
             this.listenTo(app, 'show:index', this.render);
 			this.listenTo(app, 'change:completed', this.filterOne);
-			// this.listenTo(app, 'all', this.render);
 		},
 
 		// Re-rendering the App just means refreshing the statistics -- the rest
@@ -73,11 +70,16 @@
 
                 // Add all items in the **threads** collection at once.
                 this.$list.empty();
-                app.threads.each(this.addOneThread, this);
+                app.threads.each( this.addOneThread, this );
 
                 this.$footer.html(this.statsTemplate({
 					completed: threadCount
 				}));
+
+                if (app.userId)
+                    $('#add-topic-button').removeAttr('disabled');
+                else
+                    $('#add-topic-button').attr('disabled', 'disabled');
 			}
             else {
 				this.$main.hide();
@@ -92,6 +94,7 @@
                 message_id: undefined,
                 author: app.userId
             });
+
             var edView = new app.EditView({ model: nullMsg });
             edView.render();
         },
@@ -99,6 +102,7 @@
         // Add a single thread item to the list by creating a view for it, and
 		// appending its element to the `<ul>`.
 		addOneThread: function (thread) {
+
 			var topicView = new app.TopicView({ model: thread });
 			this.$list.append(topicView.render().el);
 		}

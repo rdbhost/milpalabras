@@ -2,7 +2,8 @@
 /*jshint unused:false $ */
 
 var ENTER_KEY = 13,
-    ESC_KEY = 27;
+    ESC_KEY = 27,
+    myKeyName = 'MP_KEY';
 
 var app = _.extend({ userId: undefined, userKey: undefined }, Backbone.Events);
 
@@ -13,8 +14,7 @@ var app = _.extend({ userId: undefined, userKey: undefined }, Backbone.Events);
 
     var R = window.Rdbhost;
 
-    var loginKeyName = 'LOGIN_KEY',
-        myKeyName = 'MP_KEY',
+    var loginKeyName = 'OPENID_KEY',
         PREAUTH_ROLE = 'p0000001355',
         DOMAIN = 'www.rdbhost.com';
 
@@ -34,6 +34,7 @@ var app = _.extend({ userId: undefined, userKey: undefined }, Backbone.Events);
             // var key = $.cookie(loginKeyName);
             $.cookie(myKeyName, ident + ' ' + key);
             $.cookie(loginKeyName, '');
+            $.cookie('LOGIN_KEY', '');
             // login();
         }
     });
