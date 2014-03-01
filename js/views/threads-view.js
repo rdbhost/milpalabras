@@ -72,14 +72,16 @@
                 this.$list.empty();
                 app.threads.each( this.addOneThread, this );
 
-                this.$footer.html(this.statsTemplate({
-					completed: threadCount
-				}));
+                //this.$footer.html(this.statsTemplate({
+				//	completed: threadCount
+				//}));
 
                 if (app.userId)
                     $('#add-topic-button').removeAttr('disabled');
                 else
                     $('#add-topic-button').attr('disabled', 'disabled');
+
+                $('time.timeago').timeago();
 			}
             else {
 				this.$main.hide();

@@ -54,8 +54,12 @@
 
         login: function() {
 
-            $('#login').show();
-
+            if ( app.userId ) {
+                app.milPalabrasRouter.navigate('', {trigger: true});
+            }
+            else {
+                $('#login').show();
+            }
         },
 
         logout: function() {

@@ -35,7 +35,7 @@
             <script type="text/template" id="topic-item-template">
                 <td class="topic"><a href="#t/<%- thread_id %>"><%- topic %></a></td>
                 <td class="inituser"><%- initiating_user %></td>
-                <td class="startdate"><%- start_date %></td>
+                <td class="startdate"><time class="timeago" datetime="<%- start_date %>"></time></td>
                 <td class="msgct"><%- message_ct %></td>
             </script>
 
@@ -67,7 +67,7 @@
                 <tr>
                     <td class="topic"><%- title %></td>
                     <td class="inituser"><%- author %></td>
-                    <td class="startdate"><%- post_date %></td>
+                    <td class="startdate"><time class="timeago" datetime="<%- post_date %>"></time></td>
                 </tr>
                 <tr>
                     <td class="body" colspan="3"><%= body_markdown %></td>
@@ -107,8 +107,8 @@
                 <form id="openidForm"  action="~" method="post">
                     <p>Provide your OpenId identifier, complete with http: <br/>
                         Examples: <ul><li>http://example.livejournal.com</li>
-                    <li>http://example.myopenid.com</li></ul>,
-                    or click one of the host buttons below.
+                    <li>http://example.myopenid.com</li></ul>
+                    ... or click one of the host buttons below.
                     </p>
                     OpenID Identifier URL<input name="openidurl" size="75"/>  <br/>
                     <input type="submit" class="btn" />
@@ -125,8 +125,10 @@
         <script src="https://www.rdbhost.com/js/jquery.cookie.js"></script>
 		<script src="https://www.rdbhost.com/vendor/underscore/1.5/underscore.js"></script>
 		<script src="https://www.rdbhost.com/vendor/backbone/1.1/backbone.js"></script>
-        <script src="https://dev.rdbhost.com/js/jquery.rdbhost.js"></script>
-        <script src="http://www.rdbhost.com/vendor/showdown/0.3/src/showdown.js"></script>
+        <script src="https://www.rdbhost.com/js/jquery.rdbhost.js"></script>
+        <script src="https://www.rdbhost.com/vendor/showdown/0.3/src/showdown.js"></script>
+        <script src="https://www.rdbhost.com/vendor/jquery-plugins/jquery.timeago.js"></script>
+        <script src="https://www.rdbhost.com/vendor/jquery-plugins/jquery.timeago.es.js"></script>
         <!-- script src="js/backbone.rdbhost.js"></script -->
         <script src="js/app.js"></script>
         <script src="js/models/message-model.js"></script>

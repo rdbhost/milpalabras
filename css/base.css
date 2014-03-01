@@ -12,9 +12,9 @@
     width: 800px;
 }
 
-.topic { width: 250px; }
+.topic { width: 450px; }
 .inituser { width: 100px; }
-.startdate { width: 250px; }
+.startdate { width: 150px; }
 .body { width: 550px; border: solid 3px #033; }
 /* td.body { column-span: all; -webkit-column-span: all; } */
 
@@ -34,6 +34,17 @@ textarea {
 
 .row-group-spacer {
     height: 20px;
+}
+
+#login {
+    position: fixed;
+    width: 500px;
+    height: 300px;
+    left: 300px;
+    right: 300px;
+    top: 200px;
+    bottom: 200px;
+    background-color: lightblue;
 }
 
 footer {

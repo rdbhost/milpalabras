@@ -75,16 +75,18 @@
                 app.thread.each(this.addOneMessageToDisplay, this);
 
                 this.$header.html(this.headerTemplate({
-                    topic: app.thread.models[0].get('title')
+                    topic: app.thread.models[app.thread.models.length-1].get('title')
                 }));
-                this.$footer.html(this.statsTemplate({
-                    completed: app.thread.length
-                }));
+                //this.$footer.html(this.statsTemplate({
+                //    completed: app.thread.length
+                //}));
 
                 if (app.userId)
                     $('#add-post-button').removeAttr('disabled');
                 else
                     $('#add-post-button').attr('disabled', 'disabled');
+
+                $('time.timeago').timeago();
             }
             else  {
                 // todo - change to 'no messages found' error
