@@ -13,7 +13,10 @@
         // Re-render the titles of the thread item.
         render: function () {
 
-            this.$el.html(this.template(this.model.toJSON()));
+            var data = this.model.toJSON();
+            data.makeHtml = app.MessageView.markdown.makeHtml;
+
+            this.$el.html(this.template(data));
             this.$el.show();
 
             return this;

@@ -13,10 +13,9 @@
 }
 
 .topic { width: 450px; }
-.inituser { width: 100px; }
+.inituser { max-width: 75px; overflow: hidden; }
 .startdate { width: 150px; }
 .body { width: 550px; border: solid 3px #033; }
-/* td.body { column-span: all; -webkit-column-span: all; } */
 
 .editable {
     border: thin solid blue;

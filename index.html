@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<title>Mil Palabras</title>
 		<link rel="stylesheet" href="css/base.css">
-        <link rel="stylesheet" href="vendor/css/etch.css">
+        <link rel="stylesheet" href="vendor/etch/css/etch.css">
 	</head>
 	<body>
 		<section id="mpapp">
@@ -23,7 +23,7 @@
                             <th>topic</th>
                             <th>owner</th>
                             <th>new at</th>
-                            <th>message ct</th>
+                            <th>msg ct</th>
                         </tr>
                     </thead>
                     <tbody id="topic-list">
@@ -34,7 +34,10 @@
             </div>
 
             <script type="text/template" id="topic-item-template">
-                <td class="topic"><a href="#t/<%- thread_id %>"><%- topic %></a></td>
+                <% var topic_md = makeHtml(topic);
+                topic_md = topic_md.replace(/<\/?p>/g, '');
+                %>
+                <td class="topic"><a href="#t/<%- thread_id %>"><%= topic_md %></a></td>
                 <td class="inituser"><%- initiating_user %></td>
                 <td class="startdate"><time class="timeago" datetime="<%- start_date %>"></time></td>
                 <td class="msgct"><%- message_ct %></td>
@@ -65,19 +68,23 @@
             </div>
 
             <script type="text/template" id="message-template">
+                <% var body_md = makeHtml(body);
+                   var title_md = makeHtml(title);
+                   title_md = title_md.replace(/<\/?p>/g, '');
+                %>
                 <tr>
-                    <td class="topic"><%- title %></td>
+                    <td class="topic"><%= title_md %></td>
                     <td class="inituser"><%- author %></td>
                     <td class="startdate"><time class="timeago" datetime="<%- post_date %>"></time></td>
                 </tr>
                 <tr>
-                    <td class="body" colspan="3"><%= body_markdown %></td>
+                    <td class="body" colspan="3"><%= body_md %></td>
                 </tr>
                 <tr class="row-group-spacer"><td> </td></tr>
             </script>
 
             <script type="text/template" id="header-template">
-                Thread [<%- topic %>]
+                Thread [<%= topic %>]
             </script>
 
 
@@ -85,12 +92,12 @@
             </div>
 
             <script type="text/template" id="postform-template">
-                <div id="subject" class="editable" data-button-class="all" data-position="#postform">Subject</div>
+                <div id="subject" class="editable" data-button-class="title" data-position="#postform">Subject</div>
                 <!-- input type="hidden" name="thread_id" value="<%- thread_id %>" />
                 <input type="hidden" name="message_id" value="<%- message_id %>" />
                 <input type="hidden" name="author" value="<%- author %>" / -->
 
-                <div id="new-message" class="editable" data-button-class="all" data-position="#postform">New Message</div>
+                <div id="new-message" class="editable" data-button-class="new" data-position="#postform">New Message</div>
 
                 <div>
                     <button id="post-message">Post</button>
@@ -129,8 +136,10 @@
         <script src="https://www.rdbhost.com/vendor/jquery-plugins/jquery.timeago.js"></script>
         <script src="https://www.rdbhost.com/vendor/jquery-plugins/jquery.timeago.es.js"></script>
         <script src="https://www.rdbhost.com/vendor/jquery-plugins/jquery.caret.js"></script>
+
         <script src="vendor/etch/js/etch.js"></script>
-        <!-- script src="js/backbone.rdbhost.js"></script -->
+        <script src="vendor/to-markdown/js/to-markdown.js"></script>
+
         <script src="js/app.js"></script>
         <script src="js/models/message-model.js"></script>
 		<script src="js/models/thread-model.js"></script>

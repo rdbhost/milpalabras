@@ -77,11 +77,11 @@
             if (!buttons.length) { $(this.el).hide(); return; }
 
             _.each(this.model.get('buttons'), function(button){
-                var $buttonEl = $('<a href="#" class="etch-editor-button etch-'+ button +'" title="'+ button.replace('-', ' ') +'"><span></span></a>');
+                var $buttonEl = $('<a href="#" class="etch-editor-button etch-' + button + '" title="'+ button.replace('-', ' ') +'"><span></span></a>');
                 view.$el.append($buttonEl);
             });
 
-            $(this.el).show('fast');
+            $(this.el).show(); // 'fast');
         },
 
         setPositionMode: function() {
@@ -94,7 +94,7 @@
         changePosition: function() {
             var _this = this;
 
-            setTimeout(function () {
+            function _t() {
 
                 // animate editor-panel to new position
                 var posMode = _this.model.get('positionMode'),
@@ -102,13 +102,16 @@
                 if ( ~posMode.indexOf('#') ) {
                     elOffset = $(posMode).offset();
                     pos.x = elOffset.left;
-                    pos.y = elOffset.top - _this.$el.outerHeight();
+                    pos.y = elOffset.top - _this.$el[0].offsetHeight;
                 }
                 else
                     pos = _this.model.get('position');
 
-                _this.$el.animate({'top': pos.y, 'left': pos.x}, { queue: false });
-            }, 10);
+                // _this.$el.animate({'top': pos.y, 'left': pos.x}, { queue: false });
+                _this.$el.offset({'top': pos.y, 'left': pos.x});
+            }
+            _t();
+            // setTimeout(_t, 1000);
         },
 
         wrapSelection: function(selectionOrRange, elString, cb) {

@@ -36,8 +36,6 @@
                         q = q.replace('%(message_id),', '').replace(', message_id,', ', ');
                     }
 
-                    //model.attributes.post_date = (new Date()).toUTCString();
-
                     var p = R.preauthPostData({
                         q: q,
                         namedParams: model.attributes,
@@ -45,7 +43,8 @@
                     });
                     p.then(function(resp) {
                         options.success(resp);
-                        app.thread.trigger('reset');
+//                        if (app.thread)
+//                            app.thread.trigger('reset');
                     });
                     p.fail(function(err) {
                         options.error(err);

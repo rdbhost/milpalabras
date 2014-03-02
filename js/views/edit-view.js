@@ -4,8 +4,10 @@
 	'use strict';
 
     _.extend(etch.config.buttonClasses, {
-        'default': ['bold', 'italic', 'underline', 'save'],
-        'caption': ['bold', 'italic', 'underline', 'link', 'save']
+        'default': ['bold', 'italic', 'save'],
+        'all': ['bold', 'italic', 'unordered-list', 'ordered-list', 'link', 'clear-formatting', 'save'],
+        'new': ['bold', 'italic', 'unordered-list', 'ordered-list', 'link', 'clear-formatting'],
+        'title': ['bold', 'italic']
     });
 
     app.EditView = Backbone.View.extend({
@@ -35,9 +37,18 @@
         postFunction: function(ev) {
 
             // todo - validate stuff
-            var msg = this.$('[name="new-message"]').val(),
-                subj = this.model.attributes.subject,
-                newModel = new app.Message({
+            var rawMsg = this.$('#new-message').html(),
+                rawSubj = this.$('#subject').html(),
+
+                msg = toMarkdown(rawMsg.replace(/div>/g, 'p>')),
+                subj = toMarkdown(rawSubj.replace(/div>/g, 'p>')),
+                tagRe = /<[^>]*>/g,
+                _this = this;
+
+            msg = msg.replace(tagRe, '');
+            subj = subj.replace(tagRe, '');
+
+            var newModel = new app.Message({
                     body: msg,
                     title: subj,
                     thread_id: this.model.attributes.thread_id,
@@ -45,7 +56,15 @@
                     author: app.userId
                 });
 
-            newModel.save();
+            newModel.save({}, {
+                    success: function(mdl, resp, opt) {
+                        if ( typeof _this.model.attributes.thread_id === 'undefined' )
+                            app.threads.fetch({ reset: true });
+                        else
+                            app.thread.fetch({ reset: true });
+                    }
+                }
+            );
             // alert('message posted ' + ev);
             this._cleanup(ev);
         },

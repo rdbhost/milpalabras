@@ -47,7 +47,7 @@
                     p.then(function(resp) {
                         var rows = resp.row_count[0] > 0 ? resp.records.rows : [];
                         options.success(rows);
-                        app.thread.trigger('reset');
+                        // app.thread.trigger('reset');
                     });
                     p.fail(function(err) {
                         options.error(err);
