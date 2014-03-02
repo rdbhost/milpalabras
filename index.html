@@ -4,6 +4,7 @@
 		<meta charset="utf-8">
 		<title>Mil Palabras</title>
 		<link rel="stylesheet" href="css/base.css">
+        <link rel="stylesheet" href="vendor/css/etch.css">
 	</head>
 	<body>
 		<section id="mpapp">
@@ -84,14 +85,12 @@
             </div>
 
             <script type="text/template" id="postform-template">
-                <div>
-                    Subject: <input name="subject" />
-                    <input type="hidden" name="thread_id" value="<%- thread_id %>" />
-                    <input type="hidden" name="message_id" value="<%- message_id %>" />
-                    <input type="hidden" name="author" value="<%- author %>" />
-                </div>
+                <div id="subject" class="editable" data-button-class="all" data-position="#postform">Subject</div>
+                <!-- input type="hidden" name="thread_id" value="<%- thread_id %>" />
+                <input type="hidden" name="message_id" value="<%- message_id %>" />
+                <input type="hidden" name="author" value="<%- author %>" / -->
 
-                <textarea name="new-message"></textarea>
+                <div id="new-message" class="editable" data-button-class="all" data-position="#postform">New Message</div>
 
                 <div>
                     <button id="post-message">Post</button>
@@ -129,6 +128,8 @@
         <script src="https://www.rdbhost.com/vendor/showdown/0.3/src/showdown.js"></script>
         <script src="https://www.rdbhost.com/vendor/jquery-plugins/jquery.timeago.js"></script>
         <script src="https://www.rdbhost.com/vendor/jquery-plugins/jquery.timeago.es.js"></script>
+        <script src="https://www.rdbhost.com/vendor/jquery-plugins/jquery.caret.js"></script>
+        <script src="vendor/etch/js/etch.js"></script>
         <!-- script src="js/backbone.rdbhost.js"></script -->
         <script src="js/app.js"></script>
         <script src="js/models/message-model.js"></script>

@@ -18,6 +18,18 @@
 .body { width: 550px; border: solid 3px #033; }
 /* td.body { column-span: all; -webkit-column-span: all; } */
 
+.editable {
+    border: thin solid blue;
+}
+
+#subject {
+    width: 500px;
+}
+
+#new-message {
+    width: 500px;
+    height: 300px;
+}
 
 textarea {
     width: 500px;
