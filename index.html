@@ -39,7 +39,7 @@
                 %>
                 <td class="topic"><a href="#t/<%- thread_id %>"><%= topic_md %></a></td>
                 <td class="inituser"><%- initiating_user %></td>
-                <td class="startdate"><time class="timeago" datetime="<%- start_date %>"></time></td>
+                <td class="startdate"><time class="timeago" datetime="<%- start_date %>z"></time></td>
                 <td class="msgct"><%- message_ct %></td>
             </script>
 
@@ -75,7 +75,7 @@
                 <tr>
                     <td class="topic"><%= title_md %></td>
                     <td class="inituser"><%- author %></td>
-                    <td class="startdate"><time class="timeago" datetime="<%- post_date %>"></time></td>
+                    <td class="startdate"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>
                 <tr>
                     <td class="body" colspan="3"><%= body_md %></td>

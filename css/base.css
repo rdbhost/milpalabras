@@ -14,7 +14,7 @@
 
 .topic { width: 450px; }
 .inituser { max-width: 75px; overflow: hidden; }
-.startdate { width: 150px; }
+.startdate { width: 200px; text-align: right; }
 .body { width: 550px; border: solid 3px #033; }
 
 .editable {

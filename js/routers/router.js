@@ -22,7 +22,6 @@
             app.thread.fetch({
                 success: function(mdl, resp, opt) {
 
-                    //alert('threads loaded');
                     app.threadView.render();
                 },
                 error: function(mdl, err, opt) {

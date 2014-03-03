@@ -111,7 +111,7 @@
                 _this.$el.offset({'top': pos.y, 'left': pos.x});
             }
             _t();
-            // setTimeout(_t, 1000);
+            setTimeout(_t, 10);
         },
 
         wrapSelection: function(selectionOrRange, elString, cb) {
