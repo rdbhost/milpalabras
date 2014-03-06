@@ -5,6 +5,23 @@
 
     var MAX_WORD_LEN = 20;
 
+    var styleCleaner = new RegExp('<\s*(emphasis|strong|bold|italic|ul|span)[^>]*>', "g");
+
+    function WordFinder($dom) {
+
+        var dom = $dom.html();
+
+        dom = dom.replace(styleCleaner, "");
+
+        return {
+
+            'hasWord': function() { return true; },
+            'word': function() {
+                return dom;
+            }
+        }
+    }
+
     _.extend(etch.config.buttonClasses, {
         'default': ['bold', 'italic', 'save'],
         'all': ['bold', 'italic', 'unordered-list', 'ordered-list', 'link', 'clear-formatting', 'save'],
