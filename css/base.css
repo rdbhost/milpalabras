@@ -41,6 +41,7 @@ textarea {
     height: 500px;
     bottom: 20px;
     right: 20px;
+    background-color: white;
 }
 
 .row-group-spacer {
