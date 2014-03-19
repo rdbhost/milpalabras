@@ -5,8 +5,6 @@
 
     var MAX_WORD_LEN = 20;
 
-    var whiteSpaceFinder = new RegExp('\\s', 'g');
-
     function getCaretPos($div) {
 
         var locRange, distRange;
@@ -25,99 +23,92 @@
         // finds sequence of non-whitespace chars around caret
 
         var dom = rangy.innerText(_dom),
-            allWordBreaks = [],
+            wordBreaks = new RegExp('[^a-zA-Z]+', 'g'),
             theWord, start, end;
 
-        // find whitespace and add to whiteSpaceWordBreaks list
-        var _m, j;
-        while ((_m = whiteSpaceFinder.exec(dom)) !== null) {
-            j = _m.index;
-            if ( allWordBreaks.indexOf(j)  < 0 ) {
-
-                allWordBreaks.push(j);
-                if ( _m[0] === ' ' )
-                    allWordBreaks.push(j+1); // wordbreak after space also
-            }
-        }
-
-        function intSort(a,b) {
-            var _a = parseInt(a,10), _b = parseInt(b,10);
-            if (_a < _b) return -1; if (_a > _b) return 1; return 0
-        }
-
-        // check if non-whitespace at cursor, and consolidate break lists
-        //var hasChars = /\S+/.test(dom.substr(caretPos>0 ? caretPos-1: 0, caretPos>0 ? 2 : 1)),
-        //    allWordBreaks = whiteSpaceWordBreaks.sort(intSort);
-
-        function isWhitespace(m) {
-            return ~[' ', '\n'].indexOf(m);
-        }
-
-        function findWordBounds() {
+        function findWord(dom, caretPos) {
 
             // find wordbreaks before and after word
-            var start = undefined, end = undefined;
-            for (var _b in allWordBreaks) {
+            var start = 0, end = undefined, word = undefined;
 
-                var b = allWordBreaks[_b];
-                if ( b < caretPos || b === 0 ) {
-                    start = b;
+            var wordBreak;
+            while ( wordBreak = wordBreaks.exec(dom) )  {
+
+                var b0 = wordBreak.index,
+                    b1 = b0 + wordBreak[0].length;
+
+                if ( b0 < caretPos && (b1 > caretPos || b1 === dom.length) ) {
+                    // caret in non-word char seq
+                    return {start: b0, end: b1, word: undefined}
                 }
-                else if ( b === caretPos ) {
-                    if ( dom.length === b || isWhitespace(dom.substr(b, 1)) )
-                        end = b;
-                    else
-                        start = b;
+                else if ( b1 <= caretPos ) {
+                    // if wordbreak ends before caret, maybe is start of word
+                    start = b1;
                 }
-                else if ( b > caretPos && ! end ) {
-                    end = b;
+                else if ( b0 >= caretPos  ) {
+                    // wordbreak starts after caret, so ends word
+                    end = b0;
+                    break;
                 }
             }
 
-            // handle cursor at end as special case
+            // handle cursor near end as special case
             if ( ! end ) {
-                end = allWordBreaks[allWordBreaks.length-1];
-                start = allWordBreaks[allWordBreaks.length-2];
+                end = dom.length;
             }
 
-            return [start, end]
+            word = dom.substring(start, end);
+            word = /\s/.test(word) ? '' : word;
+
+            return {start: start, end: end, word: word};
         }
 
         function findBoundsAndWord() {
 
-            if ( typeof start === 'undefined' ) {
-                var bnds = findWordBounds();
-                start = bnds[0]; end = bnds[1];
-                theWord = dom.substring(start, end);
-                if ( isWhitespace(theWord) )
-                    theWord = '';
-            }
+            var res = findWord(dom, caretPos);
+            start = res.start; end = res.end;
+            theWord = res.word;
         }
+
+        findBoundsAndWord();
 
         // return object with methods to test word
         return {
 
-            hasWord: function() {
+            onWord: function() {
 
-                return allWordBreaks.length && allWordBreaks[0] <= caretPos ;
+                return this.word() !== undefined;
             },
 
             word: function() {
-
-                findBoundsAndWord();
 
                 return theWord;
             },
 
             bounds: function() {
 
-                findBoundsAndWord();
-
                 return [start, end];
             }
 
         }
     }
+
+
+    function padBlankLines($dom) {
+
+        var dom = $dom.html(),
+            unpaddedLineFinder = new RegExp('<div><br/?></div>', 'g');
+
+        if ( ! ~dom.indexOf('<div><br></div>') )
+            return;
+
+        while ( ~dom.indexOf('<div><br></div>') ) {
+            dom = dom.replace('<div><br></div>', '<div>&nbsp;<br></div>');
+        }
+
+        $dom.html(dom);
+    }
+
 
     _.extend(etch.config.buttonClasses, {
         'default': ['bold', 'italic', 'save'],
@@ -137,8 +128,8 @@
             'click #post-message': 'postFunction',
             'click #post-cancel': 'postCancel',
             'mousedown .editable': 'editableClick',
-            'keypress .editable': 'wordFilter',
-            'keyup .editable': 'wordFilter'
+            'keypress .editable': 'onKeyPress',
+            'keyup .editable': 'onKeyUp'
         },
 
         editableClick: etch.editableInit,
@@ -197,16 +188,34 @@
             this.undelegateEvents();
         },
 
-        wordFilter: function(ev) {
+        _queue: [],
 
-            var key = ev.char || ev.key;
-            console.log('keypress ' + key);
+        onKeyPress: function(ev) {
 
-            var $div, caretPos, wf;
+            if ( ev.charCode )
+                this._queue.push(ev.charCode);
+
+            console.log('keypress ' + ev.charCode);
+        },
+
+        onKeyUp: function(ev) {
+
+            var key, $div, caretPos, wf;
             $div = $(ev.target).closest('[contenteditable]');
 
+            if ( ~this._queue.indexOf(13) ) {
+
+                padBlankLines($div);
+            }
+
+            // console.log('key: ' + ev.key + ' char: ' + ev.char + ' keyCode: ' + ev.keyCode);
+            while ( this._queue.length ) {
+                key = this._queue.pop();
+                // do something with this eventually, maybe
+            }
+
             caretPos = getCaretPos($div);
-            wf = WordFinder($div.get(0), caretPos, true);
+            wf = WordFinder($div.get(0), caretPos);
             var word = wf.word();
 
             console.log('word ' + word);
