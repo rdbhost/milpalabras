@@ -7,15 +7,20 @@
 
     function getCaretPos($div) {
 
-        var locRange, distRange;
+        var locSelection = rangy.getSelection(),
+            charRanges = locSelection.saveCharacterRanges($div[0]);
+        return charRanges[0].characterRange.start;
+    }
 
-        locRange = rangy.getSelection().getRangeAt(0);
-        distRange = locRange.cloneRange(); // new Range()
-        locRange.collapse();
-        distRange.selectNodeContents($div[0]);
-        distRange.setEnd(locRange.endContainer, locRange.endOffset);
+    function setCaretPos($div, pos) {
 
-        return distRange.text().length;
+        var locSelection = rangy.getSelection(),
+            saveCharRanges = locSelection.saveCharacterRanges($div[0]),
+            oneRange = [saveCharRanges[0]];
+        oneRange[0].characterRange.start = pos;
+        oneRange[0].characterRange.end = pos;
+
+        locSelection.restoreCharacterRanges($div[0], oneRange);
     }
 
     function WordFinder(_dom, caretPos) {
@@ -29,7 +34,7 @@
         function findWord(dom, caretPos) {
 
             // find wordbreaks before and after word
-            var start = 0, end = undefined, word = undefined;
+            var start = 0, end = undefined, word;
 
             var wordBreak;
             while ( wordBreak = wordBreaks.exec(dom) )  {
@@ -63,14 +68,10 @@
             return {start: start, end: end, word: word};
         }
 
-        function findBoundsAndWord() {
-
-            var res = findWord(dom, caretPos);
-            start = res.start; end = res.end;
-            theWord = res.word;
-        }
-
-        findBoundsAndWord();
+        var res = findWord(dom, caretPos);
+        start = res.start;
+        end = res.end;
+        theWord = res.word;
 
         // return object with methods to test word
         return {
@@ -97,16 +98,17 @@
     function padBlankLines($dom) {
 
         var dom = $dom.html(),
-            unpaddedLineFinder = new RegExp('<div><br/?></div>', 'g');
+            caretPos = getCaretPos($dom);
 
         if ( ! ~dom.indexOf('<div><br></div>') )
             return;
 
         while ( ~dom.indexOf('<div><br></div>') ) {
-            dom = dom.replace('<div><br></div>', '<div>&nbsp;<br></div>');
+            dom = dom.replace('<div><br></div>', '<div> <br></div>');
         }
 
         $dom.html(dom);
+        setCaretPos($dom, caretPos);
     }
 
 
