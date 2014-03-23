@@ -33,13 +33,6 @@
 		events: {
 		},
 
-		// The ThreadView listens for changes to its model, re-rendering. Since there's
-		// a one-to-one correspondence between a **Thread** and a **ThreadView** in this
-		// app, we set a direct reference on the model for convenience.
-		initialize: function () {
-
-		},
-
 		// Re-render the titles of the thread item.
 		render: function (partialWord) {
 
@@ -52,10 +45,19 @@
 
                 if ( wordList.length ) {
 
+                    this.$el.removeClass('oops');
                     var this_ = this;
                     _.forEach(wordList, function(m) {
-                        this_.addOneWordToDisplay.call(this_, m);
+                        this_.addOneWordToDisplay(m);
                     });
+                }
+                else if ( partialWord.length > 1 ) {
+
+                    var shorterPartial = partialWord.substr(0, partialWord.length-1);
+
+                    var _r = this.render(shorterPartial);
+                    this.$el.addClass('oops');
+                    return _r;
                 }
             }
             else {

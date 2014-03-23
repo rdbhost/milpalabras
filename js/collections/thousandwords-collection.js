@@ -5,9 +5,72 @@
 
     var R = window.Rdbhost;
 
+    var MAX_QUOTED_RATIO = 0.15;
+
+    /*
+     *  audit text takes body of text from editor and validates it.
+     *    returns list of errors, where each error is a misspelled word marker, with 'begin' and 'end'
+     *      elements, or a quoted ratio error, with an 'error' element.
+     */
+    app.audit_text = function (text) {
+
+        function trim(wd) {
+
+            return wd.replace(/^[?!]+/, '').replace(/[?|.,]+$/, '');  // todo - add unicode spec chars
+        }
+
+        var splitOn = /(\s+)/g,
+            textParts = text.split(splitOn),
+            accum = 0, errs = [], quotedParts = [], wd, trimmed, err;
+
+        for ( var i=0; i < textParts.length; ++i ) {
+
+            wd = textParts[i];
+
+            if ( wd.length > 0 && ! splitOn.test(wd) ) {
+
+                if ( wd.charAt(0) in [ '"', "'" ] ) {
+
+                    err = {'start': accum, 'end': accum + wd.length};
+                    quotedParts.push(err);
+                }
+                else {
+
+                    trimmed = trim(wd);
+                    if ( ! app.thousand_words.findOne(trimmed) ) {
+
+                        console.log('word not found: ' + trimmed);
+                        err = {'begin': accum, 'end': accum + wd.length};
+                        errs.push(err);
+                    }
+                }
+            }
+
+            accum += wd.length;
+        }
+
+        function _quoteTot(t, err) {
+            var len = err.end - err.start;
+            return t+len;
+        }
+        var quotedTot = _.reduce(quotedParts, _quoteTot, 0);
+        if ( quotedTot / accum > MAX_QUOTED_RATIO )
+            errs.extend(quotedParts);
+
+        return errs;
+    };
+
+
     // Object for each thread in threads list.
     app.TWEntry = Backbone.Model.extend({
 
+        match: function(wd) {
+            return this.attributes.word === wd;
+        },
+
+        startsWith: function(begin) {
+            return this.attributes.word.substr(0, begin.length) === begin;
+        }
     });
 
 
@@ -54,9 +117,16 @@
 		// Filter down the list of all threads that are finished.
 		startsWith: function (begin) {
 			return this.filter(function (word) {
-				return word.attributes.word.substr(0, begin.length) === begin;
+				return word.startsWith(begin);
 			});
-		}
+		},
+
+        findOne: function (word) {
+
+            return this.find(function (wd) {
+               return wd.match(word);
+            });
+        }
 
 	});
 

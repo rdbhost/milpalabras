@@ -59,6 +59,10 @@ li.wordlist {
     padding-left: 2px;
 }
 
+div.oops {
+    background-color: pink !important;
+}
+
 .row-group-spacer {
     height: 20px;
 }

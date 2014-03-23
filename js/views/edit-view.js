@@ -6,18 +6,18 @@
     function getCaretPos($div) {
 
         var locSelection = rangy.getSelection(),
-            charRanges = locSelection.saveCharacterRanges($div[0]);
+            charRanges = locSelection.saveCharacterRanges($div.get(0));
         return charRanges[0].characterRange.start;
     }
 
     function setCaretPos($div, pos) {
 
         var locSelection = rangy.getSelection(),
-            saveCharRanges = locSelection.saveCharacterRanges($div[0]);
+            saveCharRanges = locSelection.saveCharacterRanges($div.get(0));
         saveCharRanges[0].characterRange.start = pos;
         saveCharRanges[0].characterRange.end = pos;
 
-        locSelection.restoreCharacterRanges($div[0], saveCharRanges);
+        locSelection.restoreCharacterRanges($div.get(0), saveCharRanges);
     }
 
     function WordFinder(_dom, caretPos) {
@@ -109,6 +109,50 @@
     }
 
 
+    function markErrors($div, caretPos, errs) {
+
+        var sel = rangy.getSelection(),
+            rng = rangy.createRange();
+
+        for ( var i=0; i<errs.length; ++i ) {
+
+            var err = errs[i];
+
+            if ( caretPos >= err.begin && caretPos <= err.end )
+                continue;
+
+            var container = $div.get(0);
+            rng.selectCharacters(container, err.begin, err.end);
+            sel.setSingleRange(rng);
+
+            document.execCommand('forecolor', false, 'red');
+
+            rng.collapse();
+            sel.setSingleRange(rng);
+        }
+
+        setCaretPos($div, caretPos);
+        return errs;
+    }
+
+
+    function unMarkErrors($div, caretPos) {
+
+        var sel = rangy.getSelection(),
+            rng = rangy.createRange();
+
+        var container = $div.get(0);
+        rng.selectNodeContents(container);
+        sel.setSingleRange(rng);
+
+        document.execCommand('forecolor', false, 'black');
+
+        rng.collapse();
+        sel.setSingleRange(rng);
+
+        setCaretPos($div, caretPos);
+    }
+
     _.extend(etch.config.buttonClasses, {
         'default': ['bold', 'italic', 'save'],
         'all': ['bold', 'italic', 'unordered-list', 'ordered-list', 'link', 'clear-formatting', 'save'],
@@ -135,7 +179,7 @@
 
         wordsView: new app.WordListView(),
 
-    // Re-render the titles of the thread item.
+        // Re-render the titles of the thread item.
         render: function () {
 
             this.$el.html(this.template(this.model.toJSON()));
@@ -229,6 +273,11 @@
                 console.log('clearing word list');
                 this.wordsView.render(false);
             }
+
+            var txt = rangy.innerText($div.get(0)),
+                errors = app.audit_text(txt);
+            unMarkErrors($div, caretPos);
+            markErrors($div, caretPos, errors);
 
             console.log('word ' + word);
             console.log('caret pos ' + caretPos);
