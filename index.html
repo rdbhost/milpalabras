@@ -88,21 +88,25 @@
             </script>
 
 
+            <div id="okwords" class="page" style="display: none">
+            </div>
+
             <div id="postform" class="page" style="display: none">
             </div>
 
             <script type="text/template" id="postform-template">
-                <div id="subject" class="editable" data-button-class="title" data-position="#postform">Subject</div>
-                <!-- input type="hidden" name="thread_id" value="<%- thread_id %>" />
-                <input type="hidden" name="message_id" value="<%- message_id %>" />
-                <input type="hidden" name="author" value="<%- author %>" / -->
 
+                <div id="subject" class="editable" data-button-class="title" data-position="#postform">Subject</div>
                 <div id="new-message" class="editable" data-button-class="new" data-position="#postform">New Message</div>
 
                 <div>
                     <button id="post-message">Post</button>
                     <button id="post-cancel">Cancel</button>
                 </div>
+            </script>
+
+            <script type="text/template" id="okword-template">
+                <li class="wordlist"><%= word %></li>
             </script>
 
             <script type="text/template" id="stats-template">
@@ -145,9 +149,11 @@
         <script src="js/app.js"></script>
         <script src="js/models/message-model.js"></script>
 		<script src="js/models/thread-model.js"></script>
+        <script src="js/collections/thousandwords-collection.js"></script>
 		<script src="js/collections/threads-collection.js"></script>
 		<script src="js/views/thread-view.js"></script>
 		<script src="js/views/threads-view.js"></script>
+        <script src="js/views/wordlist-view.js"></script>
         <script src="js/views/edit-view.js"></script>
         <script src="js/routers/router.js"></script>
 

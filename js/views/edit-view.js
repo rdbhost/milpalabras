@@ -3,8 +3,6 @@
 (function ($) {
 	'use strict';
 
-    var MAX_WORD_LEN = 20;
-
     function getCaretPos($div) {
 
         var locSelection = rangy.getSelection(),
@@ -15,12 +13,11 @@
     function setCaretPos($div, pos) {
 
         var locSelection = rangy.getSelection(),
-            saveCharRanges = locSelection.saveCharacterRanges($div[0]),
-            oneRange = [saveCharRanges[0]];
-        oneRange[0].characterRange.start = pos;
-        oneRange[0].characterRange.end = pos;
+            saveCharRanges = locSelection.saveCharacterRanges($div[0]);
+        saveCharRanges[0].characterRange.start = pos;
+        saveCharRanges[0].characterRange.end = pos;
 
-        locSelection.restoreCharacterRanges($div[0], oneRange);
+        locSelection.restoreCharacterRanges($div[0], saveCharRanges);
     }
 
     function WordFinder(_dom, caretPos) {
@@ -136,11 +133,14 @@
 
         editableClick: etch.editableInit,
 
-        // Re-render the titles of the thread item.
+        wordsView: new app.WordListView(),
+
+    // Re-render the titles of the thread item.
         render: function () {
 
             this.$el.html(this.template(this.model.toJSON()));
             this.$el.show();
+            //$('#okwords').show();
 
             return this;
         },
@@ -188,6 +188,7 @@
         _cleanup: function (ev) {
             this.$el.empty();
             this.undelegateEvents();
+            //$('#okwords').hide();
         },
 
         _queue: [],
@@ -202,7 +203,8 @@
 
         onKeyUp: function(ev) {
 
-            var key, $div, caretPos, wf;
+            var $div, caretPos, wf, word, pixelPos, wordCandidates;
+
             $div = $(ev.target).closest('[contenteditable]');
 
             if ( ~this._queue.indexOf(13) ) {
@@ -210,15 +212,23 @@
                 padBlankLines($div);
             }
 
-            // console.log('key: ' + ev.key + ' char: ' + ev.char + ' keyCode: ' + ev.keyCode);
-            while ( this._queue.length ) {
-                key = this._queue.pop();
-                // do something with this eventually, maybe
-            }
+            this._queue.length = 0;
 
             caretPos = getCaretPos($div);
             wf = WordFinder($div.get(0), caretPos);
-            var word = wf.word();
+            word = wf.word();
+
+            if ( word && word.length ) {
+
+                wordCandidates = app.thousand_words.startsWith(word);
+                console.log('words: ' + _.pluck(_.pluck(wordCandidates, 'attributes'), 'word').join(' '));
+
+                this.wordsView.render(word);
+            }
+            else {
+                console.log('clearing word list');
+                this.wordsView.render(false);
+            }
 
             console.log('word ' + word);
             console.log('caret pos ' + caretPos);
