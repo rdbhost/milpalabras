@@ -101,7 +101,7 @@
             return;
 
         while ( ~dom.indexOf('<div><br></div>') ) {
-            dom = dom.replace('<div><br></div>', '<div> <br></div>');
+            dom = dom.replace('<div><br></div>', '<div>&nbsp;<br></div>');
         }
 
         $dom.html(dom);
@@ -109,10 +109,13 @@
     }
 
 
-    function markErrors($div, caretPos, errs) {
+    function markErrors($div, errs) {
 
         var sel = rangy.getSelection(),
             rng = rangy.createRange();
+
+        var charRanges = sel.saveCharacterRanges($div.get(0)),
+            caretPos = charRanges[0].characterRange.start;
 
         for ( var i=0; i<errs.length; ++i ) {
 
@@ -131,7 +134,7 @@
             sel.setSingleRange(rng);
         }
 
-        setCaretPos($div, caretPos);
+        sel.restoreCharacterRanges($div.get(0), charRanges);
         return errs;
     }
 
@@ -140,6 +143,8 @@
 
         var sel = rangy.getSelection(),
             rng = rangy.createRange();
+
+        var charRanges = sel.saveCharacterRanges($div.get(0));
 
         var container = $div.get(0);
         rng.selectNodeContents(container);
@@ -150,7 +155,8 @@
         rng.collapse();
         sel.setSingleRange(rng);
 
-        setCaretPos($div, caretPos);
+        //setCaretPos($div, caretPos);
+        sel.restoreCharacterRanges($div.get(0), charRanges);
     }
 
     _.extend(etch.config.buttonClasses, {
@@ -191,12 +197,34 @@
 
         postFunction: function(ev) {
 
-            // todo - validate stuff
-            var rawMsg = this.$('#new-message').html(),
-                rawSubj = this.$('#subject').html(),
 
-                msg = toMarkdown(rawMsg.replace(/div>/g, 'p>')),
-                subj = toMarkdown(rawSubj.replace(/div>/g, 'p>')),
+            function content_has_errors($div) {
+
+                var txt = rangy.innerText($div.get(0)),
+                    errors = app.audit_text(txt);
+
+                if ( errors.length ) {
+                    unMarkErrors($div);
+                    markErrors($div, errors);
+                }
+
+                return errors.length;
+            }
+
+            var rawMsg = this.$('#new-message'),
+                rawSubj = this.$('#subject');
+
+            this.errorStats['new-message'] = content_has_errors(rawMsg);
+            this.errorStats['subject'] = content_has_errors(rawSubj);
+
+            if ( this.errorStats['new-message'] || this.errorStats['subject'] ) {
+
+                this._manageButtons();
+                return;
+            }
+
+            var msg = toMarkdown(rawMsg.html().replace(/div>/g, 'p>')),
+                subj = toMarkdown(rawSubj.html().replace(/div>/g, 'p>')),
                 tagRe = /<[^>]*>/g,
                 _this = this;
 
@@ -245,15 +273,42 @@
             console.log('keypress ' + ev.charCode);
         },
 
+        errorStats: {},
+
+        _manageButtons: function() {
+
+            if ( ! this.errorStats['subject'] &&  ! this.errorStats['new-message'] ) {
+
+                this.$el.find('#post-message').removeAttr('disabled');
+            }
+            else {
+                this.$el.find('#post-message').attr('disabled', 'disabled');
+            }
+        },
+
         onKeyUp: function(ev) {
 
-            var $div, caretPos, wf, word, pixelPos, wordCandidates;
+            var $div, $divId, caretPos, wf, word, wordCandidates;
 
             $div = $(ev.target).closest('[contenteditable]');
+            $divId = $div.attr('id');
 
             if ( ~this._queue.indexOf(13) ) {
 
                 padBlankLines($div);
+            }
+            else if ( ~this._queue.indexOf(32) ) {
+
+                var txt = rangy.innerText($div.get(0)),
+                    errors = app.audit_text(txt);
+
+                unMarkErrors($div);
+                if ( errors && errors.length ) {
+
+                    markErrors($div, errors);
+                }
+                this.errorStats[$divId] = errors && errors.length;
+                this._manageButtons();
             }
 
             this._queue.length = 0;
@@ -273,11 +328,6 @@
                 console.log('clearing word list');
                 this.wordsView.render(false);
             }
-
-            var txt = rangy.innerText($div.get(0)),
-                errors = app.audit_text(txt);
-            unMarkErrors($div, caretPos);
-            markErrors($div, caretPos, errors);
 
             console.log('word ' + word);
             console.log('caret pos ' + caretPos);

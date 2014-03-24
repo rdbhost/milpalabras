@@ -16,7 +16,7 @@
 
         function trim(wd) {
 
-            return wd.replace(/^[?!]+/, '').replace(/[?|.,]+$/, '');  // todo - add unicode spec chars
+            return wd.replace(/^[?!]+/, '').replace(/[?!.,]+$/, '');  // todo - add unicode spec chars
         }
 
         var splitOn = /(\s+)/g,
@@ -29,7 +29,7 @@
 
             if ( wd.length > 0 && ! splitOn.test(wd) ) {
 
-                if ( wd.charAt(0) in [ '"', "'" ] ) {
+                if ( _.contains( [ '"', "'" ], wd.charAt(0) ) ) {
 
                     err = {'start': accum, 'end': accum + wd.length};
                     quotedParts.push(err);
@@ -55,7 +55,7 @@
         }
         var quotedTot = _.reduce(quotedParts, _quoteTot, 0);
         if ( quotedTot / accum > MAX_QUOTED_RATIO )
-            errs.extend(quotedParts);
+            errs.push.apply(quotedParts);
 
         return errs;
     };
@@ -65,11 +65,11 @@
     app.TWEntry = Backbone.Model.extend({
 
         match: function(wd) {
-            return this.attributes.word === wd;
+            return this.attributes.word.toLowerCase() === wd.toLowerCase();
         },
 
         startsWith: function(begin) {
-            return this.attributes.word.substr(0, begin.length) === begin;
+            return this.attributes.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase();
         }
     });
 
@@ -116,10 +116,38 @@
 
 		// Filter down the list of all threads that are finished.
 		startsWith: function (begin) {
+
 			return this.filter(function (word) {
 				return word.startsWith(begin);
 			});
 		},
+
+        prefixLimited: function(begin, lim) {
+
+            var t = _.filter(this.collection, function(wd) {
+                    return  wd.startsWith(begin);
+                }),
+                prefixLen = 4;
+            while ( t.length > lim ) {
+
+                var t1 = t.slice(0),
+                    prefix = '';
+                t.length = 0;
+
+                for ( var i=0; i<t1.length; ++i ) {
+
+                    if ( t1[i].substr(0, prefixLen) !== prefix ) {
+
+                        t.push(t1[i]);
+                        prefix = t1[i].substr(0, prefixLen);
+                    }
+                }
+
+                --prefixLen;
+            }
+
+            return new ThousandWords(t);
+        },
 
         findOne: function (word) {
 
