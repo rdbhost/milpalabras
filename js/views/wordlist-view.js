@@ -33,7 +33,7 @@
 		events: {
 		},
 
-		// Re-render the titles of the thread item.
+		// Re-render the words in the wordlist
 		render: function (partialWord) {
 
             if ( partialWord ) {
@@ -41,13 +41,13 @@
                 this.$el.show();
                 this.$el.empty();
 
-                var wordList = app.thousand_words.startsWith(partialWord);
+                var wordList = app.thousand_words.prefixLimited(partialWord, 9);
 
                 if ( wordList.length ) {
 
                     this.$el.removeClass('oops');
                     var this_ = this;
-                    _.forEach(wordList, function(m) {
+                    _.forEach(wordList.models, function(m) {
                         this_.addOneWordToDisplay(m);
                     });
                 }

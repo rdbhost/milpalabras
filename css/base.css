@@ -57,6 +57,7 @@ textarea {
 li.wordlist {
     list-style-type: none;
     padding-left: 2px;
+    line-height: 8px;
 }
 
 div.oops {

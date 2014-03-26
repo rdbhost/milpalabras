@@ -65,11 +65,24 @@
     app.TWEntry = Backbone.Model.extend({
 
         match: function(wd) {
-            return this.attributes.word.toLowerCase() === wd.toLowerCase();
+            if ( this.attributes.word.toLowerCase() === wd.toLowerCase() )
+                return this.attributes.word;
+            var alts = _.filter(this.alts, function(m) {
+               return m.toLowerCase() == wd.toLowerCase();
+            });
+
+            return alts.length ? alts[0] : false;
         },
 
         startsWith: function(begin) {
-            return this.attributes.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase();
+            if ( this.attributes.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase() )
+                return true;
+
+            var alts = _.filter(this.alts, function(m) {
+                return m.substr(0, begin.length).toLowerCase() == begin.toLowerCase();
+            });
+
+            return alts.length;
         }
     });
 
@@ -93,12 +106,29 @@
 
                 case 'read':
                     var p = R.preauthPostData({
-                        q: 'SELECT word, part_of_speech, lemma FROM wordlist '
+                        q: 'SELECT distinct word, ' +
+                           ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alt ' +
+                           'FROM wordlist w  ORDER BY word ASC LIMIT 950;'
                     });
                     p.then(function(resp) {
-                        if ( options.success )
-                            options.success(resp.records.rows);
-                        // app.trigger('show:index');
+
+                        var firstBatch = resp.records.rows;
+
+                        var p1 = R.preauthPostData({
+                            q: 'SELECT distinct word, ' +
+                               ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alt ' +
+                               'FROM wordlist w  ORDER BY word ASC OFFSET 950 LIMIT 950;'
+                        });
+                        p1.then(function(resp){
+                            firstBatch.push.apply(firstBatch, resp.records.rows);
+
+                            if ( options.success )
+                                options.success(firstBatch);
+                        });
+                        p1.fail(function(err) {
+                            if ( options.error )
+                                options.error(err);
+                        })
                     });
                     p.fail(function(err) {
                         if ( options.error )
@@ -124,29 +154,36 @@
 
         prefixLimited: function(begin, lim) {
 
-            var t = _.filter(this.collection, function(wd) {
+            var t = _.filter(this.models, function(wd) {
                     return  wd.startsWith(begin);
                 }),
                 prefixLen = 4;
             while ( t.length > lim ) {
 
                 var t1 = t.slice(0),
-                    prefix = '';
+                    prefix = t1[0].attributes.word.substr(0, prefixLen);
                 t.length = 0;
+                t.push(t1[0]);
 
-                for ( var i=0; i<t1.length; ++i ) {
+                for ( var i=1; i<t1.length; ++i ) {
 
-                    if ( t1[i].substr(0, prefixLen) !== prefix ) {
+                    if ( ! t1[i].startsWith(prefix) ) {
 
                         t.push(t1[i]);
-                        prefix = t1[i].substr(0, prefixLen);
+                        prefix = t1[i].attributes.word.substr(0, prefixLen);
                     }
                 }
 
                 --prefixLen;
             }
 
-            return new ThousandWords(t);
+            if ( t.length < lim && prefixLen < 4 ) {
+
+                t1 = _.first(t1, lim);
+                return new ThousandWords(t1);
+            }
+            else
+                return new ThousandWords(t);
         },
 
         findOne: function (word) {

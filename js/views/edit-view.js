@@ -3,6 +3,9 @@
 (function ($) {
 	'use strict';
 
+    var KEY_ENTER = 13,
+        KEY_SPACE = 32;
+
     function getCaretPos($div) {
 
         var locSelection = rangy.getSelection(),
@@ -92,7 +95,7 @@
     }
 
 
-    function padBlankLines($dom) {
+    function padBlankLines($dom, offset) {
 
         var dom = $dom.html(),
             caretPos = getCaretPos($dom);
@@ -105,7 +108,7 @@
         }
 
         $dom.html(dom);
-        setCaretPos($dom, caretPos);
+        setCaretPos($dom, caretPos + (offset || 0));
     }
 
 
@@ -293,11 +296,11 @@
             $div = $(ev.target).closest('[contenteditable]');
             $divId = $div.attr('id');
 
-            if ( ~this._queue.indexOf(13) ) {
+            if ( ~this._queue.indexOf(KEY_ENTER) ) {
 
-                padBlankLines($div);
+                padBlankLines($div, 1);
             }
-            else if ( ~this._queue.indexOf(32) ) {
+            else if ( ~this._queue.indexOf(KEY_SPACE) ) {
 
                 var txt = rangy.innerText($div.get(0)),
                     errors = app.audit_text(txt);
