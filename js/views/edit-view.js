@@ -4,7 +4,9 @@
 	'use strict';
 
     var KEY_ENTER = 13,
-        KEY_SPACE = 32;
+        KEY_SPACE = 32,
+        UNICODE_ENTER = 10,
+        UNICODE_SPACE = 160;
 
     function getCaretPos($div) {
 
@@ -21,6 +23,17 @@
         saveCharRanges[0].characterRange.end = pos;
 
         locSelection.restoreCharacterRanges($div.get(0), saveCharRanges);
+    }
+
+    function getCaretLine($div) {
+
+        var caretPos = getCaretPos($div),
+            _dom = rangy.innerText($div.get(0)),
+            preCaret = _dom.substr(0, caretPos);
+
+        var lineEnds = preCaret.match(/\n/g);
+
+        return lineEnds ? lineEnds.length : 0;
     }
 
     function WordFinder(_dom, caretPos) {
@@ -95,20 +108,32 @@
     }
 
 
-    function padBlankLines($dom, offset) {
+    function padBlankLines($dom, formerCaretLine) {
 
         var dom = $dom.html(),
             caretPos = getCaretPos($dom);
 
-        if ( ! ~dom.indexOf('<div><br></div>') )
+        if ( ! ~dom.indexOf('<div><br>') )
             return;
 
-        while ( ~dom.indexOf('<div><br></div>') ) {
-            dom = dom.replace('<div><br></div>', '<div>&nbsp;<br></div>');
+        while ( ~dom.indexOf('<div><br>') ) {
+            dom = dom.replace('<div><br>', '<div>&nbsp;<br>');
         }
 
         $dom.html(dom);
-        setCaretPos($dom, caretPos + (offset || 0));
+
+        var _dom = rangy.innerText($dom.get(0)),
+            eols = [],
+            eolRe = new RegExp('\n', 'g');
+
+        while (eols.length < formerCaretLine + 1) {
+
+            var eol = eolRe.exec(_dom);
+            eols.push(eol);
+        }
+        var newCaretPos = eols.pop().index + 1;
+
+        setCaretPos($dom, newCaretPos);
     }
 
 
@@ -267,11 +292,18 @@
         },
 
         _queue: [],
+        _needBlankPadding: undefined,
 
         onKeyPress: function(ev) {
 
             if ( ev.charCode )
                 this._queue.push(ev.charCode);
+
+            if ( ev.charCode === KEY_ENTER ) {
+
+                var $div = $(ev.target).closest('[contenteditable]');
+                this._needBlankPadding = getCaretLine($div);
+            }
 
             console.log('keypress ' + ev.charCode);
         },
@@ -296,9 +328,10 @@
             $div = $(ev.target).closest('[contenteditable]');
             $divId = $div.attr('id');
 
-            if ( ~this._queue.indexOf(KEY_ENTER) ) {
+            if ( this._needBlankPadding !== undefined ) {
 
-                padBlankLines($div, 1);
+                padBlankLines($div, this._needBlankPadding);
+                this._needBlankPadding = undefined;
             }
             else if ( ~this._queue.indexOf(KEY_SPACE) ) {
 

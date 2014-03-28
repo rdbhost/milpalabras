@@ -61,13 +61,23 @@
     };
 
 
+    function normalizeWord(typed, fromWL) {
+
+        typed = typed.replace(/[~`]/g, '');
+
+        if ( typed.length === 1 )
+            return typed;
+
+
+    }
+
     // Object for each thread in threads list.
     app.TWEntry = Backbone.Model.extend({
 
         match: function(wd) {
             if ( this.attributes.word.toLowerCase() === wd.toLowerCase() )
                 return this.attributes.word;
-            var alts = _.filter(this.alts, function(m) {
+            var alts = _.filter(this.attributes.alts, function(m) {
                return m.toLowerCase() == wd.toLowerCase();
             });
 
@@ -78,7 +88,7 @@
             if ( this.attributes.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase() )
                 return true;
 
-            var alts = _.filter(this.alts, function(m) {
+            var alts = _.filter(this.attributes.alts, function(m) {
                 return m.substr(0, begin.length).toLowerCase() == begin.toLowerCase();
             });
 
@@ -102,38 +112,49 @@
 
             options = options || {};
 
+            var records = [],
+                collection = this;
+
+            function getRecords(start) {
+
+                start = start || 0;
+                var p = R.preauthPostData({
+                    q: 'SELECT distinct word, ' +
+                       ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts ' +
+                       'FROM wordlist w  ORDER BY word ASC OFFSET %s LIMIT 10000;',
+                    args: [start]
+                });
+
+                p.then(function(resp) {
+
+                    // add found records to
+                    records = records.concat(resp.records.rows);
+
+                    if ( resp.status[0] === 'incomplete' ) {
+
+                        getRecords(start + resp.records.rows.length);
+                    }
+                    else {
+
+                        collection.reset(records);
+                        if ( options.success )
+                            options.success(records);
+
+                    }
+                });
+
+                p.fail(function(err) {
+                    if ( options.error )
+                        options.error(err);
+                });
+            }
+
+
             switch(method) {
 
                 case 'read':
-                    var p = R.preauthPostData({
-                        q: 'SELECT distinct word, ' +
-                           ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alt ' +
-                           'FROM wordlist w  ORDER BY word ASC LIMIT 950;'
-                    });
-                    p.then(function(resp) {
 
-                        var firstBatch = resp.records.rows;
-
-                        var p1 = R.preauthPostData({
-                            q: 'SELECT distinct word, ' +
-                               ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alt ' +
-                               'FROM wordlist w  ORDER BY word ASC OFFSET 950 LIMIT 950;'
-                        });
-                        p1.then(function(resp){
-                            firstBatch.push.apply(firstBatch, resp.records.rows);
-
-                            if ( options.success )
-                                options.success(firstBatch);
-                        });
-                        p1.fail(function(err) {
-                            if ( options.error )
-                                options.error(err);
-                        })
-                    });
-                    p.fail(function(err) {
-                        if ( options.error )
-                            options.error(err);
-                    });
+                    getRecords(0);
                     break;
 
                 default:
