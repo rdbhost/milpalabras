@@ -4,9 +4,7 @@
 	'use strict';
 
     var KEY_ENTER = 13,
-        KEY_SPACE = 32,
-        UNICODE_ENTER = 10,
-        UNICODE_SPACE = 160;
+        KEY_SPACE = 32;
 
     function getCaretPos($div) {
 
@@ -148,7 +146,6 @@
         for ( var i=0; i<errs.length; ++i ) {
 
             var err = errs[i];
-
             if ( caretPos >= err.begin && caretPos <= err.end )
                 continue;
 
@@ -156,7 +153,14 @@
             rng.selectCharacters(container, err.begin, err.end);
             sel.setSingleRange(rng);
 
-            document.execCommand('forecolor', false, 'red');
+            if ( err.type === 'not-found' ) {
+
+                document.execCommand('forecolor', false, 'red');
+            }
+            else if ( err.type === 'replace' ) {
+
+                document.execCommand('inserttext', false, err.newVal)
+            }
 
             rng.collapse();
             sel.setSingleRange(rng);

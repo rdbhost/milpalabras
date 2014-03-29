@@ -21,7 +21,7 @@
 
         var splitOn = /(\s+)/g,
             textParts = text.split(splitOn),
-            accum = 0, errs = [], quotedParts = [], wd, trimmed, err;
+            accum = 0, errs = [], quotedParts = [], wd, trimmed, err, refWd;
 
         for ( var i=0; i < textParts.length; ++i ) {
 
@@ -31,16 +31,24 @@
 
                 if ( _.contains( [ '"', "'" ], wd.charAt(0) ) ) {
 
-                    err = {'start': accum, 'end': accum + wd.length};
+                    err = {'start': accum, 'end': accum + wd.length, 'type': 'quoted'};
                     quotedParts.push(err);
                 }
                 else {
 
                     trimmed = trim(wd);
-                    if ( ! app.thousand_words.findOne(trimmed) ) {
+                    refWd = app.thousand_words.findOne(trimmed);
+                    if ( ! refWd ) {
 
                         console.log('word not found: ' + trimmed);
-                        err = {'begin': accum, 'end': accum + wd.length};
+                        err = {begin: accum, end: accum + wd.length, type: 'not-found'};
+                        errs.push(err);
+                    }
+                    else if ( refWd.attributes.word !== trimmed.toLowerCase() ) {
+
+                        console.log('replacement: ' + refWd.attributes.word + ' ' + trimmed);
+                        var normRefWord = normalizeWord(trimmed, refWd.attributes.word);
+                        err = {begin: accum, end: accum + wd.length, newVal: normRefWord, type: 'replace'};
                         errs.push(err);
                     }
                 }
@@ -68,7 +76,15 @@
         if ( typed.length === 1 )
             return typed;
 
+        var initialCap = typed.charAt(0) !== typed.charAt(0).toLowerCase(),
+            secondCap = typed.charAt(1) !== typed.charAt(1).toLowerCase();
 
+        if ( secondCap )
+            return fromWL.toUpperCase();
+        else if ( initialCap )
+            return fromWL.charAt(0).toUpperCase() + fromWL.substr(1);
+        else
+            return fromWL;
     }
 
     // Object for each thread in threads list.
