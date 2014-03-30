@@ -3,9 +3,20 @@
 (function () {
 	'use strict';
 
-    var R = window.Rdbhost;
+    var R = window.Rdbhost,
 
-    var MAX_QUOTED_RATIO = 0.15;
+        MAX_QUOTED_RATIO = 0.15,
+
+        trimmingRegExp = new RegExp('(^[?!#$%&-]+|[?!#$&-.,]+$)', 'g'),
+
+        okNonWords = new RegExp('^[1-9.,+-]+$', 'g'),
+
+        splitWordsOn = /\s+/g,
+
+        x;
+
+    // todo - add unicode spec chars
+
 
     /*
      *  audit text takes body of text from editor and validates it.
@@ -16,18 +27,22 @@
 
         function trim(wd) {
 
-            return wd.replace(/^[?!]+/, '').replace(/[?!.,]+$/, '');  // todo - add unicode spec chars
+            return wd.replace(trimmingRegExp, '');
         }
 
-        var splitOn = /(\s+)/g,
-            textParts = text.split(splitOn),
+        var textParts = text.split(splitWordsOn),
             accum = 0, errs = [], quotedParts = [], wd, trimmed, err, refWd;
+
+        if ( ! /\S/.test(text) ) {
+            err = {start: 0, end: 0, type: 'blank'};
+            return [err];
+        }
 
         for ( var i=0; i < textParts.length; ++i ) {
 
             wd = textParts[i];
 
-            if ( wd.length > 0 && ! splitOn.test(wd) ) {
+            if ( wd.length > 0 && ! splitWordsOn.test(wd) ) {
 
                 if ( _.contains( [ '"', "'" ], wd.charAt(0) ) ) {
 
@@ -37,19 +52,26 @@
                 else {
 
                     trimmed = trim(wd);
-                    refWd = app.thousand_words.findOne(trimmed);
-                    if ( ! refWd ) {
 
-                        console.log('word not found: ' + trimmed);
-                        err = {begin: accum, end: accum + wd.length, type: 'not-found'};
-                        errs.push(err);
-                    }
-                    else if ( refWd.attributes.word !== trimmed.toLowerCase() ) {
+                    // skip numbers and other ok non-words
+                    if ( ! okNonWords.test(trimmed) ) {
 
-                        console.log('replacement: ' + refWd.attributes.word + ' ' + trimmed);
-                        var normRefWord = normalizeWord(trimmed, refWd.attributes.word);
-                        err = {begin: accum, end: accum + wd.length, newVal: normRefWord, type: 'replace'};
-                        errs.push(err);
+                        refWd = app.thousand_words.findOne(trimmed);
+                        if ( ! refWd ) {
+
+                            console.log('word not found: ' + trimmed);
+                            err = {begin: accum, end: accum + wd.length, type: 'not-found'};
+                            errs.push(err);
+                        }
+                        else if ( refWd.attributes.word !== trimmed.toLowerCase() ) {
+
+                            console.log('replacement: ' + refWd.attributes.word + ' ' + trimmed);
+                            var normRefWord = normalizeWord(trimmed, refWd.attributes.word);
+                            err = {begin: accum, end: accum + wd.length, newVal: normRefWord, type: 'replace'};
+                            errs.push(err);
+                        }
+                        else
+                            ; // if word is good, do nothing special
                     }
                 }
             }

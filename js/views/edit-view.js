@@ -101,7 +101,6 @@
 
                 return [start, end];
             }
-
         }
     }
 
@@ -149,17 +148,32 @@
             if ( caretPos >= err.begin && caretPos <= err.end )
                 continue;
 
-            var container = $div.get(0);
-            rng.selectCharacters(container, err.begin, err.end);
-            sel.setSingleRange(rng);
+            if ( err.type === 'blank' ) {
 
-            if ( err.type === 'not-found' ) {
+                var container = $div.get(0);
 
+                rng.selectCharacters(container, 0, 1);
+                sel.setSingleRange(rng);
+                document.execCommand('inserttext', false, '?');
+
+                rng.selectCharacters(container, 0, 1);
+                sel.setSingleRange(rng);
                 document.execCommand('forecolor', false, 'red');
             }
-            else if ( err.type === 'replace' ) {
+            else {
 
-                document.execCommand('inserttext', false, err.newVal)
+                var container = $div.get(0);
+                rng.selectCharacters(container, err.begin, err.end);
+                sel.setSingleRange(rng);
+
+                if ( err.type === 'not-found' ) {
+
+                    document.execCommand('forecolor', false, 'red');
+                }
+                else if ( err.type === 'replace' ) {
+
+                    document.execCommand('inserttext', false, err.newVal)
+                }
             }
 
             rng.collapse();
@@ -249,11 +263,9 @@
             this.errorStats['new-message'] = content_has_errors(rawMsg);
             this.errorStats['subject'] = content_has_errors(rawSubj);
 
-            if ( this.errorStats['new-message'] || this.errorStats['subject'] ) {
-
-                this._manageButtons();
+            this._manageButtons();
+            if ( this.errorStats['new-message'] || this.errorStats['subject'] )
                 return;
-            }
 
             var msg = toMarkdown(rawMsg.html().replace(/div>/g, 'p>')),
                 subj = toMarkdown(rawSubj.html().replace(/div>/g, 'p>')),
@@ -351,8 +363,8 @@
                     markErrors($div, errors);
                 }
                 this.errorStats[$divId] = errors && errors.length;
-                this._manageButtons();
             }
+            this._manageButtons();
 
             this._queue.length = 0;
 
