@@ -277,6 +277,9 @@
                             app.threads.fetch({ reset: true });
                         else
                             app.thread.fetch({ reset: true });
+                    },
+                    error: function(e) {
+                        //alert('fail ' + e);
                     }
                 }
             );
