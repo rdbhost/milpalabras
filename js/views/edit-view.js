@@ -4,7 +4,9 @@
 	'use strict';
 
     var KEY_ENTER = 13,
-        KEY_SPACE = 32;
+        KEY_SPACE = 32,
+
+        WORD_BREAK_RE = new RegExp('[^a-zA-Z`~\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00E1\u00E9\u00ED\u00F3\u00FA\u00F1]+', '');
 
     function getCaretPos($div) {
 
@@ -39,7 +41,6 @@
         // finds sequence of non-whitespace chars around caret
 
         var dom = rangy.innerText(_dom),
-            wordBreaks = new RegExp('[^a-zA-Z]+', 'g'),
             theWord, start, end;
 
         function findWord(dom, caretPos) {
@@ -48,7 +49,7 @@
             var start = 0, end = undefined, word;
 
             var wordBreak;
-            while ( wordBreak = wordBreaks.exec(dom) )  {
+            while ( wordBreak = WORD_BREAK_RE.exec(dom) )  {
 
                 var b0 = wordBreak.index,
                     b1 = b0 + wordBreak[0].length;
@@ -137,7 +138,8 @@
     function markErrors($div, errs) {
 
         var sel = rangy.getSelection(),
-            rng = rangy.createRange();
+            rng = rangy.createRange(),
+            container;
 
         var charRanges = sel.saveCharacterRanges($div.get(0)),
             caretPos = charRanges[0].characterRange.start;
@@ -150,7 +152,7 @@
 
             if ( err.type === 'blank' ) {
 
-                var container = $div.get(0);
+                container = $div.get(0);
 
                 rng.selectCharacters(container, 0, 1);
                 sel.setSingleRange(rng);
@@ -160,20 +162,13 @@
                 sel.setSingleRange(rng);
                 document.execCommand('forecolor', false, 'red');
             }
-            else {
+            else  if ( err.type === 'not-found' ) {
 
-                var container = $div.get(0);
+                container = $div.get(0);
                 rng.selectCharacters(container, err.begin, err.end);
                 sel.setSingleRange(rng);
 
-                if ( err.type === 'not-found' ) {
-
-                    document.execCommand('forecolor', false, 'red');
-                }
-                else if ( err.type === 'replace' ) {
-
-                    document.execCommand('inserttext', false, err.newVal)
-                }
+                document.execCommand('forecolor', false, 'red');
             }
 
             rng.collapse();
@@ -184,6 +179,33 @@
         return errs;
     }
 
+    function doReplacements($div, replacements) {
+
+        var sel = rangy.getSelection(),
+            rng = rangy.createRange();
+
+        var charRanges = sel.saveCharacterRanges($div.get(0)),
+            caretPos = charRanges[0].characterRange.start;
+
+        for ( var i=0; i<replacements.length; ++i ) {
+
+            var rep = replacements[i];
+            if ( caretPos >= rep.begin && caretPos <= rep.end )
+                continue;
+
+            var container = $div.get(0);
+            rng.selectCharacters(container, err.begin, err.end);
+            sel.setSingleRange(rng);
+
+            document.execCommand('inserttext', false, rep.newVal);
+
+            rng.collapse();
+            sel.setSingleRange(rng);
+        }
+
+        sel.restoreCharacterRanges($div.get(0), charRanges);
+        return replacements;
+    }
 
     function unMarkErrors($div, caretPos) {
 
@@ -204,6 +226,23 @@
         //setCaretPos($div, caretPos);
         sel.restoreCharacterRanges($div.get(0), charRanges);
     }
+
+
+    function handleInputErrors($rawDiv) {
+
+        var divEval = app.audit_text(rangy.innerText($rawDiv.get(0)));
+
+        if ( divEval[0].length ) {
+            unMarkErrors($rawDiv);
+            markErrors($rawDiv, divEval[0]);
+        }
+
+        if ( divEval[1].length )
+            doReplacements($rawDiv, divEval[1]);
+
+        return divEval[0].length;
+    }
+
 
     _.extend(etch.config.buttonClasses, {
         'default': ['bold', 'italic', 'save'],
@@ -244,31 +283,18 @@
         postFunction: function(ev) {
 
 
-            function content_has_errors($div) {
+            var $rawMsg = this.$('#new-message'),
+                $rawSubj = this.$('#subject');
 
-                var txt = rangy.innerText($div.get(0)),
-                    errors = app.audit_text(txt);
-
-                if ( errors.length ) {
-                    unMarkErrors($div);
-                    markErrors($div, errors);
-                }
-
-                return errors.length;
-            }
-
-            var rawMsg = this.$('#new-message'),
-                rawSubj = this.$('#subject');
-
-            this.errorStats['new-message'] = content_has_errors(rawMsg);
-            this.errorStats['subject'] = content_has_errors(rawSubj);
+            this.errorStats['new-message'] = handleInputErrors($rawMsg);
+            this.errorStats['subject'] = handleInputErrors($rawSubj);
 
             this._manageButtons();
             if ( this.errorStats['new-message'] || this.errorStats['subject'] )
                 return;
 
-            var msg = toMarkdown(rawMsg.html().replace(/div>/g, 'p>')),
-                subj = toMarkdown(rawSubj.html().replace(/div>/g, 'p>')),
+            var msg = toMarkdown($rawMsg.html().replace(/div>/g, 'p>')),
+                subj = toMarkdown($rawSubj.html().replace(/div>/g, 'p>')),
                 tagRe = /<[^>]*>/g,
                 _this = this;
 
@@ -297,6 +323,7 @@
             );
             // alert('message posted ' + ev);
             this._cleanup(ev);
+            ev.stopImmediatePropagation();
         },
 
         postCancel: function(ev) {
@@ -308,6 +335,7 @@
             this.$el.empty();
             this.undelegateEvents();
             //$('#okwords').hide();
+            this.wordsView.render(false);
         },
 
         _queue: [],
@@ -342,10 +370,10 @@
 
         onKeyUp: function(ev) {
 
-            var $div, $divId, caretPos, wf, word, wordCandidates;
+            var $div, divId, caretPos, wf, word, wordCandidates;
 
             $div = $(ev.target).closest('[contenteditable]');
-            $divId = $div.attr('id');
+            divId = $div.attr('id');
 
             if ( this._needBlankPadding !== undefined ) {
 
@@ -354,15 +382,7 @@
             }
             else if ( ~this._queue.indexOf(KEY_SPACE) ) {
 
-                var txt = rangy.innerText($div.get(0)),
-                    errors = app.audit_text(txt);
-
-                unMarkErrors($div);
-                if ( errors && errors.length ) {
-
-                    markErrors($div, errors);
-                }
-                this.errorStats[$divId] = errors && errors.length;
+                this.errorStats[divId] = handleInputErrors($div);
             }
             this._manageButtons();
 

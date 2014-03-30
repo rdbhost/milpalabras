@@ -3,18 +3,25 @@
 (function () {
 	'use strict';
 
-    var R = window.Rdbhost;
+    var R = window.Rdbhost,
+
+        MAX_QUOTED_RATIO = 0.15,
+
+        QUOTED_TEST = '[\"\'\'\u00ab\u2039]\S+[\"\'\'\u00bb\u203a]',
+
+        // ?!#$%&«‹¡-¿»›
+        SEPARATOR_RE = '[\s?!#$%%&.,\u00ab\u2039\u00a1\u00bf\u00bb\u203a-]+';
 
     var saveQuery =
         "WITH \n" +
         "    -- wordsS is a CTE with [submitted-word, dict-word or NULL] for each word in the subject\n" +
         "    --\n" +
-        "    tblS AS (select regexp_split_to_table(%(title), '[\s#*_1-9.?!$%%&()-]+') AS wd),\n" +
+        "    tblS AS (select regexp_split_to_table(%(title), '~sep') AS wd),\n" +
         "    wordsS AS (select tblS.wd, wordlist.word FROM tblS LEFT JOIN wordlist ON wordlist.word = tblS.wd),\n" +
 
         "    -- wordsB is a CTE with [submitted-word, dict-word or NULL] for each word in the body\n" +
         "    --\n" +
-        "    tblB AS (select regexp_split_to_table(%(body), '[\s#*_1-9.?!$%%&()''-]+') AS wd),\n" +
+        "    tblB AS (select regexp_split_to_table(%(body), '~sep') AS wd),\n" +
         "    wordsB AS (select tblB.wd, wordlist.word FROM tblB LEFT JOIN wordlist ON wordlist.word = tblB.wd)\n" +
 
         "-- primary query that inserts provided fields, contingent on various tests passing\n" +
@@ -27,21 +34,22 @@
         "WHERE\n" +
         "    -- check that no illegal words provided (without either dict match or quotes) for subject\n" +
         "    NOT EXISTS (SELECT wordsS.wd FROM wordsS\n" +
-        "                 WHERE wordsS.word IS NULL AND NOT wordsS.wd ~ '[\"'']\S+[\"'']')\n" +
+        "                 WHERE wordsS.word IS NULL AND NOT wordsS.wd ~ '~wssep')\n" +
         "    -- same check, but for body\n" +
         "    AND NOT EXISTS (SELECT wordsB.wd FROM wordsB\n" +
-        "                     WHERE wordsB.word IS NULL AND NOT wordsB.wd ~ '[\"'']\S+[\"'']')\n" +
+        "                 WHERE wordsB.word IS NULL AND NOT wordsB.wd ~ '~wssep')\n" +
 
         "    -- check that ratio of quoted words to dict words is below threshold, for subject\n" +
         "    AND ((array(SELECT coalesce(sum(char_length(wd)), 0) FROM wordsB WHERE word IS NULL))[1] /\n" +
-        "         (array(SELECT coalesce(sum(char_length(word)), 0.1) FROM wordsB WHERE word IS NOT NULL))[1]) < 0.15\n" +
+        "         (array(SELECT coalesce(sum(char_length(word)), 0.1) FROM wordsB WHERE word IS NOT NULL))[1]) < ~mqr\n" +
         "    -- same check, for body\n" +
         "    AND ((array(SELECT coalesce(sum(char_length(wd)), 0) FROM wordsS WHERE word IS NULL))[1] /\n" +
-        "         (array(SELECT coalesce(sum(char_length(word)), 0.1) FROM wordsS WHERE word IS NOT NULL))[1]) < 0.3\n" +
+        "         (array(SELECT coalesce(sum(char_length(word)), 0.1) FROM wordsS WHERE word IS NOT NULL))[1]) < 2*~mqr\n" +
         "    -- and provided authentication checks ok\n" +
         "    AND o.identifier = %s AND o.key = %s; \n" +
 
         "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; ";
+    saveQuery = saveQuery.replace(/~sep/g, SEPARATOR_RE).replace(/~mqr/g, MAX_QUOTED_RATIO).replace(/~wssep/g, QUOTED_TEST);
 
     // Our basic Message model.
     app.Message = Backbone.Model.extend({
@@ -73,12 +81,14 @@
                     var p = R.preauthPostData({
                         q: q,
                         namedParams: model.attributes,
-                        args: [app.userId, app.userKey, 0]
+                        args: [app.userId, app.userKey]
                     });
                     p.then(function(resp) {
+                        console.log('successful save ' + resp.status);
                         options.success(resp);
                     });
                     p.fail(function(err) {
+                        console.log('failing save ' + err[0] + ' ' + err[1]);
                         options.error(err);
                     });
                     break;

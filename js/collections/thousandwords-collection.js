@@ -7,11 +7,12 @@
 
         MAX_QUOTED_RATIO = 0.15,
 
-        trimmingRegExp = new RegExp('(^[?!#$%&-]+|[?!#$&-.,]+$)', 'g'),
+        // ?!#$%&«‹¡-¿»›
+        trimmingRegExp = new RegExp('(^[?!#$%&\u00ab\u2039\u00a1\u00bf-]+|[?!#$&.,\u00bb\u203a-]+$)', 'g'),
 
         okNonWords = new RegExp('^[1-9.,+-]+$', 'g'),
 
-        splitWordsOn = /\s+/g,
+        splitWordsOn = /(\s+)/g,
 
         x;
 
@@ -21,7 +22,8 @@
     /*
      *  audit text takes body of text from editor and validates it.
      *    returns list of errors, where each error is a misspelled word marker, with 'begin' and 'end'
-     *      elements, or a quoted ratio error, with an 'error' element.
+     *      elements.
+     *   If there is a quoted-ratio error, all quoted portions will be included in error list
      */
     app.audit_text = function (text) {
 
@@ -31,7 +33,7 @@
         }
 
         var textParts = text.split(splitWordsOn),
-            accum = 0, errs = [], quotedParts = [], wd, trimmed, err, refWd;
+            accum = 0, errs = [], replacements = [], quotedParts = [], wd, trimmed, err, refWd;
 
         if ( ! /\S/.test(text) ) {
             err = {start: 0, end: 0, type: 'blank'};
@@ -42,7 +44,7 @@
 
             wd = textParts[i];
 
-            if ( wd.length > 0 && ! splitWordsOn.test(wd) ) {
+            if ( wd.length && ! /\s/.test(wd) ) {
 
                 if ( _.contains( [ '"', "'" ], wd.charAt(0) ) ) {
 
@@ -54,7 +56,7 @@
                     trimmed = trim(wd);
 
                     // skip numbers and other ok non-words
-                    if ( ! okNonWords.test(trimmed) ) {
+                    if ( trimmed && ! okNonWords.test(trimmed) ) {
 
                         refWd = app.thousand_words.findOne(trimmed);
                         if ( ! refWd ) {
@@ -68,7 +70,7 @@
                             console.log('replacement: ' + refWd.attributes.word + ' ' + trimmed);
                             var normRefWord = normalizeWord(trimmed, refWd.attributes.word);
                             err = {begin: accum, end: accum + wd.length, newVal: normRefWord, type: 'replace'};
-                            errs.push(err);
+                            replacements.push(err);
                         }
                         else
                             ; // if word is good, do nothing special
@@ -87,7 +89,7 @@
         if ( quotedTot / accum > MAX_QUOTED_RATIO )
             errs.push.apply(quotedParts);
 
-        return errs;
+        return [errs, replacements];
     };
 
 
