@@ -4,8 +4,6 @@
 
     var R = window.Rdbhost;
 
-    var loginKeyName = 'OPENID_KEY';
-
 
     // set up openId login form
     //
