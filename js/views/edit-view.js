@@ -315,14 +315,14 @@
                             app.threads.fetch({ reset: true });
                         else
                             app.thread.fetch({ reset: true });
+                        _this._cleanup(ev);
                     },
                     error: function(e) {
-                        //alert('fail ' + e);
+                        alert('fail ' + e);
                     }
                 }
             );
-            // alert('message posted ' + ev);
-            this._cleanup(ev);
+
             ev.stopImmediatePropagation();
         },
 

@@ -3,6 +3,8 @@
 (function () {
 	'use strict';
 
+    var R = window.Rdbhost;
+
     // MilPalabras Router
     // ----------
     var MilPalabrasRouter = Backbone.Router.extend({
@@ -81,5 +83,6 @@
     app.milPalabrasRouter = new MilPalabrasRouter();
 
     Backbone.history.start();
+
 
 })();

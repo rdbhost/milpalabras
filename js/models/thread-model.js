@@ -35,9 +35,9 @@
                 case 'read':
                     var p = R.preauthPostData({
 
-                        q: 'SELECT thread_id, message_id, title, post_date, body, o.identifier AS author, suppressed ' +
+                        q: 'SELECT thread_id, message_id, title, post_date, body, u.handle AS author, suppressed ' +
                            ' FROM messages m ' +
-                           '  JOIN auth.openid_accounts o ON m.author = o.idx ' +
+                           '  JOIN users u ON m.author = u.idx ' +
                            ' WHERE thread_id = %s ' +
                            'ORDER BY post_date DESC LIMIT 100; ',
 

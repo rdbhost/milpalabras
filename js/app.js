@@ -14,8 +14,7 @@ var app = _.extend({ userId: undefined, userKey: undefined }, Backbone.Events);
 
     var R = window.Rdbhost;
 
-    var loginKeyName = 'OPENID_KEY',
-        PREAUTH_ROLE = 'p0000001355',
+    var PREAUTH_ROLE = 'p0000001355',
         DOMAIN = 'www.rdbhost.com';
 
     R.rdbHostConfig({
@@ -23,41 +22,5 @@ var app = _.extend({ userId: undefined, userKey: undefined }, Backbone.Events);
         userName: PREAUTH_ROLE
     });
 
-    // set up openId login form
-    //
-    R.loginOpenId({
-
-        loginForm : 'openidForm',
-        errback : function () {},
-        callback : function(key, ident) {
-
-            // var key = $.cookie(loginKeyName);
-            $.cookie(myKeyName, ident + ' ' + key);
-            $.cookie(loginKeyName, '');
-            $.cookie('LOGIN_KEY', '');
-            // login();
-        }
-    });
-
-    // login - runs when user has logged in.
-    //
-    function login() {
-
-        var ck = $.cookie(myKeyName);
-        if ( ck ) {
-
-            var ckParts = ck.split(' ');
-            app.userId = ckParts[0];
-            app.userKey = ckParts[1];
-            $('a.loginLink').attr('href', '#/logout');
-            $('a.loginLink').text('logout');
-            $('span.user-id').text(app.userId);
-            window.console.log('logged in as ' + app.userId);
-        }
-    }
-
-    // login user in, load sidebar
-    //
-    login();
 
 })();

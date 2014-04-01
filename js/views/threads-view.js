@@ -39,7 +39,7 @@
 
         // The DOM events specific to an item.
         events: {
-            'click #add-topic-button': 'showAddTopicForm'
+            'click .add-topic-button': 'showAddTopicForm'
         },
 
         // At initialization we bind to the relevant events on the `Threads` and 'Messages'
@@ -80,9 +80,9 @@
 				//}));
 
                 if (app.userId)
-                    $('#add-topic-button').removeAttr('disabled');
+                    $('.add-topic-button').removeAttr('disabled');
                 else
-                    $('#add-topic-button').attr('disabled', 'disabled');
+                    $('.add-topic-button').attr('disabled', 'disabled');
 
                 $('time.timeago').timeago();
 			}

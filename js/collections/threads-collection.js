@@ -24,9 +24,9 @@
 
                 case 'read':
                     var p = R.preauthPostData({
-                        q: 'SELECT thread_id, topic, start_date, o.identifier AS initiating_user, suppressed, message_ct ' +
+                        q: 'SELECT thread_id, topic, start_date, u.handle AS initiating_user, suppressed, message_ct ' +
                            ' FROM threads t ' +
-                           '  JOIN auth.openid_accounts o ON t.initiating_user = o.idx ' +
+                           '  JOIN users u ON t.initiating_user = u.idx ' +
                            'ORDER BY start_date DESC LIMIT 100; '
                     });
                     p.then(function(resp) {
