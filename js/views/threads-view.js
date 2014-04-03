@@ -35,7 +35,7 @@
 		el: '#topics',
 
 		// Our template for the line of statistics at the bottom of the app.
-		statsTemplate: _.template($('#stats-template').html()),
+		// statsTemplate: _.template($('#stats-template').html()),
 
         // The DOM events specific to an item.
         events: {

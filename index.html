@@ -9,6 +9,10 @@
 	<body>
 		<section id="mpapp">
 
+            <!--
+            templates and blocks for the main topics page
+
+            -->
             <div id="topics" class="page">
                 <header>
                     <h1>Topics</h1>
@@ -36,7 +40,7 @@
 
             <script type="text/template" id="topic-item-template">
                 <% var topic_md = makeHtml(topic);
-                topic_md = topic_md.replace(/<\/?p>/g, '');
+                   topic_md = topic_md.replace(/<\/?p>/g, '');
                 %>
                 <td class="topic"><a href="#t/<%- thread_id %>"><%= topic_md %></a></td>
                 <td class="inituser"><%- initiating_user %></td>
@@ -44,6 +48,11 @@
                 <td class="msgct"><%- message_ct %></td>
             </script>
 
+
+            <!--
+              templates and blocks for displaying one thread
+
+            -->
             <div id="thread" class="page" style="display: none">
                 <header>
                     <h1></h1>
@@ -68,13 +77,69 @@
                 <footer></footer>
             </div>
 
+            <script type="text/template" id="header-template">
+                Thread [<%= topic %>]
+            </script>
+
             <script type="text/template" id="message-template">
                 <% var body_md = makeHtml(body);
-                   var title_md = makeHtml(title);
-                   title_md = title_md.replace(/<\/?p>/g, '');
+                var title_md = makeHtml(title);
+                title_md = title_md.replace(/<\/?p>/g, '');
                 %>
                 <tr>
                     <td class="topic"><%= title_md %></td>
+                    <td class="inituser"><a href="#u/<%- author %>"><%- author %></a></td>
+                    <td class="startdate"><time class="timeago" datetime="<%- post_date %>z"></time></td>
+                </tr>
+                <tr>
+                    <td class="body" colspan="3"><%= body_md %></td>
+                </tr>
+                <tr class="row-group-spacer">
+                    <td colspan="3">
+                    <a class="msg-btns suppress" data-messageid="<%= message_id %>" style="display: <% suppressed ? 'inline' : 'none' %>">flag as inappropriate</a>
+                    </td>
+                </tr>
+            </script>
+
+
+            <!--
+              templates for user page
+
+            -->
+            <div id="user" class="page" style="display: none">
+                <header>
+                    <h1></h1>
+                    <a href="#">home</a>
+                    <span class="user-id"></span>
+                    <a href="#/login" class="loginLink">login</a>
+                </header>
+                <div id="user-main"></div>
+                <footer></footer>
+            </div>
+
+            <script type="text/template" id="user-header-template">
+                User [<%= user %>]
+            </script>
+
+            <script type="text/template" id="user-subheader-template">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><span id="posts-by">Messages By: </span><%- user %></th>
+                        </tr>
+                    </thead>
+                </table>
+            </script>
+
+            <script type="text/template" id="user-message-template">
+                <% var body_md = makeHtml(body);
+                var title_md = makeHtml(title);
+                title_md = title_md.replace(/<\/?p>/g, '');
+                var topic_md = makeHtml(topic);
+                topic_md = topic_md.replace(/<\/?p>/g, '');
+                %>
+                <tr>
+                    <td class="topic"><a href="#t/<%= thread_id %>"><%= topic_md %></a> > <%= (message_id === thread_id) ? '' : title_md %></td>
                     <td class="inituser"><%- author %></td>
                     <td class="startdate"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>
@@ -84,11 +149,11 @@
                 <tr class="row-group-spacer"><td> </td></tr>
             </script>
 
-            <script type="text/template" id="header-template">
-                Thread [<%= topic %>]
-            </script>
 
+            <!--
+            blocks and templates for the message editer
 
+            -->
             <div id="okwords" class="page" style="display: none">
             </div>
 
@@ -111,10 +176,11 @@
                 <li class="wordlist"><%= word %></li>
             </script>
 
-            <script type="text/template" id="stats-template">
-                <span id="thread-count">Stats to be here</span>
-            </script>
 
+            <!--
+            modals for logging in
+
+            -->
             <div id="login" class="page modal-body" style="display: none">
                 <form id="openidForm"  action="~" method="post">
                     <p>Provide your OpenId identifier, complete with http: <br/>
@@ -142,6 +208,9 @@
 
         </section>
 
+        <!--
+        load everything
+        -->
 		<script src="https://www.rdbhost.com/vendor/jquery/1.8/jquery-1.8.3.js"></script>
         <script src="https://www.rdbhost.com/js/jquery.cookie.js"></script>
 		<script src="https://www.rdbhost.com/vendor/underscore/1.5/underscore.js"></script>
@@ -159,11 +228,13 @@
 
         <script src="js/app.js"></script>
         <script src="js/models/message-model.js"></script>
-		<script src="js/models/thread-model.js"></script>
+		<script src="js/collections/thread-model.js"></script>
+        <script src="js/models/user-model.js"></script>
         <script src="js/collections/thousandwords-collection.js"></script>
 		<script src="js/collections/threads-collection.js"></script>
 		<script src="js/views/thread-view.js"></script>
 		<script src="js/views/threads-view.js"></script>
+        <script src="js/views/user-view.js"></script>
         <script src="js/views/wordlist-view.js"></script>
         <script src="js/views/edit-view.js"></script>
         <script src="js/views/username-view.js"></script>

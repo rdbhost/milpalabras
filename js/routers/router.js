@@ -11,6 +11,7 @@
 
         routes: {
             't/:thread': 'showThread',
+            'u/:user':   'showUser',
             'login':     'login',
             'logout':    'logout',
             '':          'showIndex'
@@ -29,6 +30,23 @@
                 error: function(mdl, err, opt) {
 
                     alert('error in thread loading ' + err);
+                }
+            });
+        },
+
+        showUser: function (param) {
+
+            app.thread = new app.User({user_id: param});
+            app.userView = new app.UserView({model: app.thread});
+
+            app.thread.fetch({
+                success: function(mdl, resp, opt) {
+
+                    app.userView.render();
+                },
+                error: function(mdl, err, opt) {
+
+                    alert('error in user loading ' + err);
                 }
             });
         },

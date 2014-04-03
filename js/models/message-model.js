@@ -24,11 +24,11 @@
         "    tblB AS (select regexp_split_to_table(%(body), '~sep') AS wd),\n" +
         "    wordsB AS (select tblB.wd, wordlist.word FROM tblB LEFT JOIN wordlist ON wordlist.word = tblB.wd)\n" +
 
-        "-- primary query that inserts provided fields, contingent on various tests passing\n" +
+        "-- primary query that inserts provided fields, contingent on various tests passing \n" +
         "--\n" +
-        "INSERT INTO messages (thread_id, message_id, title, body, post_date, author, suppressed)\n" +
+        "INSERT INTO messages (thread_id, message_id, title, body, post_date, author) \n" +
 
-        "SELECT %(thread_id), %(message_id), %(title), %(body), NOW(), o.idx, False\n" +
+        "SELECT %(thread_id), %(message_id), %(title), %(body), NOW(), o.idx \n" +
         "  FROM auth.openid_accounts o\n" +
 
         "WHERE\n" +
@@ -53,12 +53,6 @@
 
     // Our basic Message model.
     app.Message = Backbone.Model.extend({
-
-        // Default attributes for a message
-        // and ensure that each message created has essential keys.
-        defaults: {
-            suppressed: false
-        },
 
         sync: function(method, model, options) {
 
@@ -99,7 +93,30 @@
                     break;
 
             }
+        },
+
+        suppress: function(options) {
+
+            var this_ = this,
+                p = R.preauthPostData({
+
+                q: 'UPDATE messages SET suppressed = true \n' +
+                   ' WHERE message_id = %(message_id) \n' +
+                   '   AND (suppressed = true OR suppressed IS NULL); ',
+
+                namedParams: this_.attributes
+            });
+            p.then(function(resp) {
+                if ( options && options.success )
+                    options.success(rows);
+                //app.threadView.render();
+            });
+            p.fail(function(err) {
+                if ( options && options.error )
+                    options.error(err);
+            });
         }
+
     });
 
 })();

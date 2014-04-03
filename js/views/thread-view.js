@@ -27,6 +27,30 @@
         markdown: new Showdown.converter()
     });
 
+    app.UserMessageView = Backbone.View.extend({
+
+        tagName: 'tbody',
+        className: "message-body",
+
+        template: _.template($('#user-message-template').html()),
+
+        // Re-render the titles of the thread item.
+        render: function () {
+
+            var data = this.model.toJSON();
+            data.makeHtml = app.UserMessageView.markdown.makeHtml;
+
+            this.$el.html(this.template(data));
+            this.$el.show();
+
+            return this;
+        }
+    },
+    { // class properties
+
+        markdown: new Showdown.converter()
+    });
+
     // Thread Item View
 	// --------------
 
@@ -37,13 +61,14 @@
         el: '#thread',
 
         // Our template for the line of statistics at the bottom of the app.
-        statsTemplate: _.template($('#stats-template').html()),
+        // statsTemplate: _.template($('#stats-template').html()),
 
         headerTemplate: _.template($('#header-template').html()),
 
 		// The DOM events specific to an item.
 		events: {
-            'click #add-post-button': 'showAddTopicForm'
+            'click #add-post-button': 'showAddTopicForm',
+            'click .suppress':        'suppressMsg'
 		},
 
 		// The ThreadView listens for changes to its model, re-rendering. Since there's
@@ -108,6 +133,16 @@
             var edView = new app.EditView({ model: newMsg });
             edView.render();
         },
+
+        suppressMsg: function(ev) {
+
+            var msgId = $(ev.target).data('messageid'),
+                msgModel = app.thread.findWhere({'message_id': msgId});
+
+            msgModel.suppress();
+            app.thread.remove(msgModel);
+            app.threadView.render();
+       },
 
         // Add a single thread item to the list by creating a view for it, and
         // appending its element to the `<ul>`.

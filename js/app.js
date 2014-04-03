@@ -5,6 +5,9 @@ var ENTER_KEY = 13,
     ESC_KEY = 27,
     myKeyName = 'MP_KEY';
 
+if ( ! window.console )
+    window.console = { 'log': function() {} };
+
 var app = _.extend({ userId: undefined, userKey: undefined }, Backbone.Events);
 
 

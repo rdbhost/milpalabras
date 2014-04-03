@@ -10,8 +10,7 @@
 
         // Default attributes for a thread
         defaults: {
-            post_date: 'no date provided',
-            suppressed: false
+            post_date: 'no date provided'
         }
     });
 
@@ -35,10 +34,11 @@
                 case 'read':
                     var p = R.preauthPostData({
 
-                        q: 'SELECT thread_id, message_id, title, post_date, body, u.handle AS author, suppressed ' +
-                           ' FROM messages m ' +
-                           '  JOIN users u ON m.author = u.idx ' +
-                           ' WHERE thread_id = %s ' +
+                        q: 'SELECT thread_id, message_id, title, post_date, body, \n' +
+                           '       u.handle AS author, suppressed \n' +
+                           ' FROM messages m \n' +
+                           '  JOIN users u ON m.author = u.idx \n' +
+                           ' WHERE thread_id = %s AND (suppressed = false OR suppressed IS NULL) \n' +
                            'ORDER BY post_date DESC LIMIT 100; ',
 
                         // q: 'SELECT * FROM messages WHERE thread_id = %s ORDER BY post_date ASC LIMIT 100',
@@ -59,7 +59,6 @@
                     throw new Error('bad method in Thread.sync ' + method);
             }
         }
-
     });
 
 
