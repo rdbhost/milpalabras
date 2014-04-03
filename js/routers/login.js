@@ -13,9 +13,7 @@
         errback : function () {},
         callback : function(key, ident) {
 
-            $.cookie(myKeyName, ident + ' ' + key);
-            //$.cookie(loginKeyName, '');
-            $.cookie('LOGIN_KEY', '');
+            //$.cookie('LOGIN_KEY', '');
 
             // login user in
             login(ident, key);

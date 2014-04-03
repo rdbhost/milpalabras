@@ -3,7 +3,7 @@
 
 var ENTER_KEY = 13,
     ESC_KEY = 27,
-    myKeyName = 'MP_KEY';
+    myKeyName = 'OPENID_KEY';
 
 if ( ! window.console )
     window.console = { 'log': function() {} };

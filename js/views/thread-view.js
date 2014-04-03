@@ -103,9 +103,6 @@
                 this.$header.html(this.headerTemplate({
                     topic: app.thread.models[app.thread.models.length-1].get('title')
                 }));
-                //this.$footer.html(this.statsTemplate({
-                //    completed: app.thread.length
-                //}));
 
                 if (app.userId)
                     $('#add-post-button').removeAttr('disabled');
@@ -136,12 +133,22 @@
 
         suppressMsg: function(ev) {
 
-            var msgId = $(ev.target).data('messageid'),
-                msgModel = app.thread.findWhere({'message_id': msgId});
+            if ( ! app.handle ) {
 
-            msgModel.suppress();
-            app.thread.remove(msgModel);
-            app.threadView.render();
+                alert('Please login to use the Flag feature.');
+            }
+            else {
+
+                var msgId = $(ev.target).data('messageid'),
+                    msgModel = app.thread.findWhere({'message_id': msgId});
+
+                msgModel.suppress();
+                app.thread.remove(msgModel);
+                app.threadView.render();
+            }
+
+            ev.stopImmediatePropagation();
+            return false;
        },
 
         // Add a single thread item to the list by creating a view for it, and
