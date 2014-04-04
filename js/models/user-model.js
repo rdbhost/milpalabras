@@ -8,6 +8,8 @@
     // Our basic Message model.
     app.User = Backbone.Collection.extend({
 
+        model: app.Message,
+
         sync: function(method, model, options) {
 
             options = options || {};
@@ -20,8 +22,9 @@
                             '      u.handle AS author, m0.title as topic \n' +
                             'FROM messages m JOIN messages m0 ON m.thread_id = m0.message_id \n' +
                             '  JOIN users u ON u.idx = m.author \n' +
-                            'WHERE not m.suppressed AND not m0.suppressed AND u.handle = %s   \n' +
-                           '   AND m0.message_id = m0.thread_id \n' +
+                            'WHERE (not m.suppressed OR m.suppressed IS NULL) \n' +
+                            '  AND (not m0.suppressed OR m0.suppressed IS NULL) \n' +
+                            '  AND u.handle = %s AND m0.message_id = m0.thread_id \n' +
                             'ORDER BY post_date DESC LIMIT 25';
 
                     var p = R.preauthPostData({

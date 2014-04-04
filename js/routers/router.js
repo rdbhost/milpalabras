@@ -12,6 +12,7 @@
         routes: {
             't/:thread': 'showThread',
             'u/:user':   'showUser',
+            'suspended': 'showSuspended',
             'login':     'login',
             'logout':    'logout',
             '':          'showIndex'
@@ -30,6 +31,23 @@
                 error: function(mdl, err, opt) {
 
                     alert('error in thread loading ' + err);
+                }
+            });
+        },
+
+        showSuspended: function (param) {
+
+            app.thread = new app.Suspended();
+            app.suspendedView = new app.SuspendedView();
+
+            app.thread.fetch({
+                success: function(mdl, resp, opt) {
+
+                    app.suspendedView.render();
+                },
+                error: function(mdl, err, opt) {
+
+                    alert('error in suspended loading ' + err);
                 }
             });
         },

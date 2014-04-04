@@ -115,6 +115,54 @@
                 if ( options && options.error )
                     options.error(err);
             });
+        },
+
+        unSuppress: function(options) {
+
+            var this_ = this,
+                p = R.preauthPostData({
+
+                    q: 'UPDATE messages m SET suppressed = false \n' +
+                       ' FROM auth.openid_accounts o, users u  \n' +
+                       ' WHERE m.message_id = %(message_id) \n' +
+                       '  AND o.idx = u.idx AND u.admin \n' +
+                       '  AND o.identifier = %s AND o.key = %s',
+
+                    namedParams: this_.attributes,
+                    args: [app.userId, app.userKey]
+                });
+            p.then(function(resp) {
+                if ( options && options.success )
+                    options.success(rows);
+            });
+            p.fail(function(err) {
+                if ( options && options.error )
+                    options.error(err);
+            });
+        },
+
+        destroy: function(options) {
+
+            var this_ = this,
+                p = R.preauthPostData({
+
+                    q: 'DELETE FROM messages m  \n' +
+                       ' USING auth.openid_accounts o, users u  \n' +
+                       ' WHERE m.message_id = %(message_id) \n' +
+                       '   AND o.idx = u.idx AND u.admin \n' +
+                       '   AND o.identifier = %s AND o.key = %s',
+
+                    namedParams: this_.attributes,
+                    args: [app.userId, app.userKey]
+                });
+            p.then(function(resp) {
+                if ( options && options.success )
+                    options.success(rows);
+            });
+            p.fail(function(err) {
+                if ( options && options.error )
+                    options.error(err);
+            });
         }
 
     });

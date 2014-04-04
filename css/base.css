@@ -5,7 +5,7 @@
     align-content: center;
 }
 
-#topics, #thread, #user {
+#topics, #thread, #user, #suspended {
     margin-left: auto;
     margin-right: auto;
     font-size: large;
@@ -20,6 +20,7 @@
 .msg-btns {
     float: right;
     margin-bottom: 2em;
+    padding: 5px;
 }
 
 .editable {

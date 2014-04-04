@@ -3,12 +3,12 @@
 (function ($) {
 	'use strict';
 
-    app.UserMessageView = Backbone.View.extend({
+    app.SuspendedMessageView = Backbone.View.extend({
 
         tagName: 'tbody',
         className: "message-body",
 
-        template: _.template($('#user-message-template').html()),
+        template: _.template($('#suspended-message-template').html()),
 
         // Re-render the titles of the thread item.
         render: function () {
@@ -27,19 +27,26 @@
         markdown: new Showdown.converter()
     });
 
-    // User View
+
+    // Suspended View
 	// --------------
 
 	// The DOM element for a thread item...
-	app.UserView = Backbone.View.extend({
+	app.SuspendedView = Backbone.View.extend({
 
 		//... is a list tag.
-        el: '#user',
+        el: '#suspended',
 
-        headerTemplate: _.template($('#user-header-template').html()),
-        subHeaderTemplate: _.template($('#user-subheader-template').html()),
+        headerTemplate: _.template($('#suspended-header-template').html()),
 
-		// The ThreadView listens for changes to its model, re-rendering. Since there's
+        // The DOM events specific to an item.
+        events: {
+            'click .delete':        'deleteMsg',
+            'click .unflag':        'unflagMsg'
+        },
+
+
+        // The ThreadView listens for changes to its model, re-rendering. Since there's
 		// a one-to-one correspondence between a **Thread** and a **ThreadView** in this
 		// app, we set a direct reference on the model for convenience.
 		initialize: function () {
@@ -47,7 +54,7 @@
             this.$header = this.$('header h1');
             this.$footer = this.$('footer');
             this.$main = this.$('#user');
-            this.$tMain = $('#user-main');
+            this.$tMain = $('#suspended-main');
 
 		},
 
@@ -62,10 +69,8 @@
                 this.$main.show();
 
                 // Add all items in the **threads** collection at once.
-                var user = app.thread.models[0].get('author'),
-                    hd = this.subHeaderTemplate({'user': user});
+                var user = app.thread.models[0].get('author');
                 this.$tMain.empty();
-                this.$tMain.append(hd);
                 app.thread.each(this.addOneMessageToDisplay, this);
 
                 this.$header.html(this.headerTemplate({
@@ -87,8 +92,35 @@
         // Add a single thread item to the list by creating a view for it, and
         // appending its element to the `<ul>`.
         addOneMessageToDisplay: function (message) {
-            var msgView = new app.UserMessageView({ model: message });
+            var msgView = new app.SuspendedMessageView({ model: message });
             this.$tMain.append(msgView.render().el);
+        },
+
+        deleteMsg: function(ev) {
+
+
+            var msgId = $(ev.target).data('messageid'),
+                msgModel = app.thread.findWhere({'message_id': msgId});
+
+            msgModel.destroy();
+            app.thread.remove(msgModel);
+            app.suspendedView.render();
+
+            ev.stopImmediatePropagation();
+            return false;
+        },
+
+        unflagMsg: function(ev) {
+
+            var msgId = $(ev.target).data('messageid'),
+                msgModel = app.thread.findWhere({'message_id': msgId});
+
+            msgModel.unSuppress();
+            app.thread.remove(msgModel);
+            app.suspendedView.render();
+
+            ev.stopImmediatePropagation();
+            return false;
         }
 
     });

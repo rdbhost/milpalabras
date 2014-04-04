@@ -177,14 +177,14 @@
                     else {
 
                         collection.reset(records);
-                        if ( options.success )
+                        if ( options && options.success )
                             options.success(records);
 
                     }
                 });
 
                 p.fail(function(err) {
-                    if ( options.error )
+                    if ( options && options.error )
                         options.error(err);
                 });
             }

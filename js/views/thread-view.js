@@ -27,30 +27,6 @@
         markdown: new Showdown.converter()
     });
 
-    app.UserMessageView = Backbone.View.extend({
-
-        tagName: 'tbody',
-        className: "message-body",
-
-        template: _.template($('#user-message-template').html()),
-
-        // Re-render the titles of the thread item.
-        render: function () {
-
-            var data = this.model.toJSON();
-            data.makeHtml = app.UserMessageView.markdown.makeHtml;
-
-            this.$el.html(this.template(data));
-            this.$el.show();
-
-            return this;
-        }
-    },
-    { // class properties
-
-        markdown: new Showdown.converter()
-    });
-
     // Thread Item View
 	// --------------
 
