@@ -1,5 +1,5 @@
 
-
+header { display: block }
 
 #mpapp h1 {
     align-content: center;
@@ -107,3 +107,6 @@ footer {
     align-content: center;
 }
 
+#null-msg {
+    padding: 20px;
+}

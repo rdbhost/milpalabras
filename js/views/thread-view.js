@@ -10,6 +10,8 @@
 
         template: _.template($('#message-template').html()),
 
+        nullTemplate: _.template($('#null-message-template').html()),
+
         // Re-render the titles of the thread item.
         render: function () {
 
@@ -88,8 +90,8 @@
                 $('time.timeago').timeago();
             }
             else  {
-                // todo - change to 'no messages found' error
-                app.milPalabrasRouter.navigate('', {trigger: true});
+                this.$tMain.empty();
+                this.$tMain.html(this.nullTemplate());
             }
 
             // this.$el.html(this.template(this.model.toJSON()));

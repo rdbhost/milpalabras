@@ -39,7 +39,9 @@
         headerTemplate: _.template($('#user-header-template').html()),
         subHeaderTemplate: _.template($('#user-subheader-template').html()),
 
-		// The ThreadView listens for changes to its model, re-rendering. Since there's
+        nullTemplate: _.template($('#null-message-template').html()),
+
+        // The ThreadView listens for changes to its model, re-rendering. Since there's
 		// a one-to-one correspondence between a **Thread** and a **ThreadView** in this
 		// app, we set a direct reference on the model for convenience.
 		initialize: function () {
@@ -75,9 +77,8 @@
                 $('time.timeago').timeago();
             }
             else  {
-                // todo - change to 'no messages found' error
-                // app.milPalabrasRouter.navigate('', {trigger: true});
-                alert('no messages found')
+                this.$tMain.empty();
+                this.$tMain.html(this.nullTemplate());
             }
 
             // this.$el.html(this.template(this.model.toJSON()));

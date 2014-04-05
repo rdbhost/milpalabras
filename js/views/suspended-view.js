@@ -39,6 +39,9 @@
 
         headerTemplate: _.template($('#suspended-header-template').html()),
 
+        nullTemplate: _.template($('#null-message-template').html()),
+
+
         // The DOM events specific to an item.
         events: {
             'click .delete':        'deleteMsg',
@@ -80,9 +83,9 @@
                 $('time.timeago').timeago();
             }
             else  {
-                // todo - change to 'no messages found' error
-                // app.milPalabrasRouter.navigate('', {trigger: true});
-                alert('no messages found')
+
+                this.$tMain.empty();
+                this.$tMain.html(this.nullTemplate());
             }
 
             // this.$el.html(this.template(this.model.toJSON()));
@@ -102,9 +105,18 @@
             var msgId = $(ev.target).data('messageid'),
                 msgModel = app.thread.findWhere({'message_id': msgId});
 
-            msgModel.destroy();
-            app.thread.remove(msgModel);
-            app.suspendedView.render();
+            if ( msgModel ) {
+
+                msgModel.destroy();
+                app.thread.remove(msgModel);
+                if ( msgModel.attributes.message_id === msgModel.attributes.thread_id ) {
+                    var tmp = app.threads.find({'thread_id': msgModel.attributes.thread_d});
+                    if ( tmp )
+                        app.threads.remove(msgModel);
+                }
+
+                app.suspendedView.render();
+            }
 
             ev.stopImmediatePropagation();
             return false;
@@ -115,9 +127,12 @@
             var msgId = $(ev.target).data('messageid'),
                 msgModel = app.thread.findWhere({'message_id': msgId});
 
-            msgModel.unSuppress();
-            app.thread.remove(msgModel);
-            app.suspendedView.render();
+            if ( msgModel ) {
+
+                msgModel.unSuppress();
+                app.thread.remove(msgModel);
+                app.suspendedView.render();
+            }
 
             ev.stopImmediatePropagation();
             return false;
