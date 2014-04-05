@@ -5,16 +5,6 @@
 
     var R = window.Rdbhost;
 
-    // Object for each thread in threads list.
-    app.ThreadSummary = Backbone.Model.extend({
-
-        // Default attributes for a thread
-        defaults: {
-            post_date: 'no date provided'
-        }
-    });
-
-
     // Our basic Thread model.
     app.Thread = Backbone.Collection.extend({
 

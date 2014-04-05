@@ -167,4 +167,14 @@
 
     });
 
+    // Object for each thread in threads list.
+    app.ThreadSummary = Backbone.Model.extend({
+
+        // Default attributes for a thread
+        defaults: {
+            post_date: 'no date provided'
+        }
+    });
+
+
 })();
