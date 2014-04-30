@@ -8,7 +8,8 @@
 
     app.WordView = Backbone.View.extend({
 
-        tagName: 'ul',
+        tagName: 'li',
+        className: 'wordlist',
 
         template: _.template($('#okword-template').html()),
 
@@ -38,10 +39,10 @@
 
             if ( partialWord ) {
 
-                this.$el.show();
+                this.$el.closest('.page').show();
                 this.$el.empty();
 
-                var wordList = app.thousand_words.prefixLimited(partialWord, 9);
+                var wordList = app.thousand_words.prefixLimited(partialWord, 25);
 
                 if ( wordList.length ) {
 
@@ -62,7 +63,7 @@
             }
             else {
 
-                this.$el.hide();
+                this.$el.closest('.page').hide();
             }
 
 			return this;

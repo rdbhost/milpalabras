@@ -33,7 +33,8 @@
         }
 
         var textParts = text.split(splitWordsOn),
-            accum = 0, errs = [], replacements = [], quotedParts = [], wd, trimmed, err, refWd;
+            accum = 0, errs = [], replacements = [], quotedParts = [],
+            wd, trimmed, err, refWd;
 
         if ( ! /\S/.test(text) ) {
             err = {start: 0, end: 0, type: 'blank'};
@@ -111,10 +112,15 @@
             return fromWL;
     }
 
-    // Object for each thread in threads list.
+    // Object for each word in okwords list.
     app.TWEntry = Backbone.Model.extend({
 
+        defaults: {
+            okmulti: ''
+        },
+
         match: function(wd) {
+
             if ( this.attributes.word.toLowerCase() === wd.toLowerCase() )
                 return this.attributes.word;
             var alts = _.filter(this.attributes.alts, function(m) {
@@ -125,6 +131,7 @@
         },
 
         startsWith: function(begin) {
+
             if ( this.attributes.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase() )
                 return true;
 
@@ -218,27 +225,37 @@
             var t = _.filter(this.models, function(wd) {
                     return  wd.startsWith(begin);
                 }),
-                prefixLen = 4;
+                prefixLen = 4,
+                _t;
             while ( t.length > lim ) {
 
                 var t1 = t.slice(0),
                     prefix = t1[0].attributes.word.substr(0, prefixLen);
                 t.length = 0;
-                t.push(t1[0]);
+                t.push(t1[0].clone());
 
                 for ( var i=1; i<t1.length; ++i ) {
 
-                    if ( ! t1[i].startsWith(prefix) ) {
+                    if ( prefix.length < prefixLen || ! t1[i].startsWith(prefix) ) {
 
-                        t.push(t1[i]);
-                        prefix = t1[i].attributes.word.substr(0, prefixLen);
+                        _t = t1[i].clone();
+                        t.push(_t);
+                        prefix = _t.attributes.word.substr(0, prefixLen);
+                    }
+                    else {
+
+                        _t = t[t.length-1];
+                        t[t.length-1].attributes.okmulti = 'okmulti';
+
+                        if ( prefix.length < prefixLen && t1[i].attributes.word.length > prefix.length )
+                            prefix = t1[i].attributes.word.substr(0, prefixLen)
                     }
                 }
 
                 --prefixLen;
             }
 
-            if ( t.length < lim && prefixLen < 4 ) {
+            if ( t.length === 0 && prefixLen < 4 ) {
 
                 t1 = _.first(t1, lim);
                 return new ThousandWords(t1);

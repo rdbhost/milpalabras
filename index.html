@@ -199,7 +199,10 @@
             blocks and templates for the message editor
 
             -->
-            <div id="okwords" class="page" style="display: none">
+            <div class="page">
+                <ul id="okwords">
+
+                </ul>
             </div>
 
             <div id="postform" class="page" style="display: none">
@@ -218,7 +221,7 @@
             </script>
 
             <script type="text/template" id="okword-template">
-                <li class="wordlist"><%= word %></li>
+                <span class="<%= okmulti %>"><%= word %></span>
             </script>
 
 

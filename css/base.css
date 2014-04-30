@@ -15,7 +15,12 @@ header { display: block }
 .topic { width: 450px; }
 .inituser { max-width: 75px; overflow: hidden; }
 .startdate { width: 200px; text-align: right; }
-.body { width: 550px; border: solid 3px #033; }
+.body {
+    width: 550px;
+    border: solid 3px #033;
+    -webkit-padding-start: 0px;
+    -moz-padding-start: 0px;
+}
 
 .msg-btns {
     float: right;
@@ -53,18 +58,26 @@ textarea {
 
 #okwords {
     position: fixed;
-    width: 150px;
-    max-height: 300px;
-    bottom: 30px;
+    font-size: 16px;
+    width: 7em;
+    /* max-height: 300px; */
+    bottom: 12px;
     right: 520px;
     background-color: white;
     border: thin solid mediumpurple;
+}
+span.okmulti {
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: green;
 }
 
 li.wordlist {
     list-style-type: none;
     padding-left: 2px;
-    line-height: 8px;
+    font-size: 14pt;
+    width: 25em;
+    margin-left: -15px;
 }
 
 div.oops {
