@@ -37,33 +37,37 @@
 		// Re-render the words in the wordlist
 		render: function (partialWord) {
 
+            var that = this;
+
             if ( partialWord ) {
 
                 this.$el.closest('.page').show();
                 this.$el.empty();
 
-                var wordList = app.thousand_words.prefixLimited(partialWord, 25);
+                var p = app.thousand_words.prefixLimited(partialWord, 25);
 
-                if ( wordList.length ) {
+                p.then(function(wordList, rsp, opt) {
 
-                    this.$el.removeClass('oops');
-                    var this_ = this;
-                    _.forEach(wordList.models, function(m) {
-                        this_.addOneWordToDisplay(m);
-                    });
-                }
-                else if ( partialWord.length > 1 ) {
+                    if ( wordList.length ) {
 
-                    var shorterPartial = partialWord.substr(0, partialWord.length-1);
+                        that.$el.removeClass('oops');
+                        _.forEach(wordList.models, function(m) {
+                            that.addOneWordToDisplay(m);
+                        });
+                    }
+                    else if ( partialWord.length > 1 ) {
 
-                    var _r = this.render(shorterPartial);
-                    this.$el.addClass('oops');
-                    return _r;
-                }
+                        var shorterPartial = partialWord.substr(0, partialWord.length-1);
+
+                        var _r = that.render(shorterPartial);
+                        that.$el.addClass('oops');
+                        return _r;
+                    }
+                })
             }
             else {
 
-                this.$el.closest('.page').hide();
+                that.$el.closest('.page').hide();
             }
 
 			return this;

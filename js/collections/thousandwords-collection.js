@@ -1,5 +1,7 @@
 /*global Backbone */
 
+
+
 (function () {
 	'use strict';
 
@@ -25,7 +27,10 @@
      *      elements.
      *   If there is a quoted-ratio error, all quoted portions will be included in error list
      */
+    // todo - change this work incrementally, and provide [errs, replacements] to a calllback at end
     app.audit_text = function (text) {
+
+        return [[], []];
 
         function trim(wd) {
 
@@ -147,8 +152,8 @@
     // Dictionary Words Collection
 	// ---------------
 
-	// The collection of threads is backed by a remote server.
-	var ThousandWords = Backbone.Collection.extend({
+	// The collection of words backed by a remote server.
+	var WordCollection = Backbone.Collection.extend({
 
 		// Reference to this collection's model.
 		model: app.TWEntry,
@@ -162,37 +167,28 @@
             var records = [],
                 collection = this;
 
-            function getRecords(start) {
+            function getRecords(ltr) {
 
-                start = start || 0;
                 var p = R.preauthPostData({
-                    q: 'SELECT distinct word, ' +
-                       ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts ' +
-                       'FROM wordlist w  ORDER BY word ASC OFFSET %s LIMIT 10000;',
-                    args: [start]
+                    q: 'SELECT distinct word, \n' +
+                       ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts \n' +
+                       "FROM wordlist w  WHERE substring(word from 1 for 1) = %s \n" +
+                       'ORDER BY word ASC LIMIT 500;\n',
+                    args: [ltr]
                 });
 
                 p.then(function(resp) {
 
-                    // add found records to
-                    records = records.concat(resp.records.rows);
+                    collection.reset(resp.records.rows);
+                    if ( options && options.success )
+                        options.success(resp.records.rows);
 
-                    if ( resp.status[0] === 'incomplete' ) {
-
-                        getRecords(start + resp.records.rows.length);
-                    }
-                    else {
-
-                        collection.reset(records);
-                        if ( options && options.success )
-                            options.success(records);
-
-                    }
                 });
 
                 p.fail(function(err) {
                     if ( options && options.error )
                         options.error(err);
+                    console.log(err[0] + ' ' + err[1]);
                 });
             }
 
@@ -201,14 +197,13 @@
 
                 case 'read':
 
-                    getRecords(0);
+                    getRecords(this.letter);
                     break;
 
                 default:
 
-                    throw new Error('bad method in ThousandWords.sync ' + method);
+                    throw new Error('bad method in WordCollection.sync ' + method);
                     break;
-
             }
         },
 
@@ -258,10 +253,10 @@
             if ( t.length === 0 && prefixLen < 4 ) {
 
                 t1 = _.first(t1, lim);
-                return new ThousandWords(t1);
+                return new WordCollection(t1);
             }
             else
-                return new ThousandWords(t);
+                return new WordCollection(t);
         },
 
         findOne: function (word) {
@@ -273,7 +268,164 @@
 
 	});
 
-	// Create our global collection of **Threads**.
+    // The collection of words backed by a remote server.
+    var ThousandWords = Backbone.Model.extend({
+
+        initialize: function() {
+
+            var that = this;
+            that.byLetter = {};
+        },
+
+        // Filter down the list of all words to those starting with begin
+        startsWith: function (begin) {
+
+            var ltrList = this.byLetter[begin.charAt(0)],
+                letter = begin.charAt(),
+                p = $.Deferred(),
+                tmp;
+
+            if ( ltrList ) {
+
+                tmp = ltrList.filter(function (word) {
+                    return word.startsWith(begin);
+                });
+
+                p.resolve(tmp);
+            }
+            else {
+
+                this.byLetter[letter] = new WordCollection();
+                this.byLetter[letter].letter = letter;
+                this.byLetter[letter].fetch({
+
+                    success: function(col, rsp, opt) {
+                        tmp = col.filter(function (word) {
+                            return word.startsWith(begin);
+                        });
+                        p.resolve(tmp);
+                    },
+
+                    error: function(col, rsp, opt) {
+                        p.reject(rsp);
+                    }
+                })
+            }
+
+            return p.promise();
+        },
+
+        prefixLimited: function(begin, lim) {
+
+            function _prefixLimited(list, begin, lim) {
+
+                var prefixLen = 4,
+                    listNew, wordItm;
+
+                listNew = _.filter(list.models, function (wd) {
+                    return  wd.startsWith(begin);
+                });
+
+                while (listNew.length > lim) {
+
+                    var prevList = listNew.slice(0),
+                        prefix = prevList[0].attributes.word.substr(0, prefixLen);
+                    listNew.length = 0;
+                    listNew.push(prevList[0].clone());
+
+                    for (var i = 1; i < prevList.length; ++i) {
+
+                        if (prefix.length < prefixLen || !prevList[i].startsWith(prefix)) {
+
+                            wordItm = prevList[i].clone();
+                            listNew.push(wordItm);
+                            prefix = wordItm.attributes.word.substr(0, prefixLen);
+                        }
+                        else {
+
+                            wordItm = listNew[listNew.length - 1];
+                            listNew[listNew.length - 1].attributes.okmulti = 'okmulti';
+
+                            if (prefix.length < prefixLen && prevList[i].attributes.word.length > prefix.length)
+                                prefix = prevList[i].attributes.word.substr(0, prefixLen)
+                        }
+                    }
+
+                    --prefixLen;
+                }
+
+                if (listNew.length === 0 && prefixLen < 4) {
+
+                    prevList = _.first(prevList, lim);
+                    return new WordCollection(prevList);
+                }
+                else
+                    return new WordCollection(listNew);
+            }
+
+            var ltrList = this.byLetter[begin.charAt(0)],
+                p = $.Deferred(),
+                wc, tmp, that;
+
+            if ( ltrList ) {
+
+                wc = _prefixLimited(ltrList, begin, lim);
+                p.resolve(wc);
+            }
+            // todo - add code for case where wordColl has been requested, but not recieved
+            else {
+                tmp = new WordCollection();
+                tmp.letter = begin.charAt(0);
+                tmp.fetch({
+                    success: function(col, rsp, opt) {
+                        that.byLetter[letter] = tmp;
+                        wc = _prefixLimited(col, begin, lim);
+                        p.resolve(wc);
+                    },
+                    error: function(col, rsp, opt) {
+                        p.reject(rsp);
+                    }
+                })
+            }
+
+            return p.promise();
+        },
+
+        findOne: function (word) {
+
+            var ltrList = this.byLetter[word.charAt(0)],
+                p = $.Deferred(),
+                that = this,
+                tmp, wc;
+
+            if ( ltrList ) {
+
+                var list = ltrList.find(function (wd) {
+                    return wd.match(word);
+                });
+                p.resolve(list);
+            }
+            else {
+
+                tmp = new WordCollection();
+                tmp.letter = begin.charAt(0);
+                tmp.fetch({
+                    success: function(list, rsp, opt) {
+                        that.byLetter[letter] = tmp;
+                        var wc = list.find(function (wd) {
+                            return wd.match(word);
+                        });
+                        p.resolve(wc);
+                    },
+                    error: function(col, rsp, opt) {
+                        p.reject(rsp);
+                    }
+                })
+            }
+        }
+
+    });
+
+	// Create our global collection of available words.
 	app.thousand_words = new ThousandWords();
-    app.thousand_words.fetch();
 })();

@@ -370,7 +370,8 @@
 
         onKeyUp: function(ev) {
 
-            var $div, divId, caretPos, wf, word, wordCandidates;
+            var $div, divId, caretPos, wf, word, wordCandidates, p,
+                that = this;
 
             $div = $(ev.target).closest('[contenteditable]');
             divId = $div.attr('id');
@@ -394,14 +395,16 @@
 
             if ( word && word.length ) {
 
-                wordCandidates = app.thousand_words.startsWith(word);
-                console.log('words: ' + _.pluck(_.pluck(wordCandidates, 'attributes'), 'word').join(' '));
+                p = app.thousand_words.startsWith(word);
+                p.then(function(wordCandidates) {
 
-                this.wordsView.render(word);
+                    console.log('words: ' + _.pluck(_.pluck(wordCandidates, 'attributes'), 'word').join(' '));
+                    that.wordsView.render(word);
+                })
             }
             else {
                 console.log('clearing word list');
-                this.wordsView.render(false);
+                that.wordsView.render(false);
             }
 
             console.log('word ' + word);
