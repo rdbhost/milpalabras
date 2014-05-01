@@ -374,14 +374,17 @@
             }
             // todo - add code for case where wordColl has been requested, but not recieved
             else {
+
                 tmp = new WordCollection();
                 tmp.letter = begin.charAt(0);
                 tmp.fetch({
+
                     success: function(col, rsp, opt) {
                         that.byLetter[letter] = tmp;
                         wc = _prefixLimited(col, begin, lim);
                         p.resolve(wc);
                     },
+
                     error: function(col, rsp, opt) {
                         p.reject(rsp);
                     }
@@ -410,18 +413,25 @@
                 tmp = new WordCollection();
                 tmp.letter = begin.charAt(0);
                 tmp.fetch({
+
                     success: function(list, rsp, opt) {
+
                         that.byLetter[letter] = tmp;
                         var wc = list.find(function (wd) {
                             return wd.match(word);
                         });
+
                         p.resolve(wc);
                     },
+
                     error: function(col, rsp, opt) {
+
                         p.reject(rsp);
                     }
                 })
             }
+
+            return p;
         }
 
     });
