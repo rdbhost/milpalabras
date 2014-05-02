@@ -1,7 +1,5 @@
 /*global Backbone */
 
-
-
 (function () {
 	'use strict';
 
@@ -27,10 +25,7 @@
      *      elements.
      *   If there is a quoted-ratio error, all quoted portions will be included in error list
      */
-    // todo - change this work incrementally, and provide [errs, replacements] to a calllback at end
     app.audit_text = function (text) {
-
-        return [[], []];
 
         function trim(wd) {
 
@@ -38,8 +33,7 @@
         }
 
         var textParts = text.split(splitWordsOn),
-            accum = 0, errs = [], replacements = [], quotedParts = [],
-            wd, trimmed, err, refWd;
+            accum = 0, errs = [], replacements = [], quotedParts = [], wd, trimmed, err, refWd;
 
         if ( ! /\S/.test(text) ) {
             err = {start: 0, end: 0, type: 'blank'};
@@ -117,15 +111,10 @@
             return fromWL;
     }
 
-    // Object for each word in okwords list.
+    // Object for each thread in threads list.
     app.TWEntry = Backbone.Model.extend({
 
-        defaults: {
-            okmulti: ''
-        },
-
         match: function(wd) {
-
             if ( this.attributes.word.toLowerCase() === wd.toLowerCase() )
                 return this.attributes.word;
             var alts = _.filter(this.attributes.alts, function(m) {
@@ -136,7 +125,6 @@
         },
 
         startsWith: function(begin) {
-
             if ( this.attributes.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase() )
                 return true;
 
@@ -152,8 +140,8 @@
     // Dictionary Words Collection
 	// ---------------
 
-	// The collection of words backed by a remote server.
-	var WordCollection = Backbone.Collection.extend({
+	// The collection of threads is backed by a remote server.
+	var ThousandWords = Backbone.Collection.extend({
 
 		// Reference to this collection's model.
 		model: app.TWEntry,
@@ -167,28 +155,37 @@
             var records = [],
                 collection = this;
 
-            function getRecords(ltr) {
+            function getRecords(start) {
 
+                start = start || 0;
                 var p = R.preauthPostData({
-                    q: 'SELECT distinct word, \n' +
-                       ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts \n' +
-                       "FROM wordlist w  WHERE substring(word from 1 for 1) = %s \n" +
-                       'ORDER BY word ASC LIMIT 500;\n',
-                    args: [ltr]
+                    q: 'SELECT distinct word, ' +
+                       ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts ' +
+                       'FROM wordlist w  ORDER BY word ASC OFFSET %s LIMIT 10000;',
+                    args: [start]
                 });
 
                 p.then(function(resp) {
 
-                    collection.reset(resp.records.rows);
-                    if ( options && options.success )
-                        options.success(resp.records.rows);
+                    // add found records to
+                    records = records.concat(resp.records.rows);
 
+                    if ( resp.status[0] === 'incomplete' ) {
+
+                        getRecords(start + resp.records.rows.length);
+                    }
+                    else {
+
+                        collection.reset(records);
+                        if ( options && options.success )
+                            options.success(records);
+
+                    }
                 });
 
                 p.fail(function(err) {
                     if ( options && options.error )
                         options.error(err);
-                    console.log(err[0] + ' ' + err[1]);
                 });
             }
 
@@ -197,13 +194,14 @@
 
                 case 'read':
 
-                    getRecords(this.letter);
+                    getRecords(0);
                     break;
 
                 default:
 
-                    throw new Error('bad method in WordCollection.sync ' + method);
+                    throw new Error('bad method in ThousandWords.sync ' + method);
                     break;
+
             }
         },
 
@@ -220,43 +218,33 @@
             var t = _.filter(this.models, function(wd) {
                     return  wd.startsWith(begin);
                 }),
-                prefixLen = 4,
-                _t;
+                prefixLen = 4;
             while ( t.length > lim ) {
 
                 var t1 = t.slice(0),
                     prefix = t1[0].attributes.word.substr(0, prefixLen);
                 t.length = 0;
-                t.push(t1[0].clone());
+                t.push(t1[0]);
 
                 for ( var i=1; i<t1.length; ++i ) {
 
-                    if ( prefix.length < prefixLen || ! t1[i].startsWith(prefix) ) {
+                    if ( ! t1[i].startsWith(prefix) ) {
 
-                        _t = t1[i].clone();
-                        t.push(_t);
-                        prefix = _t.attributes.word.substr(0, prefixLen);
-                    }
-                    else {
-
-                        _t = t[t.length-1];
-                        t[t.length-1].attributes.okmulti = 'okmulti';
-
-                        if ( prefix.length < prefixLen && t1[i].attributes.word.length > prefix.length )
-                            prefix = t1[i].attributes.word.substr(0, prefixLen)
+                        t.push(t1[i]);
+                        prefix = t1[i].attributes.word.substr(0, prefixLen);
                     }
                 }
 
                 --prefixLen;
             }
 
-            if ( t.length === 0 && prefixLen < 4 ) {
+            if ( t.length < lim && prefixLen < 4 ) {
 
                 t1 = _.first(t1, lim);
-                return new WordCollection(t1);
+                return new ThousandWords(t1);
             }
             else
-                return new WordCollection(t);
+                return new ThousandWords(t);
         },
 
         findOne: function (word) {
@@ -268,174 +256,7 @@
 
 	});
 
-    // The collection of words backed by a remote server.
-    var ThousandWords = Backbone.Model.extend({
-
-        initialize: function() {
-
-            var that = this;
-            that.byLetter = {};
-        },
-
-        // Filter down the list of all words to those starting with begin
-        startsWith: function (begin) {
-
-            var ltrList = this.byLetter[begin.charAt(0)],
-                letter = begin.charAt(),
-                p = $.Deferred(),
-                tmp;
-
-            if ( ltrList ) {
-
-                tmp = ltrList.filter(function (word) {
-                    return word.startsWith(begin);
-                });
-
-                p.resolve(tmp);
-            }
-            else {
-
-                this.byLetter[letter] = new WordCollection();
-                this.byLetter[letter].letter = letter;
-                this.byLetter[letter].fetch({
-
-                    success: function(col, rsp, opt) {
-                        tmp = col.filter(function (word) {
-                            return word.startsWith(begin);
-                        });
-                        p.resolve(tmp);
-                    },
-
-                    error: function(col, rsp, opt) {
-                        p.reject(rsp);
-                    }
-                })
-            }
-
-            return p.promise();
-        },
-
-        prefixLimited: function(begin, lim) {
-
-            function _prefixLimited(list, begin, lim) {
-
-                var prefixLen = 4,
-                    listNew, wordItm;
-
-                listNew = _.filter(list.models, function (wd) {
-                    return  wd.startsWith(begin);
-                });
-
-                while (listNew.length > lim) {
-
-                    var prevList = listNew.slice(0),
-                        prefix = prevList[0].attributes.word.substr(0, prefixLen);
-                    listNew.length = 0;
-                    listNew.push(prevList[0].clone());
-
-                    for (var i = 1; i < prevList.length; ++i) {
-
-                        if (prefix.length < prefixLen || !prevList[i].startsWith(prefix)) {
-
-                            wordItm = prevList[i].clone();
-                            listNew.push(wordItm);
-                            prefix = wordItm.attributes.word.substr(0, prefixLen);
-                        }
-                        else {
-
-                            wordItm = listNew[listNew.length - 1];
-                            listNew[listNew.length - 1].attributes.okmulti = 'okmulti';
-
-                            if (prefix.length < prefixLen && prevList[i].attributes.word.length > prefix.length)
-                                prefix = prevList[i].attributes.word.substr(0, prefixLen)
-                        }
-                    }
-
-                    --prefixLen;
-                }
-
-                if (listNew.length === 0 && prefixLen < 4) {
-
-                    prevList = _.first(prevList, lim);
-                    return new WordCollection(prevList);
-                }
-                else
-                    return new WordCollection(listNew);
-            }
-
-            var ltrList = this.byLetter[begin.charAt(0)],
-                p = $.Deferred(),
-                wc, tmp, that;
-
-            if ( ltrList ) {
-
-                wc = _prefixLimited(ltrList, begin, lim);
-                p.resolve(wc);
-            }
-            // todo - add code for case where wordColl has been requested, but not recieved
-            else {
-
-                tmp = new WordCollection();
-                tmp.letter = begin.charAt(0);
-                tmp.fetch({
-
-                    success: function(col, rsp, opt) {
-                        that.byLetter[letter] = tmp;
-                        wc = _prefixLimited(col, begin, lim);
-                        p.resolve(wc);
-                    },
-
-                    error: function(col, rsp, opt) {
-                        p.reject(rsp);
-                    }
-                })
-            }
-
-            return p.promise();
-        },
-
-        findOne: function (word) {
-
-            var ltrList = this.byLetter[word.charAt(0)],
-                p = $.Deferred(),
-                that = this,
-                tmp, wc;
-
-            if ( ltrList ) {
-
-                var list = ltrList.find(function (wd) {
-                    return wd.match(word);
-                });
-                p.resolve(list);
-            }
-            else {
-
-                tmp = new WordCollection();
-                tmp.letter = begin.charAt(0);
-                tmp.fetch({
-
-                    success: function(list, rsp, opt) {
-
-                        that.byLetter[letter] = tmp;
-                        var wc = list.find(function (wd) {
-                            return wd.match(word);
-                        });
-
-                        p.resolve(wc);
-                    },
-
-                    error: function(col, rsp, opt) {
-
-                        p.reject(rsp);
-                    }
-                })
-            }
-
-            return p;
-        }
-
-    });
-
-	// Create our global collection of available words.
+	// Create our global collection of **Threads**.
 	app.thousand_words = new ThousandWords();
+    app.thousand_words.fetch();
 })();
