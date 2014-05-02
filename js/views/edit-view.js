@@ -6,7 +6,7 @@
     var KEY_ENTER = 13,
         KEY_SPACE = 32,
 
-        WORD_BREAK_RE = new RegExp('[^a-zA-Z`~\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00E1\u00E9\u00ED\u00F3\u00FA\u00F1]+', '');
+        WORD_BREAK_RE = new RegExp('[^a-zA-Z`~\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00E1\u00E9\u00ED\u00F3\u00FA\u00F1]+', 'g');
 
     function getCaretPos($div) {
 
@@ -49,6 +49,7 @@
             var start = 0, end = undefined, word;
 
             var wordBreak;
+            WORD_BREAK_RE.lastIndex = 0;
             while ( wordBreak = WORD_BREAK_RE.exec(dom) )  {
 
                 var b0 = wordBreak.index,
@@ -400,7 +401,10 @@
 
                     console.log('words: ' + _.pluck(_.pluck(wordCandidates, 'attributes'), 'word').join(' '));
                     that.wordsView.render(word);
-                })
+                });
+                p.fail(function(err) {
+                   var _nada = 0;
+                });
             }
             else {
                 console.log('clearing word list');
