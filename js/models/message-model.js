@@ -7,21 +7,21 @@
 
         MAX_QUOTED_RATIO = 0.15,
 
-        QUOTED_TEST = '[\"\'\'\u00ab\u2039]\S+[\"\'\'\u00bb\u203a]',
+        QUOTED_TEST = '([\"\'\'\u00ab\u2039]\\S+[\"\'\'\u00bb\u203a])|([0-9]+)',
 
         // ?!#$%&«‹¡-¿»›
-        SEPARATOR_RE = '[\s?!#$%%&.,\u00ab\u2039\u00a1\u00bf\u00bb\u203a-]+';
+        SEPARATOR_RE = '[\\s?!#$%%&.,\u00ab\u2039\u00a1\u00bf\u00bb\u203a-]+';
 
     var saveQuery =
         "WITH \n" +
         "    -- wordsS is a CTE with [submitted-word, dict-word or NULL] for each word in the subject\n" +
         "    --\n" +
-        "    tblS AS (select regexp_split_to_table(%(title), '~sep') AS wd),\n" +
+        "    tblS AS (select regexp_split_to_table(lower(%(title)), '~sep') AS wd),\n" +
         "    wordsS AS (select tblS.wd, wordlist.word FROM tblS LEFT JOIN wordlist ON wordlist.word = tblS.wd),\n" +
 
         "    -- wordsB is a CTE with [submitted-word, dict-word or NULL] for each word in the body\n" +
         "    --\n" +
-        "    tblB AS (select regexp_split_to_table(%(body), '~sep') AS wd),\n" +
+        "    tblB AS (select regexp_split_to_table(lower(%(body)), '~sep') AS wd),\n" +
         "    wordsB AS (select tblB.wd, wordlist.word FROM tblB LEFT JOIN wordlist ON wordlist.word = tblB.wd)\n" +
 
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +
@@ -34,10 +34,15 @@
         "WHERE\n" +
         "    -- check that no illegal words provided (without either dict match or quotes) for subject\n" +
         "    NOT EXISTS (SELECT wordsS.wd FROM wordsS\n" +
-        "                 WHERE wordsS.word IS NULL AND NOT wordsS.wd ~ '~wssep')\n" +
+        "                 WHERE wordsS.word IS NULL\n" +
+        "                   AND NOT wordsS.wd ~ '~wssep'\n" +
+        "                   AND wordsS.wd <> '')\n" +
+
         "    -- same check, but for body\n" +
         "    AND NOT EXISTS (SELECT wordsB.wd FROM wordsB\n" +
-        "                 WHERE wordsB.word IS NULL AND NOT wordsB.wd ~ '~wssep')\n" +
+        "                 WHERE wordsB.word IS NULL\n" +
+        "                   AND NOT wordsB.wd ~ '~wssep'\n" +
+        "                   AND wordsB.wd <> '')\n" +
 
         "    -- check that ratio of quoted words to dict words is below threshold, for subject\n" +
         "    AND ((array(SELECT coalesce(sum(char_length(wd)), 0) FROM wordsB WHERE word IS NULL))[1] /\n" +

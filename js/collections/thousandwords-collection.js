@@ -30,25 +30,24 @@
     // todo - change this work incrementally, and provide [errs, replacements] to a calllback at end
     app.audit_text = function (text) {
 
-        return [[], []];
-
         function trim(wd) {
 
             return wd.replace(trimmingRegExp, '');
         }
 
         var textParts = text.split(splitWordsOn),
+            p = $.Deferred(),
             accum = 0, errs = [], replacements = [], quotedParts = [],
-            wd, trimmed, err, refWd;
+            wd, trimmed, err;
 
         if ( ! /\S/.test(text) ) {
             err = {start: 0, end: 0, type: 'blank'};
-            return [err];
+            p.resolve([err]);
         }
 
-        for ( var i=0; i < textParts.length; ++i ) {
+        function handleOneWord() {
 
-            wd = textParts[i];
+            wd = textParts.shift();
 
             if ( wd.length && ! /\s/.test(wd) ) {
 
@@ -56,6 +55,12 @@
 
                     err = {'start': accum, 'end': accum + wd.length, 'type': 'quoted'};
                     quotedParts.push(err);
+
+                    accum += wd.length;
+                    if (textParts.length)
+                        setTimeout(handleOneWord, 0);
+                    else
+                        finalize();
                 }
                 else {
 
@@ -64,38 +69,71 @@
                     // skip numbers and other ok non-words
                     if ( trimmed && ! okNonWords.test(trimmed) ) {
 
-                        refWd = app.thousand_words.findOne(trimmed);
-                        if ( ! refWd ) {
+                        var p = app.thousand_words.findOne(trimmed);
+                        p.then(function(refWd) {
 
-                            console.log('word not found: ' + trimmed);
-                            err = {begin: accum, end: accum + wd.length, type: 'not-found'};
-                            errs.push(err);
-                        }
-                        else if ( refWd.attributes.word !== trimmed.toLowerCase() ) {
+                            if ( ! refWd ) {
 
-                            console.log('replacement: ' + refWd.attributes.word + ' ' + trimmed);
-                            var normRefWord = normalizeWord(trimmed, refWd.attributes.word);
-                            err = {begin: accum, end: accum + wd.length, newVal: normRefWord, type: 'replace'};
-                            replacements.push(err);
-                        }
+                                console.log('word not found: ' + trimmed);
+                                err = {begin: accum, end: accum + wd.length, type: 'not-found'};
+                                errs.push(err);
+                            }
+                            else if ( refWd.attributes.word !== trimmed.toLowerCase() ) {
+
+                                console.log('replacement: ' + refWd.attributes.word + ' ' + trimmed);
+                                var normRefWord = normalizeWord(trimmed, refWd.attributes.word);
+                                err = {begin: accum, end: accum + wd.length, newVal: normRefWord, type: 'replace'};
+                                replacements.push(err);
+                            }
+                            else
+                                ; // if word is good, do nothing special
+
+                            accum += wd.length;
+                            if (textParts.length)
+                                setTimeout(handleOneWord, 0);
+                            else
+                                finalize();
+                        });
+                        p.fail(function(err) {
+                            console.log(err[0] + err[1]);
+                            p.reject(err);
+                        })
+                    }
+                    else {
+
+                        accum += wd.length;
+                        if (textParts.length)
+                            setTimeout(handleOneWord, 0);
                         else
-                            ; // if word is good, do nothing special
+                            finalize();
                     }
                 }
             }
+            else {
 
-            accum += wd.length;
+                accum += wd.length;
+                if (textParts.length)
+                    setTimeout(handleOneWord, 0);
+                else
+                    finalize();
+            }
         }
 
-        function _quoteTot(t, err) {
-            var len = err.end - err.start;
-            return t+len;
-        }
-        var quotedTot = _.reduce(quotedParts, _quoteTot, 0);
-        if ( quotedTot / accum > MAX_QUOTED_RATIO )
-            errs.push.apply(quotedParts);
+        function finalize() {
 
-        return [errs, replacements];
+            function _quoteTot(t, err) {
+                var len = err.end - err.start;
+                return t+len;
+            }
+            var quotedTot = _.reduce(quotedParts, _quoteTot, 0);
+            if ( quotedTot / accum > MAX_QUOTED_RATIO )
+                errs.push.apply(quotedParts);
+
+            p.resolve([errs, replacements]);
+        }
+
+        handleOneWord();
+        return p.promise();
     };
 
 
@@ -372,7 +410,7 @@
                 wc = _prefixLimited(ltrList, begin, lim);
                 p.resolve(wc);
             }
-            // todo - add code for case where wordColl has been requested, but not recieved
+            // todo - add code for case where wordColl has been requested, but not received
             else {
 
                 tmp = new WordCollection();
@@ -380,7 +418,7 @@
                 tmp.fetch({
 
                     success: function(col, rsp, opt) {
-                        that.byLetter[letter] = tmp;
+                        that.byLetter[begin.charAt(0)] = tmp;
                         wc = _prefixLimited(col, begin, lim);
                         p.resolve(wc);
                     },
@@ -403,10 +441,8 @@
 
             if ( ltrList ) {
 
-                var list = ltrList.find(function (wd) {
-                    return wd.match(word);
-                });
-                p.resolve(list);
+                var one = ltrList.findOne(word);
+                p.resolve(one);
             }
             else {
 
@@ -417,11 +453,9 @@
                     success: function(list, rsp, opt) {
 
                         that.byLetter[letter] = tmp;
-                        var wc = list.find(function (wd) {
-                            return wd.match(word);
-                        });
+                        var one = tmp.findOne(word);
 
-                        p.resolve(wc);
+                        p.resolve(one);
                     },
 
                     error: function(col, rsp, opt) {

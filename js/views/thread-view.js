@@ -91,7 +91,7 @@
             }
             else  {
                 this.$tMain.empty();
-                this.$tMain.html(this.nullTemplate());
+                // this.$tMain.html(this.nullTemplate());
             }
 
             // this.$el.html(this.template(this.model.toJSON()));

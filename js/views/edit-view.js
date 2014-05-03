@@ -195,7 +195,7 @@
                 continue;
 
             var container = $div.get(0);
-            rng.selectCharacters(container, err.begin, err.end);
+            rng.selectCharacters(container, rep.begin, rep.end);
             sel.setSingleRange(rng);
 
             document.execCommand('inserttext', false, rep.newVal);
@@ -231,17 +231,26 @@
 
     function handleInputErrors($rawDiv) {
 
-        var divEval = app.audit_text(rangy.innerText($rawDiv.get(0)));
+        var auditPromise = app.audit_text(rangy.innerText($rawDiv.get(0))),
+            p = $.Deferred();
 
-        if ( divEval[0].length ) {
-            unMarkErrors($rawDiv);
-            markErrors($rawDiv, divEval[0]);
-        }
+        auditPromise.then(function(divEval) {
+            if ( divEval[0].length ) {
+                unMarkErrors($rawDiv);
+                markErrors($rawDiv, divEval[0]);
+            }
 
-        if ( divEval[1].length )
-            doReplacements($rawDiv, divEval[1]);
+            if ( divEval[1].length )
+                doReplacements($rawDiv, divEval[1]);
 
-        return divEval[0].length;
+            p.resolve(divEval[0].length);
+        });
+
+        auditPromise.fail(function(err) {
+            p.reject(err);
+        });
+
+        return p.promise();
     }
 
 
@@ -277,52 +286,66 @@
             this.$el.html(this.template(this.model.toJSON()));
             this.$el.show();
             //$('#okwords').show();
+            this._manageButtons();
 
             return this;
         },
 
         postFunction: function(ev) {
 
-
             var $rawMsg = this.$('#new-message'),
-                $rawSubj = this.$('#subject');
+                $rawSubj = this.$('#subject'),
+                that = this,
+                pM, pS, pM1, pS1;
 
-            this.errorStats['new-message'] = handleInputErrors($rawMsg);
-            this.errorStats['subject'] = handleInputErrors($rawSubj);
+            pM = handleInputErrors($rawMsg);
+            pM1 = pM.then(function(res) {
+                that.errorStats['new-message'] = res;
+            });
 
-            this._manageButtons();
-            if ( this.errorStats['new-message'] || this.errorStats['subject'] )
-                return;
+            pS = handleInputErrors($rawSubj);
+            pS1 = pS.then(function(res) {
+                that.errorStats['subject'] = res;
+            });
 
-            var msg = toMarkdown($rawMsg.html().replace(/div>/g, 'p>')),
-                subj = toMarkdown($rawSubj.html().replace(/div>/g, 'p>')),
-                tagRe = /<[^>]*>/g,
-                _this = this;
+            $.when(pS1, pM1).then(function () {
 
-            msg = msg.replace(tagRe, '');
-            subj = subj.replace(tagRe, '');
+                that._manageButtons();
+                if ( ! that.errorStats['new-message'] && ! that.errorStats['subject'] && $rawSubj.text().length )
+                    saveMessage();
+            });
 
-            var newModel = new app.Message({
+            function saveMessage() {
+
+                var msg = toMarkdown($rawMsg.html().replace(/div>/g, 'p>')),
+                    subj = toMarkdown($rawSubj.html().replace(/div>/g, 'p>')),
+                    tagRe = /<[^>]*>/g;
+
+                msg = msg.replace(tagRe, ''); // .replace('&nbsp;','');
+                subj = subj.replace(tagRe, ''); //.replace('&nbsp;','');
+
+                var newModel = new app.Message({
                     body: msg,
                     title: subj,
-                    thread_id: this.model.attributes.thread_id,
-                    message_id: this.model.attributes.message_id,
+                    thread_id: that.model.attributes.thread_id,
+                    message_id: that.model.attributes.message_id,
                     author: app.userId
                 });
 
-            newModel.save({}, {
-                    success: function(mdl, resp, opt) {
-                        if ( typeof _this.model.attributes.thread_id === 'undefined' )
-                            app.threads.fetch({ reset: true });
-                        else
-                            app.thread.fetch({ reset: true });
-                        _this._cleanup(ev);
-                    },
-                    error: function(e) {
-                        alert('fail ' + e);
+                newModel.save({}, {
+                        success: function(mdl, resp, opt) {
+                            if ( typeof that.model.attributes.thread_id === 'undefined' )
+                                app.threads.fetch({ reset: true });
+                            else
+                                app.thread.fetch({ reset: true });
+                            that._cleanup(ev);
+                        },
+                        error: function(e) {
+                            alert('fail ' + e);
+                        }
                     }
-                }
-            );
+                );
+            }
 
             ev.stopImmediatePropagation();
         },
@@ -360,7 +383,11 @@
 
         _manageButtons: function() {
 
-            if ( ! this.errorStats['subject'] &&  ! this.errorStats['new-message'] ) {
+            var $rawMsg = this.$('#new-message').text(),
+                $rawSubj = this.$('#subject').text();
+
+            if ( (! this.errorStats['subject']) &&  (! this.errorStats['new-message'])
+                && $rawMsg.length && $rawSubj.length ) {
 
                 this.$el.find('#post-message').removeAttr('disabled');
             }
@@ -384,9 +411,15 @@
             }
             else if ( ~this._queue.indexOf(KEY_SPACE) ) {
 
-                this.errorStats[divId] = handleInputErrors($div);
+                var pS = handleInputErrors($div);
+                pS.then(function(res) {
+                    that.errorStats[divId] = res;
+                    that._manageButtons();
+                });
+                pS.fail(function(res) {
+                   var _nada = true;
+                });
             }
-            this._manageButtons();
 
             this._queue.length = 0;
 
@@ -414,7 +447,6 @@
             console.log('word ' + word);
             console.log('caret pos ' + caretPos);
         }
-
     });
 
 })(jQuery);
