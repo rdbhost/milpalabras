@@ -1444,7 +1444,7 @@ window.Rdbhost = {};
         var p = $.Deferred(),
             pD = $.postData(opts);
 
-        pD.done(function(args) {
+        pD.then(function(args) {
 
             p.resolve(args);
         });

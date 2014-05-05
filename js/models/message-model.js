@@ -13,17 +13,6 @@
         SEPARATOR_RE = '[\\s?!#$%%&.,\u00ab\u2039\u00a1\u00bf\u00bb\u203a-]+';
 
     var saveQuery =
-        "WITH \n" +
-        "    -- wordsS is a CTE with [submitted-word, dict-word or NULL] for each word in the subject\n" +
-        "    --\n" +
-        "    tblS AS (select regexp_split_to_table(lower(%(title)), '~sep') AS wd),\n" +
-        "    wordsS AS (select tblS.wd, wordlist.word FROM tblS LEFT JOIN wordlist ON wordlist.word = tblS.wd),\n" +
-
-        "    -- wordsB is a CTE with [submitted-word, dict-word or NULL] for each word in the body\n" +
-        "    --\n" +
-        "    tblB AS (select regexp_split_to_table(lower(%(body)), '~sep') AS wd),\n" +
-        "    wordsB AS (select tblB.wd, wordlist.word FROM tblB LEFT JOIN wordlist ON wordlist.word = tblB.wd)\n" +
-
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +
         "--\n" +
         "INSERT INTO messages (thread_id, message_id, title, body, post_date, author) \n" +
@@ -31,29 +20,14 @@
         "SELECT %(thread_id), %(message_id), %(title), %(body), NOW(), o.idx \n" +
         "  FROM auth.openid_accounts o\n" +
 
-        "WHERE\n" +
-        "    -- check that no illegal words provided (without either dict match or quotes) for subject\n" +
-        "    NOT EXISTS (SELECT wordsS.wd FROM wordsS\n" +
-        "                 WHERE wordsS.word IS NULL\n" +
-        "                   AND NOT wordsS.wd ~ '~wssep'\n" +
-        "                   AND wordsS.wd <> '')\n" +
-
-        "    -- same check, but for body\n" +
-        "    AND NOT EXISTS (SELECT wordsB.wd FROM wordsB\n" +
-        "                 WHERE wordsB.word IS NULL\n" +
-        "                   AND NOT wordsB.wd ~ '~wssep'\n" +
-        "                   AND wordsB.wd <> '')\n" +
-
-        "    -- check that ratio of quoted words to dict words is below threshold, for subject\n" +
-        "    AND ((array(SELECT coalesce(sum(char_length(wd)), 0) FROM wordsB WHERE word IS NULL))[1] /\n" +
-        "         (array(SELECT coalesce(sum(char_length(word)), 0.1) FROM wordsB WHERE word IS NOT NULL))[1]) < ~mqr\n" +
-        "    -- same check, for body\n" +
-        "    AND ((array(SELECT coalesce(sum(char_length(wd)), 0) FROM wordsS WHERE word IS NULL))[1] /\n" +
-        "         (array(SELECT coalesce(sum(char_length(word)), 0.1) FROM wordsS WHERE word IS NOT NULL))[1]) < 2*~mqr\n" +
+        "WHERE test_msg(%(title), ~mqr*2) IS NULL AND test_msg(%(body), ~mqr) IS NULL \n" +
         "    -- and provided authentication checks ok\n" +
         "    AND o.identifier = %s AND o.key = %s; \n" +
 
-        "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; ";
+        " -- and lastly, make thread_id match message_id for new threads \n" +
+        "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n";
+
+
     saveQuery = saveQuery.replace(/~sep/g, SEPARATOR_RE).replace(/~mqr/g, MAX_QUOTED_RATIO).replace(/~wssep/g, QUOTED_TEST);
 
     // Our basic Message model.

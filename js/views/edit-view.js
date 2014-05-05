@@ -5,6 +5,7 @@
 
     var KEY_ENTER = 13,
         KEY_SPACE = 32,
+        KEY_TAB = 9,
 
         WORD_BREAK_RE = new RegExp('[^a-zA-Z`~\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00E1\u00E9\u00ED\u00F3\u00FA\u00F1]+', 'g');
 
@@ -280,13 +281,20 @@
 
         wordsView: new app.WordListView(),
 
-        // Re-render the titles of the thread item.
+        // Render the edit box
         render: function () {
 
             this.$el.html(this.template(this.model.toJSON()));
             this.$el.show();
             //$('#okwords').show();
             this._manageButtons();
+
+            this.$el.find('#subject').blur(function() {
+               $('#okwords').empty();
+            });
+            this.$el.find('#new-message').blur(function() {
+                $('#okwords').empty();
+            });
 
             return this;
         },
@@ -319,10 +327,15 @@
 
                 var msg = toMarkdown($rawMsg.html().replace(/div>/g, 'p>')),
                     subj = toMarkdown($rawSubj.html().replace(/div>/g, 'p>')),
-                    tagRe = /<[^>]*>/g;
+                    tagRe = /<[^>]*>/g,
+                    htmlEntityRe = /&[a-zA-Z]+;/g;
 
-                msg = msg.replace(tagRe, ''); // .replace('&nbsp;','');
-                subj = subj.replace(tagRe, ''); //.replace('&nbsp;','');
+                function convertHtmlEntities(ht) {
+                    return $('<div/>').html(ht).text();
+                }
+
+                msg = msg.replace(tagRe, '').replace(htmlEntityRe, convertHtmlEntities);
+                subj = subj.replace(tagRe, '').replace(htmlEntityRe, convertHtmlEntities);
 
                 var newModel = new app.Message({
                     body: msg,
@@ -340,7 +353,7 @@
                                 app.thread.fetch({ reset: true });
                             that._cleanup(ev);
                         },
-                        error: function(e) {
+                        error: function(mdl, resp, opt) {
                             alert('fail ' + e);
                         }
                     }
@@ -358,7 +371,6 @@
         _cleanup: function (ev) {
             this.$el.empty();
             this.undelegateEvents();
-            //$('#okwords').hide();
             this.wordsView.render(false);
         },
 
@@ -375,6 +387,10 @@
                 var $div = $(ev.target).closest('[contenteditable]');
                 this._needBlankPadding = getCaretLine($div);
             }
+
+            //else if (ev.charCode === KEY_TAB) {
+            //    var $div = $(ev.target).closest('[contenteditable]');
+            //}
 
             console.log('keypress ' + ev.charCode);
         },
