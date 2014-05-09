@@ -9,9 +9,13 @@
  */
 
 
-var domain = 'dev.rdbhost.com',
-    acct_number = 12,
-    demo_r_role = 'r0000000012',
-    demo_p_role = 'p0000000012',
-    demo_s_role = 's0000000012',
-    demo_email = 'js@travelbyroad.net';
+var domain = 'www.rdbhost.com',
+    acct_number = 1355,
+    demo_r_role = 'r0000001355',
+    demo_p_role = 'p0000001355',
+    demo_s_role = 's0000001355',
+    demo_s_authcode = '9Dk924OXgug6izvzy7OYYljxcgcAZRnBNjOaZaIinq9iWjUcfo',
+    demo_email = 'milpalabras@travelbyroad.net',
+
+    user_identifier = 'dkeeney@travelbyroad.net',
+    user_key = '031e0760d54d8080df43fb384bfe7ca0';

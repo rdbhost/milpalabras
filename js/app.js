@@ -28,7 +28,8 @@ var app = _.extend({ userId: undefined, userKey: undefined }, Backbone.Events);
 
     R.rdbHostConfig({
         domain: DOMAIN,
-        userName: PREAUTH_ROLE
+        accountNumber: 1355,
+        userName: 'preauth'
     });
 
 

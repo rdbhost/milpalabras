@@ -331,7 +331,11 @@
                     htmlEntityRe = /&[a-zA-Z]+;/g;
 
                 function convertHtmlEntities(ht) {
-                    return $('<div/>').html(ht).text();
+                    var c = $('<div/>').html(ht).text().charAt(0);
+                    if (c === String.fromCharCode(160))
+                        return ' ';
+                    else
+                        return c;
                 }
 
                 msg = msg.replace(tagRe, '').replace(htmlEntityRe, convertHtmlEntities);
@@ -353,8 +357,8 @@
                                 app.thread.fetch({ reset: true });
                             that._cleanup(ev);
                         },
-                        error: function(mdl, resp, opt) {
-                            alert('fail ' + e);
+                        error: function(mdl, err, opt) {
+                            alert('fail ' + err[0] + err[1] );
                         }
                     }
                 );

@@ -1,51 +1,50 @@
 
 /*
 *
-* tests for the SQLEngine
+* tests for the test_msg
 *
 *
 */
-module('SQLEngine pre-test');
-//var domain = 'dev.rdbhost.com';
-
-// create engine
-test('createEngine', function() {
-
-  var e = new SQLEngine(demo_r_role, '-', domain);
-  ok(e, 'SQLEngine created');
-  ok(e.query, 'engine has query method ');
-  ok(typeof e.query === 'function', 'e.query is type: ' + (typeof e.query));
-});
-
-module('SQLEngine AJAX tests', {
+module('test_msg tests', {
 
   setup: function () {
-    this.e = new SQLEngine(demo_r_role,'-',domain);
+    this.e = window.Rdbhost;
+    $.rdbHostConfig({'userName':demo_s_role, 'authcode': demo_s_authcode, 'domain': domain});
   }
 });
 
-// do SELECT query ajax-way
-test('SQLEngine setup verification', function() {
+function passCallback(resp) {
 
-  ok(this.e, 'engine defined');
-  ok(this.dontfind === undefined, 'engine does not have "dontfind"');
-});
+    ok(typeof resp === 'object', 'response is object'); // 0th assert
+    ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
+    ok(resp.row_count[0] > 0, 'data row found');
+    ok(resp.records.rows[0]['test_msg'] === null, 'data is ' + resp.records.rows[0]['test_msg']);
+    start();
+}
 
-asyncTest('ajax SELECT', 4, function() {
+function notPassCallbackMaker(expect) {
 
-  this.e.query({
+    function _notPassCallback(resp) {
 
-      q: "SELECT 1 as one",
+        ok(typeof resp === 'object', 'response is object'); // 0th assert
+        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
+        ok(resp.row_count[0] > 0, 'data row found');
+        ok(resp.records.rows[0]['test_msg'] === expect, 'data is ' + resp.records.rows[0]['test_msg'] + ' :' + expect);
+        start();
+    }
+
+    return _notPassCallback;
+}
+
+asyncTest('good one word', 4, function() {
+
+  this.e.postData({
+
+      q: "SELECT * FROM test_msg(%s, 0.15)",
+      args: ['amigo '],
       format: 'json-easy',
 
-      callback: function (resp) {
-
-            ok(typeof resp === 'object', 'response is object'); // 0th assert
-            ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
-            ok(resp.row_count[0] > 0, 'data row found');
-            ok(resp.records.rows[0]['one'] === 1, 'data is ' + resp.records.rows[0]['one']);
-            start();
-          },
+      callback: passCallback,
 
       errback: function(err) {
 
@@ -56,700 +55,353 @@ asyncTest('ajax SELECT', 4, function() {
 });
 
 
-asyncTest('ajax SELECT promise', 5, function() {
+asyncTest('good one word match null', 4, function() {
 
-  var p = this.e.query({
+    this.e.postData({
 
-    q: "SELECT 1 as one",
-    format: 'json-easy',
-
-    callback: function (resp) {
-
-      ok(typeof resp === 'object', 'response is object'); // 0th assert
-      ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
-      ok(resp.row_count[0] > 0, 'data row found');
-      ok(resp.records.rows[0]['one'] === 1, 'data is '+resp.records.rows[0]['one']);
-    }
-  });
-
-  p.done(function () {
-    ok(true, 'promise resolved');
-    start();
-  });
-
-});
-
-
-asyncTest('ajax SELECT promise chained', 4, function() {
-
-  var p = this.e.query({
-
-    q: "SELECT 1 as one",
-    format: 'json-easy',
-
-    callback: function (resp) {
-
-      ok(typeof resp === 'object', 'response is object'); // 0th assert
-      ok(resp.status[1].toLowerCase() == 'ok', 'status is ok: ' + resp.status[1]); // 1st assert
-
-      return {'pumpkin' :'pie'};
-    }
-  });
-
-  p.done(function (resp) {
-
-    ok(resp.pumpkin == 'pie', 'pumpkin pie');
-    ok(true, 'promise resolved');
-    start();
-  });
-
-});
-
-asyncTest('ajax SELECT + repeat', 4, function() {
-
-    this.e.query({
-
-        q: "SELECT 1 as one",
+        q: "SELECT 1 AS test_msg WHERE test_msg(%s, 0.15) IS NULL",
+        args: ['amigo '],
         format: 'json-easy',
-        repeat: 3,
 
-        callback: function (resp) {
-
-            ok(typeof resp === 'object', 'response is object'); // 0th assert
-            ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '  +resp.status[1]); // 1st assert
-            ok(resp.result_sets && resp.result_sets.length > 2, 'data sets found');
-            ok(resp.result_sets[2].records.rows[0]['one'] === 1, 'data is ' + resp.result_sets[2].records.rows[0]['one']);
-            start();
-        }
-    });
-});
-
-
-
-
-asyncTest('ajax multi SELECT', 12, function() {
-
-  this.e.query({
-
-      q: "SELECT 1 as one",
-      format: 'json-easy',
-
-      callback: function (resp) {
-
-            ok(typeof resp === 'object', 'response is object'); // 0th assert
-            ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
-            ok(resp.row_count[0] > 0, 'data row found');
-            ok(resp.records.rows[0]['one'] === 1, 'data is '+resp.records.rows[0]['one']);
-          }
-    });
-  this.e.query({
-
-      q: "SELECT 2 as two",
-      format: 'json-easy',
-
-      callback: function (resp) {
-
-            ok(typeof resp === 'object', 'response is object'); // 0th assert
-            ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
-            ok(resp.row_count[0] > 0, 'data row found');
-            ok(resp.records.rows[0]['two'] === 2, 'data is not 2');
-          }
-    });
-  this.e.query({
-
-      q: "SELECT 3 as three",
-      format: 'json-easy',
-
-      callback: function (resp) {
-
-          ok(typeof resp === 'object', 'response is object'); // 0th assert
-          ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
-          ok(resp.row_count[0] > 0, 'data row found');
-          ok(resp.records.rows[0]['three'] === 3, 'data is not 3')
-        }
-    });
-
-  // ends async test at 2 seconds.
-  setTimeout(function() {
-      start();
-    }, 2000);
-});
-
-
-// test that error calls errback
-asyncTest('ajax SELECT error', 1+0+1, function() {
-
-  this.e.query({
-
-      q: "SELECTY 1 as one",
-      format: 'json-easy',
-
-      errback: function(err) {
-
-          ok(true, "errback was called");
-          equal(err[0].length, 5, "errorval: "+err[0]);   // 42601
-          start();
-        },
-
-      callback: function (resp) {
-          start();
-        }
-    });
-});
-
-
-// test that error calls errback - with promise
-asyncTest('ajax SELECT error - promise', 3, function() {
-
-  var p = this.e.query({
-
-    q: "SELECTY 1 as one",
-    format: 'json-easy',
-
-    errback: function(err) {
-
-      ok(true, "errback was called");
-      equal(err[0].length, 5, "errorval: "+err[0]); // 42601
-    },
-
-    callback: function (resp) {
-      start();
-    }
-  });
-
-  p.fail( function(a) {
-    ok(true,'promise fail called');
-    start();
-  });
-});
-
-
-// do SELECT query by rows
-asyncTest('ajax SELECT', 5, function() {
-
-  this.e.queryRows({
-
-      q: "SELECT 1 as one UNION SELECT 2",
-      format: 'json-easy',
-
-      callback: function (rows, hdr) {
-
-          ok(typeof hdr === 'object', 'hdr param is object'); // 0th assert
-          ok(typeof rows === 'object', 'hdr param is object'); // 0th assert
-          ok(rows.length > 1, 'mutliple rows not found');
-          ok(rows[0]['one'] === 1, 'data is '+rows[0]['one']);
-          ok(rows[1]['one'] === 2, 'data is '+rows[1]['one']);
-          start();
-        }
-    });
-});
-
-
-// do SELECT query by rows - with promise
-asyncTest('ajax SELECT promise', 6, function() {
-
-  var p = this.e.queryRows({
-
-    q: "SELECT 1 as one UNION SELECT 2",
-    format: 'json-easy',
-
-    callback: function (rows, hdr) {
-
-      ok(typeof hdr === 'object', 'hdr param is object'); // 0th assert
-      ok(typeof rows === 'object', 'hdr param is object'); // 0th assert
-      ok(rows.length > 1, 'multiple rows found');
-      ok(rows[0]['one'] === 1, 'data is '+rows[0]['one']);
-      ok(rows[1]['one'] === 2, 'data is '+rows[1]['one']);
-    }
-  });
-
-  p.done(function(a) {
-    ok(true,'promise done called');
-    start();
-  });
-});
-
-
-// use args param
-//
-asyncTest('use args 1', 4, function () {
-
-  this.e.query({
-
-    q : 'SELECT %s as one',
-    format: 'json-easy',
-    args: [1],
-
-    callback: function (resp) {
-
-      ok(typeof resp === 'object', 'response is object'); // 0th assert
-      ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
-      ok(resp.row_count[0] > 0, 'data row found');
-      ok(resp.records.rows[0]['one'] === 1, 'data is not 1');
-      clearTimeout(to);
-      start();
-    },
-
-    errback: function(err) {
-
-      ok(true, "errback was called");
-      equal(err[0].length, 5, "errorval: "+err[0]);
-      clearTimeout(to);
-      start();
-    }
-  });
-
-  // ends async test at 2 seconds.
-  var to = setTimeout(function() {
-    start();
-  }, 2000);
-
-});
-
-
-// use args param
-//
-asyncTest('use args 2', 5, function () {
-
-  this.e.query({
-
-    q : 'SELECT %s as one, %s as two',
-    format: 'json-easy',
-    args: [1, 'dos'],
-
-    callback: function (resp) {
-
-      ok(typeof resp === 'object', 'response is object'); // 0th assert
-      ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
-      ok(resp.row_count[0] > 0, 'data row found');
-      ok(resp.records.rows[0]['one'] === 1, 'data is not 1');
-      ok(resp.records.rows[0]['two'] === 'dos', 'data is not "dos"');
-      clearTimeout(to);
-      start();
-    },
-
-    errback: function(err) {
-
-      ok(true, "errback was called");
-      equal(err[0].length, 5, "errorval: "+err[0]);
-      clearTimeout(to);
-      start();
-    }
-  });
-
-  // ends async test at 2 seconds.
-  var to = setTimeout(function() {
-    start();
-  }, 2000);
-
-});
-
-
-// use cookies
-//
-asyncTest('use cookies ', 5, function () {
-
-  $.cookie('ck','abc');
-  $.cookie('ck1','def');
-
-  this.e.query({
-
-    q : 'SELECT %{ck} as one, %{ck1} as two',
-    format: 'json-easy',
-    args: [1, 'dos'],
-
-    callback: function (resp) {
-
-      ok(typeof resp === 'object', 'response is object'); // 0th assert
-      ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
-      ok(resp.row_count[0] > 0, 'data row found');
-      ok(resp.records.rows[0]['one'] === 'abc', 'data is not "abc" ');
-      ok(resp.records.rows[0]['two'] === 'def', 'data is not "def" ');
-      clearTimeout(to);
-      start();
-    },
-
-    errback: function(err) {
-
-      ok(true, "errback was called");
-      ok(err[0].length >= 3, "errorval: "+err[0]);
-      ok(false, 'errresp'+err[1]);
-      clearTimeout(to);
-      start();
-    }
-  });
-
-  // ends async test at 2 seconds.
-  var to = setTimeout(function() {
-    start();
-  }, 2000);
-
-});
-
-
-// use namedParams param
-//
-asyncTest('use namedParams', 5, function () {
-
-  this.e.query({
-
-    q : 'SELECT %(un) as one, %(der) as two',
-    format: 'json-easy',
-    namedParams: {'un':1, 'der':'dos'},
-
-    callback: function (resp) {
-
-      ok(typeof resp === 'object', 'response is object'); // 0th assert
-      ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
-      ok(resp.row_count[0] > 0, 'data row found');
-      ok(resp.records.rows[0]['one'] === 1, 'data is not 1');
-      ok(resp.records.rows[0]['two'] === 'dos', 'data is not "dos"');
-      clearTimeout(to);
-      start();
-    },
-    errback: function(err) {
-
-      ok(true, "errback was called");
-      equal(err[0].length, 5, "errorval: "+err[0]);
-      clearTimeout(to);
-      start();
-    }
-  });
-
-  // ends async test at 2 seconds.
-  var to = setTimeout(function() {
-    start();
-  }, 2000);
-
-});
-
-
-// use namedParams Date param
-//
-asyncTest('use namedParams Date', 3, function () {
-
-  var q = 'CREATE TEMP TABLE t ( t TIMESTAMP );\n'+
-          'INSERT INTO t (t) VALUES (%(ts));',
-      dt = new Date();
-
-  this.e.query({
-
-    q : q,
-    format: 'json-easy',
-    namedParams: { 'ts': dt.toISOString() },
-
-    callback: function (resp) {
-
-      ok(typeof resp === 'object', 'response is object'); // 0th assert
-      ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
-      ok(resp.result_sets[1].row_count[0] > 0, 'data row found');
-      clearTimeout(to);
-      start();
-    },
-
-    errback: function(err) {
-
-      ok(true, "errback was called");
-      clearTimeout(to);
-      start();
-    }
-  });
-
-  // ends async test at 2 seconds.
-  var to = setTimeout(function() {
-    start();
-  }, 2000);
-
-});
-
-
-// use namedParams Date param, and get date value back
-//
-asyncTest('use namedParams Date & SELECT', 4, function () {
-
-    var q = 'CREATE TEMP TABLE t ( t TIMESTAMP );\n'+
-            'INSERT INTO t (t) VALUES (%(ts));\n' +
-            'SELECT * FROM t;',
-        dt = new Date();
-
-    this.e.query({
-
-        q : q,
-        format: 'json-easy',
-        namedParams: { 'ts': dt.toISOString() },
-
-        callback: function (resp) {
-
-            ok(typeof resp === 'object', 'response is object'); // 0th assert
-            ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
-            ok(resp.result_sets[1].row_count[0] > 0, 'data row found');
-            var res = resp.result_sets[2].records;
-            ok(res.rows.length > 0, 'records were returned');
-            clearTimeout(to);
-            start();
+        callback: function(resp) {
+            notPassCallbackMaker(1)(resp);
         },
 
         errback: function(err) {
 
-            ok(true, "errback was called");
-            clearTimeout(to);
+            ok(false, 'errback called ' + err[0] + ' ' + err[1]);
             start();
         }
     });
-
-    // ends async test at 2 seconds.
-    var to = setTimeout(function() {
-        start();
-    }, 2000);
-
 });
 
 
-// use namedParams Date param - fail on bad format
-//
-asyncTest('use namedParams Date - fail', 2, function () {
+asyncTest('bad one word', 4, function() {
 
-  var q = 'CREATE TEMP TABLE t ( t TIMESTAMP );\n'+
-          'INSERT INTO t (t) VALUES (%(ts));',
-      dt = 'foo';
+    this.e.postData({
 
-  this.e.query({
+        q: "SELECT * FROM test_msg(%s, 0.15)",
+        args: ['anybody'],
+        format: 'json-easy',
 
-    q : q,
-    format: 'json-easy',
-    namedParams: { 'ts': dt },
+        callback: notPassCallbackMaker('bad words table 0 [anybody]'),
 
-    callback: function (resp) {
+        errback: function(err) {
 
-      ok(false, 'callback called');
-      clearTimeout(to);
-      start();
-    },
+            ok(false, 'errback called ' + err[0] + ' ' + err[1]);
+            start();
+        }
+    });
+});
 
-    errback: function(err) {
 
-      ok(true, "errback was called");
-      equal(err[0], '22007', "errorval: " + err[0]);
-      clearTimeout(to);
-      start();
-    }
-  });
+asyncTest('good two words', 4, function() {
 
-  // ends async test at 2 seconds.
-  var to = setTimeout(function() {
+    this.e.postData({
+
+        q: "SELECT * FROM test_msg(%s, 0.15)",
+        args:['amigo de '],
+        format: 'json-easy',
+
+        callback: passCallback,
+
+        errback: function(err) {
+
+            ok(false, 'errback called ' + err[0] + ' ' + err[1]);
+            start();
+        }
+    });
+});
+
+
+asyncTest('double test', 4, function() {
+
+    this.e.postData({
+
+        q: "SELECT 1 AS test_msg WHERE test_msg(%(body), 0.15*2) IS NULL AND test_msg(%(subject), 0.15) IS NULL;",
+        namedParams: {body: 'amigo', subject: 'de'},
+        format: 'json-easy',
+
+        callback: notPassCallbackMaker(1),
+
+        errback: function(err) {
+
+            ok(false, 'errback called ' + err[0] + ' ' + err[1]);
+            start();
+        }
+    });
+});
+
+
+function identifierNotPassCallback(resp) {
+
+    ok(typeof resp === 'object', 'response is object'); // 0th assert
+    ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
+    ok(resp.row_count[0] > 0, 'data row found');
     start();
-  }, 2000);
-
-});
-
-
-// do SELECT query form way
-var form = "<form id=\"qunit_form\" method='post' enctype=\"multipart/form-data\">"+
-           "<input name=\"q\" value=\"SELECT 99 AS col\" />"+
-           "</form>";
-
-
-module('SQLEngine Form tests', {
-
-  setup: function () {
-
-    this.e = new SQLEngine(demo_r_role,'-',domain);
-    $('#qunit_form').remove();
-    $('body').append(form);
-  },
-
-  teardown: function () {
-
-    $('#qunit_form').remove();
-    this.e = null;
-    equal($('#qunit_form').length, 0, 'test form not cleaned up');
-  }
-});
-
-// verify setup is ok
-test('SQLEngine form setup verification', function() {
-
-  ok(this.e, 'engine defined');
-  ok(this.dontfind === undefined, 'engine does not have "dontfind"');
-  equal($('#qunit_form').length, 1, 'test form appended '+$('#qunit_form').length);
-});
-
-// form select
-asyncTest('form SELECT', 4+1, function() {
-
-    var that = this;
-
-    that.e.queryByForm({
-
-      "formId": "qunit_form",
-
-      callback: function (resp) {
-
-        ok(typeof resp === 'object', 'response is object'); // 0th assert
-        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
-        ok(resp.row_count[0] > 0, 'data row found');
-        ok(resp.records.rows[0][0] === 99, 'data is not 99: '+resp.records.rows[0]['col']);
-        start();
-      }
-    });
-
-    $('#qunit_form').rdbhostSubmit();
-});
-
-
-
-/*
-// form select
-if ( isCORSversion ) {
-
-  test('form SELECT multi ****SKIPPED***', function() { ok(true,'skipped') } );
-}
-else {
-
-  asyncTest('form SELECT multi', 8+1, function() {
-
-    var that = this,
-        ct = 0;
-
-    that.e.queryByForm({
-
-      "formId": "qunit_form",
-
-      callback: function (resp) {
-
-        ok(typeof resp === 'object', 'response is object'); // 0th assert
-        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
-        ok(resp.row_count[0] > 0, 'data row found');
-        ok(resp.records.rows[0][0] === 99, 'data is not 99: '+resp.records.rows[0]['col']);
-        ct = ct+1;
-
-        if ( ct > 1 )
-          start();
-      }
-    });
-
-    $('#qunit_form').rdbhostSubmit();
-    setTimeout(function() {
-
-      $('#qunit_form').rdbhostSubmit();
-    },10000);
-  });
 }
 
-*/
+asyncTest('identifier test', 3, function() {
+
+    var identQuery =
+        "SELECT o.idx AS test_msg \n" +
+        "  FROM auth.openid_accounts o\n" +
+        "WHERE o.identifier = %s AND o.key = %s; \n";
+
+    this.e.postData({
+
+        q: identQuery,
+        args:[user_identifier, user_key],
+        format: 'json-easy',
+
+        callback: identifierNotPassCallback,
+
+        errback: function(err) {
+
+            ok(false, 'errback called ' + err[0] + ' ' + err[1]);
+            start();
+        }
+    });
+});
 
 
-// form select with promise
-asyncTest('form SELECT promise', 5+1, function() {
+asyncTest('full select', 4, function() {
 
-    var that = this;
+    var saveQuery =
+       // "SELECT %(title), %(body), NOW(), o.idx \n" +
+        "SELECT 1 AS test_msg \n" +
+        "  FROM auth.openid_accounts o\n" +
 
-    var p = that.e.queryByForm({
+        "WHERE test_msg(%(title), 0.15*2) IS NULL AND test_msg(%(body), 0.15) IS NULL \n" +
+        "    -- and provided authentication checks ok\n" +
+        "    AND o.identifier = %s AND o.key = %s; \n";
 
-      "formId": "qunit_form",
 
-      callback: function (resp) {
+    this.e.postData({
+
+        q: saveQuery,
+        args:[user_identifier, user_key],
+        namedParams: {body: 'amigo de amigos', title: 'de'},
+        format: 'json-easy',
+
+        callback: notPassCallbackMaker(1),
+
+        errback: function(err) {
+
+            ok(false, 'errback called ' + err[0] + ' ' + err[1]);
+            start();
+        }
+    });
+});
+
+
+asyncTest('full select with message_model', 4, function() {
+
+    var saveQuery =
+        "SELECT %(title) AS t, %(body) AS b, NOW(), o.idx \n" +
+        //"SELECT 1 AS test_msg \n" +
+        "  FROM auth.openid_accounts o\n" +
+
+        "WHERE test_msg(%(title), 0.15*2) IS NULL AND test_msg(%(body), 0.15) IS NULL \n" +
+        "    -- and provided authentication checks ok\n" +
+        "    AND o.identifier = %s AND o.key = %s; \n";
+
+    var mdl = new app.Message({body: 'amigo de amigos', title: 'de'});
+
+    function notPassCallback(resp) {
 
         ok(typeof resp === 'object', 'response is object'); // 0th assert
-        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
+        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
         ok(resp.row_count[0] > 0, 'data row found');
-        ok(resp.records.rows[0][0] === 99, 'data is not 99: '+resp.records.rows[0]['col']);
-        return resp;
-      }
-    });
-
-    p.done(function(a) {
-      ok(a, 'promise done called');
+        ok(resp.records.rows[0]['b'] === 'amigo de amigos', 'data is ' + resp.records.rows[0]['b'] );
         start();
-    });
+    }
 
-    $('#qunit_form').rdbhostSubmit();
+    var p = this.e.postData({
+
+        q: saveQuery,
+        args: [user_identifier, user_key],
+        namedParams: mdl.attributes,
+        format: 'json-easy'
+    });
+    p.then(notPassCallback);
+
+    p.fail(function(err) {
+
+            ok(false, 'errback called ' + err[0] + ' ' + err[1]);
+            start();
+    });
 });
 
 
-// form select with promise only
-asyncTest('form SELECT promise only', 5+1, function() {
+function confirm(that) {
 
-    var that = this;
+    var p = that.e.postData({
 
-    var p = that.e.queryByForm({
+        userName: 'super',
+        authcode: demo_s_authcode,
+        q: "SELECT * FROM messages WHERE body LIKE '!!%%'",
+        format: 'json-easy'
+    });
+    p.then(function(resp) {
+        ok(resp.row_count[0] > 0, 'record found - confirmed');
+    });
+    p.fail(function(err) {
 
-        "formId": "qunit_form"
     });
 
-    p.done(function(resp) {
+    return p.promise();
+}
+
+function cleanup(that) {
+
+    var p = that.e.postData({
+
+        userName: 'super',
+        authcode: demo_s_authcode,
+        q: "DELETE FROM messages WHERE body LIKE '!!%%'",
+        format: 'json-easy'
+    });
+
+    return p.promise();
+}
+
+
+asyncTest('insert with message_model', 4, function() {
+
+    var saveQuery =
+        "INSERT INTO messages (thread_id, title, body, post_date, author) \n" +
+
+        "SELECT NULL, %(title), %(body), NOW(), o.idx \n" +
+        // "SELECT %(title) AS t, %(body) AS b, NOW(), o.idx \n" +
+        "  FROM auth.openid_accounts o\n" +
+
+        "WHERE test_msg(%(title), 0.15*2) IS NULL AND test_msg(%(body), 0.15) IS NULL \n" +
+        "    -- and provided authentication checks ok\n" +
+        "    AND o.identifier = %s AND o.key = %s; \n";
+
+    var mdl = new app.Message({title: 'amigo de amigos', body: '!! de amigos amigo'}),
+        that = this;
+
+    function notPassCallback(resp) {
 
         ok(typeof resp === 'object', 'response is object'); // 0th assert
-        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: '+resp.status[1]); // 1st assert
+        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
         ok(resp.row_count[0] > 0, 'data row found');
-        ok(resp.records.rows[0][0] === 99, 'data is not 99: '+resp.records.rows[0][0]);
+        //ok(resp.records.rows[0]['b'] === 'amigo de amigos', 'data is ' + resp.records.rows[0]['b'] );
 
-        ok(resp, 'promise done called');
+        var p = confirm(that),
+            q;
+        p.then(function() {
+            q = cleanup(that);
+            q.then(start);
+        });
+    }
+
+    var p = this.e.postData({
+
+        q: saveQuery,
+        args: [user_identifier, user_key],
+        namedParams: mdl.attributes,
+        format: 'json-easy'
+    });
+    p.then(notPassCallback);
+
+    p.fail(function(err) {
+
+        ok(false, 'errback called ' + err[0] + ' ' + err[1]);
         start();
     });
-
-    $('#qunit_form').rdbhostSubmit();
 });
 
 
-// form select with error
-asyncTest('form SELECT error', 2+1, function() {
 
-    var that = this;
 
-    $('#qunit_form').find('input').val('SELECTY 1');
+asyncTest('insert n update with message_model', 4, function() {
 
-    that.e.queryByForm({
+    var saveQuery =
+        "INSERT INTO messages (thread_id, title, body, post_date, author) \n" +
 
-        "formId": "qunit_form",
+        "SELECT NULL, %(title), %(body), NOW(), o.idx \n" +
+        // "SELECT %(title) AS t, %(body) AS b, NOW(), o.idx \n" +
+        "  FROM auth.openid_accounts o\n" +
 
-        errback: function (err) {
+        "WHERE test_msg(%(title), 0.15*2) IS NULL AND test_msg(%(body), 0.15) IS NULL \n" +
+        "    -- and provided authentication checks ok\n" +
+        "    AND o.identifier = %s AND o.key = %s; \n" +
 
-              console.log(err[0]);
-              console.log(err[1]);
-              ok(typeof err[1] === typeof 'o', 'response is string'); // 0th assert
-              ok(err[0].length === 5, 'error code not len 5: '+err[0]); // 1st assert
-              start();
-            },
-        callback: function(resp) {
-              ok(false,'callback called');
-            }
-      });
+        " -- and lastly, make thread_id match message_id for new threads \n" +
+        "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n";
 
-    $('#qunit_form').rdbhostSubmit();
+    var mdl = new app.Message({title: 'amigo de amigos', body: '!! de amigos amigo'}),
+        that = this;
+
+    function notPassCallback(resp) {
+
+        ok(typeof resp === 'object', 'response is object'); // 0th assert
+        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
+        ok(resp.result_sets.length > 0, 'data set found');
+        //ok(resp.records.rows[0]['b'] === 'amigo de amigos', 'data is ' + resp.records.rows[0]['b'] );
+
+        var p = confirm(that),
+            q;
+        p.then(function() {
+            q = cleanup(that);
+            q.then(start);
+        });
+    }
+
+    var p = this.e.postData({
+
+        q: saveQuery,
+        args: [user_identifier, user_key],
+        namedParams: mdl.attributes,
+        format: 'json-easy'
+    });
+    p.then(notPassCallback);
+
+    p.fail(function(err) {
+
+        ok(false, 'errback called ' + err[0] + ' ' + err[1]);
+        start();
+    });
 });
 
 
-// form select with error w/ promise
-asyncTest('form SELECT error - promise', 3+1, function() {
+asyncTest('message_model save', 4, function() {
 
-    var that = this;
+    var // mdl = new app.Message({body: 'amigo de amigos', title: '!! de amigos amigo'}),
+        mdl = new app.Message({body: 'de ', title: '!! de '}),
+        that = this;
 
-    $('#qunit_form').find('input').val('SELECTY 1');
+    function notPassCallback(resp) {
 
-    var p = that.e.queryByForm({
+        ok(typeof resp === 'object', 'response is object'); // 0th assert
+        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
+        ok(resp.result_sets[0].row_count[0] == 1, 'rec_count 1');
+        //ok(resp.records.rows[0]['b'] === 'amigo de amigos', 'data is ' + resp.records.rows[0]['b'] );
 
-      "formId": "qunit_form",
+        var p = confirm(that),
+            q;
+        p.then(function() {
+            q = cleanup(that);
+            q.then(start);
+        });
+        p.fail(function() {
+            start();
+        })
+    }
 
-      errback: function (err) {
 
-        console.log(err[0]);
-        console.log(err[1]);
-        ok(typeof err[1] === typeof 'o', 'response is string'); // 0th assert
-        ok(err[0].length === 5, 'error code not len 5: '+err[0]); // 1st assert
-        return ['abc','def'];
-      },
-      callback: function(resp) {
-        ok(false,'should not happen');
-      }
+    mdl.save({}, {
+        success: function(mdl, resp, opt) {
+            notPassCallback(resp);
+        },
+        error: function(mdl, resp, opt) {
+            alert('fail ' + e);
+        }
     });
 
-    p.fail(function(m,msg) {
-      ok(m,'promise fail called');
-      start();
-    });
-
-    $('#qunit_form').rdbhostSubmit();
 });
 
 
@@ -757,3 +409,108 @@ asyncTest('form SELECT error - promise', 3+1, function() {
 /*
 *
 */
+
+module('test_msg preauth tests', {
+
+    setup: function () {
+        this.e = window.Rdbhost;
+        $.rdbHostConfig({accountNumber: acct_number, 'authcode': '-', 'domain': domain});
+    }
+});
+
+asyncTest('good one word', 4, function() {
+
+    this.e.preauthPostData({
+
+        q: "SELECT * FROM test_msg(%s, 0.15)",
+        args: ['amigo'],
+        format: 'json-easy',
+
+        callback: passCallback,
+
+        errback: function(err) {
+
+            ok(false, 'errback called ' + err[0] + ' ' + err[1]);
+            start();
+        }
+    });
+});
+
+
+asyncTest('bad one word', 4, function() {
+
+    this.e.preauthPostData({
+
+        q: "SELECT * FROM test_msg(%s, 0.15)",
+        args: ['anybody'],
+        format: 'json-easy',
+
+        callback: notPassCallbackMaker('bad words table 0 [anybody]'),
+
+        errback: function(err) {
+
+            ok(false, 'errback called ' + err[0] + ' ' + err[1]);
+            start();
+        }
+    });
+});
+
+
+asyncTest('good two words', 4, function() {
+
+    this.e.preauthPostData({
+
+        q: "SELECT * FROM test_msg(%s, 0.15)",
+        args: ['amigo de'],
+        format: 'json-easy',
+
+        callback: passCallback,
+
+        errback: function(err) {
+
+            ok(false, 'errback called ' + err[0] + ' ' + err[1]);
+            start();
+        }
+    });
+});
+
+
+asyncTest('message_model save', 4, function() {
+
+    var // mdl = new app.Message({body: 'amigo de amigos', title: '!! de amigos amigo'}),
+        mdl = new app.Message({body: 'de ', title: '!! de amigo '}),
+        that = this;
+
+    function notPassCallback(resp) {
+
+        ok(typeof resp === 'object', 'response is object'); // 0th assert
+        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
+        ok(resp.result_sets[0].row_count[0] == 1, 'rec_count 1');
+
+        var p = confirm(that),
+            q;
+        p.then(function() {
+            q = cleanup(that);
+            q.then(start);
+        });
+        p.fail(function() {
+            start();
+        })
+    }
+
+    mdl.save({}, {
+        success: function(mdl, resp, opt) {
+            notPassCallback(resp);
+        },
+        error: function(mdl, resp, opt) {
+            alert('fail ' + e);
+        }
+    });
+
+});
+
+
+
+/*
+ *
+ */

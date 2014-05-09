@@ -14,21 +14,9 @@
 
     var saveQuery =
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +
-        "--\n" +
-        "INSERT INTO messages (thread_id, message_id, title, body, post_date, author) \n" +
-
-        "SELECT %(thread_id), %(message_id), %(title), %(body), NOW(), o.idx \n" +
-        "  FROM auth.openid_accounts o\n" +
-
-        "WHERE test_msg(%(title), ~mqr*2) IS NULL AND test_msg(%(body), ~mqr) IS NULL \n" +
-        "    -- and provided authentication checks ok\n" +
-        "    AND o.identifier = %s AND o.key = %s; \n" +
-
+        "SELECT * FROM post_msg(%(title), %(body), %s, %s, %(thread_id)); \n" +
         " -- and lastly, make thread_id match message_id for new threads \n" +
         "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n";
-
-
-    saveQuery = saveQuery.replace(/~sep/g, SEPARATOR_RE).replace(/~mqr/g, MAX_QUOTED_RATIO).replace(/~wssep/g, QUOTED_TEST);
 
     // Our basic Message model.
     app.Message = Backbone.Model.extend({
@@ -52,6 +40,7 @@
                     }
 
                     var p = R.preauthPostData({
+                        authcode: '-',
                         q: q,
                         namedParams: model.attributes,
                         args: [app.userId, app.userKey]
