@@ -370,8 +370,7 @@ asyncTest('insert n update with message_model', 4, function() {
 
 asyncTest('message_model save', 4, function() {
 
-    var // mdl = new app.Message({body: 'amigo de amigos', title: '!! de amigos amigo'}),
-        mdl = new app.Message({body: 'de ', title: '!! de '}),
+    var mdl = new app.Message({body: 'de ', title: '!! de '}),
         that = this;
 
     function notPassCallback(resp) {
@@ -379,7 +378,6 @@ asyncTest('message_model save', 4, function() {
         ok(typeof resp === 'object', 'response is object'); // 0th assert
         ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
         ok(resp.result_sets[0].row_count[0] == 1, 'rec_count 1');
-        //ok(resp.records.rows[0]['b'] === 'amigo de amigos', 'data is ' + resp.records.rows[0]['b'] );
 
         var p = confirm(that),
             q;
@@ -391,7 +389,6 @@ asyncTest('message_model save', 4, function() {
             start();
         })
     }
-
 
     mdl.save({}, {
         success: function(mdl, resp, opt) {
@@ -405,9 +402,97 @@ asyncTest('message_model save', 4, function() {
 });
 
 
+function audit_test(txt) {
+
+    var dict = new app.ThousandWords(),
+        that = this,
+        auditPromise = app.audit_text(dict, txt);
+
+    var p2 = auditPromise.then(function(resp) {
+        ok(typeof resp === 'object', 'response is object'); // 0th assert
+        ok(resp.length === 2, 'result is array[2]'); // 1st assert
+        return resp;
+    });
+
+    return p2.promise();
+}
+
+asyncTest('content audit test 0', 2+6, function() {
+
+    var auditPromise = audit_test('adios');
+
+    auditPromise.then(function(resp) {
+        var errs = resp[0],
+            replacements = resp[1],
+            refWord = 'adi' + String.fromCharCode(243) + 's';
+        ok(replacements.length === 1, 'replacement found');
+        ok(replacements[0].begin === 0, 'begin at 0');
+        ok(replacements[0].end === 5, 'end at 5');
+        ok(replacements[0].newVal === refWord, 'replacement value correct ' + replacements[0].newVal);
+        ok(replacements[0].newVal.charCodeAt(3) === 243, 'actual charcode' + replacements[0].newVal.charCodeAt(3));
+        ok(errs.length === 0, 'no errors');
+        start();
+    });
+
+    auditPromise.fail(function(err) {
+
+        window.console.log(err);
+        start();
+    });
+
+});
+
+
+asyncTest('content audit test fail', 2+5, function() {
+
+    var auditPromise = audit_test('adiios');
+
+    auditPromise.then(function(resp) {
+        var errs = resp[0],
+            replacements = resp[1];
+        ok(replacements.length === 0, 'replacement found');
+        ok(errs.length === 1, 'no errors');
+        ok(errs[0].type === 'not-found', 'error is not-found type');
+        ok(errs[0].end === 6, 'end correctly located');
+        ok(errs[0].begin === 0, 'begin at 0');
+        start();
+    });
+
+    auditPromise.fail(function(err) {
+
+        window.console.log(err);
+        start();
+    });
+
+});
+
+asyncTest('content audit test punc', 2+2, function() {
+
+    var auditPromise = audit_test('deje # ! a places 456');
+
+    auditPromise.then(function(resp) {
+        var errs = resp[0],
+            replacements = resp[1];
+        ok(replacements.length === 0, 'replacement found');
+        ok(errs.length === 0, 'no errors');
+        start();
+    });
+
+    auditPromise.fail(function(err) {
+
+        window.console.log(err);
+        start();
+    });
+
+});
+
+
+
+
+
 
 /*
-*
+*   PREAUTH tests
 */
 
 module('test_msg preauth tests', {

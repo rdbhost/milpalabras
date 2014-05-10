@@ -9,7 +9,7 @@
 	// ---------------
 
 	// The collection of threads is backed by a remote server.
-	var Threads = Backbone.Collection.extend({
+	app.Threads = Backbone.Collection.extend({
 
 		// Reference to this collection's model.
 		model: app.ThreadSummary,
@@ -70,6 +70,4 @@
 		}
 	});
 
-	// Create our global collection of **Threads**.
-	app.threads = new Threads();
 })();

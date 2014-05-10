@@ -55,6 +55,7 @@
             else {
 
                 var p = R.preauthPostData({
+
                     q:  'INSERT INTO users (idx, email_address, handle) \n' +
                         'SELECT o.idx, NULL, %s FROM auth.openid_accounts o \n' +
                         ' WHERE o.identifier = %s AND o.key = %s; ',
@@ -87,6 +88,7 @@
                     }
                 );
             }
+
             ev.stopPropagation();
             return false;
         }

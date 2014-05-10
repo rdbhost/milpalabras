@@ -232,7 +232,7 @@
 
     function handleInputErrors($rawDiv) {
 
-        var auditPromise = app.audit_text(rangy.innerText($rawDiv.get(0))),
+        var auditPromise = app.audit_text(app.thousand_words, rangy.innerText($rawDiv.get(0))),
             p = $.Deferred();
 
         auditPromise.then(function(divEval) {
@@ -332,10 +332,7 @@
 
                 function convertHtmlEntities(ht) {
                     var c = $('<div/>').html(ht).text().charAt(0);
-                    if (c === String.fromCharCode(160))
-                        return ' ';
-                    else
-                        return c;
+                    return (c === String.fromCharCode(160)) ? ' ' : c;
                 }
 
                 msg = msg.replace(tagRe, '').replace(htmlEntityRe, convertHtmlEntities);

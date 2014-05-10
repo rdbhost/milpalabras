@@ -27,8 +27,7 @@
      *      elements.
      *   If there is a quoted-ratio error, all quoted portions will be included in error list
      */
-    // todo - change this work incrementally, and provide [errs, replacements] to a calllback at end
-    app.audit_text = function (text) {
+    app.audit_text = function (dict, text) {
 
         function trim(wd) {
 
@@ -69,7 +68,7 @@
                     // skip numbers and other ok non-words
                     if ( trimmed && ! okNonWords.test(trimmed) ) {
 
-                        var p = app.thousand_words.findOne(trimmed);
+                        var p = dict.findOne(trimmed);
                         p.then(function(refWd) {
 
                             if ( ! refWd ) {
@@ -307,7 +306,7 @@
     });
 
     // The collection of words backed by a remote server.
-    var ThousandWords = Backbone.Model.extend({
+    app.ThousandWords = Backbone.Model.extend({
 
         initialize: function() {
 
@@ -447,12 +446,12 @@
             else {
 
                 tmp = new WordCollection();
-                tmp.letter = begin.charAt(0);
+                tmp.letter = word.charAt(0);
                 tmp.fetch({
 
                     success: function(list, rsp, opt) {
 
-                        that.byLetter[letter] = tmp;
+                        that.byLetter[tmp.letter] = tmp;
                         var one = tmp.findOne(word);
 
                         p.resolve(one);
@@ -470,6 +469,4 @@
 
     });
 
-    // Create our global collection of available words.
-    app.thousand_words = new ThousandWords();
 })();
