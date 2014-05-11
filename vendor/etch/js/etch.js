@@ -25,13 +25,16 @@
     models.Editor = Backbone.Model;
 
     views.Editor = Backbone.View.extend({
+
+        //el: $('div.edit-menu'),
+
         initialize: function() {
+
             this.$el = $(this.el);
 
             // Model attribute event listeners:
-            _.bindAll(this, 'changeButtons', 'changePosition', 'changeEditable', 'insertImage');
+            _.bindAll(this, 'changeButtons', 'changeEditable', 'insertImage');
             this.model.bind('change:buttons', this.changeButtons);
-            this.model.bind('change:position', this.changePosition);
             this.model.bind('change:editable', this.changeEditable);
 
             // Init Routines:
@@ -56,7 +59,6 @@
 
         changeEditable: function() {
             this.setButtonClass();
-            this.setPositionMode();
             // Im assuming that Ill add more functionality here
         },
 
@@ -82,36 +84,6 @@
             });
 
             $(this.el).show(); // 'fast');
-        },
-
-        setPositionMode: function() {
-            // check the button class of the element being edited and set the associated buttons on the model
-            var editorModel = this.model;
-            var posMode = editorModel.get('editable').attr('data-position') || 'default';
-            editorModel.set({ positionMode: posMode });
-        },
-
-        changePosition: function() {
-            var _this = this;
-
-            function _t() {
-
-                // animate editor-panel to new position
-                var posMode = _this.model.get('positionMode'),
-                    pos = {}, elOffset;
-                if ( ~posMode.indexOf('#') ) {
-                    elOffset = $(posMode).offset();
-                    pos.x = elOffset.left;
-                    pos.y = elOffset.top - _this.$el[0].offsetHeight;
-                }
-                else
-                    pos = _this.model.get('position');
-
-                // _this.$el.animate({'top': pos.y, 'left': pos.x}, { queue: false });
-                _this.$el.offset({'top': pos.y, 'left': pos.x});
-            }
-            _t();
-            setTimeout(_t, 10);
         },
 
         wrapSelection: function(selectionOrRange, elString, cb) {
@@ -144,9 +116,9 @@
         toggleHeading: function(e) {
             e.preventDefault();
             var range = window.getSelection().getRangeAt(0);
-            var wrapper = range.commonAncestorContainer.parentElement
+            var wrapper = range.commonAncestorContainer.parentElement;
             if ($(wrapper).is('h3')) {
-                $(wrapper).replaceWith(wrapper.textContent)
+                $(wrapper).replaceWith(wrapper.textContent);
                 return;
             }
             var h3 = document.createElement('h3');
@@ -279,21 +251,30 @@
             // if the editor isn't already built, build it
             var $editor = $('.etch-editor-panel');
             var editorModel = $editor.data('model');
+
             if (!$editor.size()) {
+
                 $editor = $('<div class="etch-editor-panel">');
-                var editorAttrs = { editable: $editable, editableModel: this.model };
                 document.body.appendChild($editor[0]);
+            }
+            if ( !editorModel ) {
+
+                var editorAttrs = { editable: $editable, editableModel: this.model };
                 $editor.etchInstantiate({classType: 'Editor', attrs: editorAttrs});
                 editorModel = $editor.data('model');
-
-                // check if we are on a new editable
-            } else if ($editable[0] !== editorModel.get('editable')[0]) {
+            }
+            // check if we are on a new editable
+            if ($editable[0] !== editorModel.get('editable')[0]) {
                 // set new editable
                 editorModel.set({
                     editable: $editable,
                     editableModel: this.model
                 });
             }
+
+            var editorView = $editor.data('view');
+            editorView.setButtonClass();
+            editorView.changeButtons();
 
             // Firefox seems to be only browser that defaults to `StyleWithCSS == true`
             // so we turn it off here. Plus a try..catch to avoid an error being thrown in IE8.
@@ -323,6 +304,7 @@
                 }
             }
 
+/*
             // listen for mousedowns that are not coming from the editor
             // and close the editor
             // unbind first to make sure we aren't doubling up on listeners
@@ -347,7 +329,8 @@
                 }
             });
 
-            editorModel.set({position: {x: e.pageX - 15, y: e.pageY - 80}});
+*/
+            //editorModel.set({position: {x: e.pageX - 15, y: e.pageY - 80}});
         }
     });
 
@@ -360,7 +343,7 @@
             var settings = {
                 el: this,
                 attrs: {}
-            }
+            };
 
             _.extend(settings, options);
 
@@ -379,14 +362,14 @@
                 cb({model: model, view: view});
             }
         });
-    }
+    };
 
     $.fn.etchFindEditable = function() {
         // function that looks for the editable selector on itself or its parents
         // and returns that el when it is found
         var $el = $(this);
         return $el.is(etch.config.selector) ? $el : $el.closest(etch.config.selector);
-    }
+    };
 
     window.etch = etch;
 })();

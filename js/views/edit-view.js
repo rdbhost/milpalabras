@@ -236,8 +236,9 @@
             p = $.Deferred();
 
         auditPromise.then(function(divEval) {
+
+            unMarkErrors($rawDiv);
             if ( divEval[0].length ) {
-                unMarkErrors($rawDiv);
                 markErrors($rawDiv, divEval[0]);
             }
 
@@ -264,7 +265,7 @@
 
     app.EditView = Backbone.View.extend({
 
-        el: '#postform',
+        el: '#postform .form',
 
         template: _.template($('#postform-template').html()),
 
@@ -285,15 +286,14 @@
         render: function () {
 
             this.$el.html(this.template(this.model.toJSON()));
-            this.$el.show();
-            //$('#okwords').show();
+            this.$el.closest('#postform').show();
             this._manageButtons();
 
             this.$el.find('#subject').blur(function() {
-               $('#okwords').empty();
+               $('.okwords').empty();
             });
             this.$el.find('#new-message').blur(function() {
-                $('#okwords').empty();
+                $('.okwords').empty();
             });
 
             return this;
@@ -370,6 +370,7 @@
         },
 
         _cleanup: function (ev) {
+            this.$el.closest('#postform').hide();
             this.$el.empty();
             this.undelegateEvents();
             this.wordsView.render(false);

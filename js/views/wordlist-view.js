@@ -18,7 +18,6 @@
 
             var data = this.model.toJSON();
             this.$el.html(this.template(data));
-            this.$el.show();
 
             return this;
         }
@@ -28,7 +27,7 @@
 	app.WordListView = Backbone.View.extend({
 
 		//... is a list tag.
-        el: '#okwords',
+        el: 'ul.okwords',
 
 		// The DOM events specific to an item.
 		events: {
@@ -41,7 +40,7 @@
 
             if ( partialWord ) {
 
-                this.$el.closest('.page').show();
+                this.$el.closest('ul').show();
                 this.$el.empty();
 
                 var p = app.thousand_words.prefixLimited(partialWord, 25);
@@ -67,7 +66,7 @@
             }
             else {
 
-                that.$el.closest('.page').hide();
+                that.$el.closest('ul').hide();
             }
 
 			return this;

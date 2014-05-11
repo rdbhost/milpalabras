@@ -199,13 +199,11 @@
             blocks and templates for the message editor
 
             -->
-            <div class="page">
-                <ul id="okwords">
-
-                </ul>
-            </div>
 
             <div id="postform" class="page" style="display: none">
+                <ul class="okwords"></ul>
+                <div class="etch-editor-panel"></div>
+                <div class="form"></div>
             </div>
 
             <script type="text/template" id="postform-template">
@@ -224,6 +222,20 @@
                 <span class="<%= okmulti %>"><%= word %></span>
             </script>
 
+            <script type="text/template" id="edit-menu">
+                <a href="#" class="etch-editor-button etch-bold" title="bold">
+                    <span></span></a>
+                <a href="#" class="etch-editor-button etch-italic" title="italic">
+                    <span></span></a>
+                <a href="#" class="etch-editor-button etch-unordered-list" title="unordered list">
+                    <span></span></a>
+                <a href="#" class="etch-editor-button etch-ordered-list" title="ordered list">
+                    <span></span></a>
+                <a href="#" class="etch-editor-button etch-link" title="link">
+                    <span></span></a>
+                <a href="#" class="etch-editor-button etch-clear-formatting" title="clear formatting">
+                    <span></span></a>
+            </script>
 
             <!--
             modals for logging in
