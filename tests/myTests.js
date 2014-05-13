@@ -372,6 +372,8 @@ asyncTest('message_model save', 4, function() {
 
     var mdl = new app.Message({body: 'de ', title: '!! de '}),
         that = this;
+    app.userId = user_identifier;
+    app.userKey = user_key;
 
     function notPassCallback(resp) {
 
@@ -383,9 +385,11 @@ asyncTest('message_model save', 4, function() {
             q;
         p.then(function() {
             q = cleanup(that);
+            app.userId = app.userKey = undefined;
             q.then(start);
         });
         p.fail(function() {
+            app.userId = app.userKey = undefined;
             start();
         })
     }
@@ -395,7 +399,7 @@ asyncTest('message_model save', 4, function() {
             notPassCallback(resp);
         },
         error: function(mdl, resp, opt) {
-            alert('fail ' + e);
+            alert('fail ' + resp[0] + ' ' + resp[1]);
         }
     });
 
@@ -565,6 +569,8 @@ asyncTest('message_model save', 4, function() {
     var // mdl = new app.Message({body: 'amigo de amigos', title: '!! de amigos amigo'}),
         mdl = new app.Message({body: 'de ', title: '!! de amigo '}),
         that = this;
+    app.userId = user_identifier;
+    app.userKey = user_key;
 
     function notPassCallback(resp) {
 
@@ -576,9 +582,11 @@ asyncTest('message_model save', 4, function() {
             q;
         p.then(function() {
             q = cleanup(that);
+            app.userId = app.userKey = undefined;
             q.then(start);
         });
         p.fail(function() {
+            app.userId = app.userKey = undefined;
             start();
         })
     }
@@ -588,7 +596,7 @@ asyncTest('message_model save', 4, function() {
             notPassCallback(resp);
         },
         error: function(mdl, resp, opt) {
-            alert('fail ' + e);
+            alert('fail ' + resp[0] + ' ' + resp[1]);
         }
     });
 

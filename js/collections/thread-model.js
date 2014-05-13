@@ -29,7 +29,7 @@
                            ' FROM messages m \n' +
                            '  JOIN users u ON m.author = u.idx \n' +
                            ' WHERE thread_id = %s AND (suppressed = false OR suppressed IS NULL) \n' +
-                           'ORDER BY post_date DESC LIMIT 100; ',
+                           'ORDER BY post_date ASC LIMIT 100; ',
 
                         // q: 'SELECT * FROM messages WHERE thread_id = %s ORDER BY post_date ASC LIMIT 100',
                         args: [this.thread_id]

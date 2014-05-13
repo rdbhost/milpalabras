@@ -90,11 +90,10 @@
                 $('time.timeago').timeago();
             }
             else  {
+
                 this.$tMain.empty();
-                // this.$tMain.html(this.nullTemplate());
             }
 
-            // this.$el.html(this.template(this.model.toJSON()));
 			return this;
 		},
 
@@ -134,7 +133,15 @@
         addOneMessageToDisplay: function (message) {
             var msgView = new app.MessageView({ model: message });
             this.$tMain.append(msgView.render().el);
+        },
+
+        scrollToMyLastPost: function (userHandle) {
+
+            var p = _.find(app.thread, {'author': userHandle});
+
+
         }
+
 
     });
 })(jQuery);

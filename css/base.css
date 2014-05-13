@@ -42,18 +42,41 @@ header { display: block }
     height: 260px;
 }
 
-textarea {
-    width: 500px;
-    height: 250px;
+#postform div.editable {
+    width: 470px;
+    height: 230px;
+    padding: 8px;
+    margin: 8px;
+    background: white;
+}
+#postform div.editable:nth-of-type(1)  {
+    height: 15px;
+}
+#postform button {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    margin-left: 8px;
+    line-height: 15px;
+}
+
+#postform h3 {
+    margin: 0px 0px 3px 8px;
 }
 
 #postform {
     position: fixed;
     width: 500px;
-    height: 350px;
-    bottom: 20px;
-    right: 20px;
-    background-color: white;
+    height: 370px;
+    bottom: 10px;
+    right: 10px;
+    padding: 12px;
+    background: #ff5555;
+    /* border: 1px solid #bdbdbd; */
+    color: #333;
+    /* text-shadow: 0 1px 0 #fff; */
+    background-image: -moz-linear-gradient(center bottom, #f77 0%, #f88 100%);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f99), to(#faa));
+    -webkit-border-radius: 6px; -moz-border-radius: 6px; border-radius: 6px;
 }
 
 .okwords {
@@ -61,8 +84,8 @@ textarea {
     font-size: 16px;
     width: 7em;
     /* max-height: 300px; */
-    bottom: 12px;
-    right: 520px;
+    bottom: 0px;
+    right: 535px;
     background-color: white;
     border: thin solid mediumpurple;
 }
@@ -124,12 +147,3 @@ footer {
     padding: 20px;
 }
 
-.etch-editor-panel {
-    position: fixed;
-    font-size: 16px;
-    width: 20em;
-    /* max-height: 300px; */
-    bottom: 360px;
-    right: 190px;
-    background-color: white;
-}

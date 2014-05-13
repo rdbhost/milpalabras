@@ -16,9 +16,9 @@
             <div id="topics" class="page">
                 <header>
                     <h1>Topics</h1>
-                    <!-- a href="#">home</a -->
+                    <!-- a href="#">principal</a -->
                     <span class="user-id"></span>
-                    <a href="#/login" class="loginLink">login</a>
+                    <a href="#/login" class="loginLink">acceder</a>
                 </header>
 
                 <button class="add-topic-button">Create new Topic</button>
@@ -60,9 +60,9 @@
             <div id="thread" class="page" style="display: none">
                 <header>
                     <h1></h1>
-                    <a href="#">home</a>
+                    <a href="#">principal</a>
                     <span class="user-id"></span>
-                    <a href="#/login" class="loginLink">login</a>
+                    <a href="#/login" class="loginLink">acceder</a>
                 </header>
 
                 <table id="thread-main">
@@ -77,12 +77,12 @@
                         </tr -->
                     </thead>
                 </table>
-                <button id="add-post-button">Reply to Thread</button>
+                <button id="add-post-button">Respuesta al Tema</button>
                 <footer></footer>
             </div>
 
             <script type="text/template" id="header-template">
-                Thread [<%= topic %>]
+                Tema [<%= topic %>]
             </script>
 
             <script type="text/template" id="message-template">
@@ -100,7 +100,7 @@
                 </tr>
                 <tr class="row-group-spacer">
                     <td colspan="3">
-                    <a class="msg-btns suppress" data-messageid="<%= message_id %>" style="display: <% suppressed ? 'inline' : 'none' %>">flag as inappropriate</a>
+                    <a class="msg-btns suppress" data-messageid="<%= message_id %>" style="display: <% suppressed ? 'inline' : 'none' %>">marca como no apropiado</a>
                     </td>
                 </tr>
             </script>
@@ -113,9 +113,9 @@
             <div id="user" class="page" style="display: none">
                 <header>
                     <h1></h1>
-                    <a href="#">home</a>
+                    <a href="#">principal</a>
                     <span class="user-id"></span>
-                    <a href="#/login" class="loginLink">login</a>
+                    <a href="#/login" class="loginLink">acceder</a>
                 </header>
                 <div id="user-main"></div>
                 <footer></footer>
@@ -161,9 +161,9 @@
             <div id="suspended" class="page" style="display: none">
                 <header>
                     <h1></h1>
-                    <a href="#">home</a>
+                    <a href="#">principal</a>
                     <span class="user-id"></span>
-                    <a href="#/login" class="loginLink">login</a>
+                    <a href="#/login" class="loginLink">acceder</a>
                 </header>
                 <div id="suspended-main"></div>
                 <footer></footer>

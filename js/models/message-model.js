@@ -35,9 +35,9 @@
                         q = q.replace('%(thread_id)', 'NULL');
                     }
 
-                    if ( _.contains( ['', undefined], model.attributes.message_id ) ) {
-                        q = q.replace('%(message_id),', '').replace(', message_id,', ', ');
-                    }
+                    // if ( _.contains( ['', undefined], model.attributes.message_id ) ) {
+                    //     q = q.replace('%(message_id),', '').replace(', message_id,', ', ');
+                    // }
 
                     var p = R.preauthPostData({
                         authcode: '-',

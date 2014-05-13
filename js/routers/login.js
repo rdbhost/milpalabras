@@ -44,7 +44,7 @@
 
                         app.handle = resp.records.rows[0].handle;
                         $('a.loginLink').attr('href', '#/logout');
-                        $('a.loginLink').text('logout');
+                        $('a.loginLink').text('salir');
                         // if results, add to display
                         $('span.user-id').text(app.handle);
                         window.console.log('logged in as ' + app.userId);
