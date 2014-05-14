@@ -370,12 +370,12 @@ asyncTest('insert n update with message_model', 4, function() {
 
 asyncTest('message_model save', 4, function() {
 
-    var mdl = new app.Message({body: 'de ', title: '!! de '}),
+    var mdl = new app.Message({title: 'de ', body: '!! de '}),
         that = this;
     app.userId = user_identifier;
     app.userKey = user_key;
 
-    function notPassCallback(resp) {
+    function passCallback(resp) {
 
         ok(typeof resp === 'object', 'response is object'); // 0th assert
         ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
@@ -396,13 +396,70 @@ asyncTest('message_model save', 4, function() {
 
     mdl.save({}, {
         success: function(mdl, resp, opt) {
-            notPassCallback(resp);
+            passCallback(resp);
         },
         error: function(mdl, resp, opt) {
             alert('fail ' + resp[0] + ' ' + resp[1]);
         }
     });
 
+});
+
+asyncTest('message_model update', 4, function() {
+
+    var mdl = new app.Message({title: 'de ', body: '!! de ', message_id: 99999}),
+        that = this;
+    app.userId = user_identifier;
+    app.userKey = user_key;
+
+    function continueCallback(resp) {
+
+        ok(typeof resp === 'object', 'response is object'); // 0th assert
+        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
+        ok(resp.result_sets[0].row_count[0] == 1, 'rec_count 1');
+
+        mdl.id = 1; // negates isNew
+        mdl.attributes.title = '!! tu';
+
+        mdl.save({}, {
+
+            success: function (mdl, resp, opt) {
+
+                ok(true, 'second success called');
+                app.userId = app.userKey = undefined;
+                start();
+            },
+
+            error: function (mdl, resp, opt) {
+
+                app.userId = app.userKey = undefined;
+                ok(false, 'error ' + resp[0] + ' ' + resp[1]);
+                start();
+            }
+        });
+    }
+
+    mdl.save({}, {
+        success: function(mdl, resp, opt) {
+            continueCallback(resp);
+        },
+        error: function(mdl, resp, opt) {
+            alert('fail ' + resp[0] + ' ' + resp[1]);
+        }
+    });
+
+});
+
+/*
+ *  audit testing
+ */
+
+module('audit tests', {
+
+    setup: function () {
+        this.e = window.Rdbhost;
+        $.rdbHostConfig({'userName':demo_s_role, 'authcode': demo_s_authcode, 'domain': domain});
+    }
 });
 
 
@@ -567,7 +624,7 @@ asyncTest('good two words', 4, function() {
 asyncTest('message_model save', 4, function() {
 
     var // mdl = new app.Message({body: 'amigo de amigos', title: '!! de amigos amigo'}),
-        mdl = new app.Message({body: 'de ', title: '!! de amigo '}),
+        mdl = new app.Message({title: 'de ', body: '!! de amigo '}),
         that = this;
     app.userId = user_identifier;
     app.userKey = user_key;
