@@ -285,6 +285,8 @@
         // Render the edit box
         render: function () {
 
+            // todo - change template to add makeHtml step, so content in editor is html
+
             this.$el.html(this.template(this.model.toJSON()));
             this.$el.closest('#postform').show();
             this._manageButtons();

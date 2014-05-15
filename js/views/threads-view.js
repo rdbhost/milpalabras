@@ -39,7 +39,7 @@
 
         // The DOM events specific to an item.
         events: {
-            'click .add-topic-button': 'showAddTopicForm'
+            'click .add-topic-button': 'showAddMessageForm'
         },
 
         // At initialization we bind to the relevant events on the `Threads` and 'Messages'
@@ -92,7 +92,7 @@
 			}
 		},
 
-        showAddTopicForm: function(ev) {
+        showAddMessageForm: function(ev) {
 
             var nullMsg = new app.Message({
                 thread_id: undefined,

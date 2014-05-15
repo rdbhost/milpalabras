@@ -45,8 +45,9 @@
 
 		// The DOM events specific to an item.
 		events: {
-            'click #add-post-button': 'showAddTopicForm',
-            'click .suppress':        'suppressMsg'
+            'click #add-post-button': 'showAddMessageForm',
+            'click .suppress':        'suppressMsg',
+            'click .edit':            'showEditMessageForm'
 		},
 
 		// The ThreadView listens for changes to its model, re-rendering. Since there's
@@ -97,7 +98,7 @@
 			return this;
 		},
 
-        showAddTopicForm: function(ev) {
+        showAddMessageForm: function(ev) {
 
             var newMsg = new app.Message({
                 thread_id: parseInt(app.thread.models[0].get('thread_id'), 10),
@@ -105,6 +106,14 @@
                 author: app.userId
             });
             var edView = new app.EditView({ model: newMsg });
+            edView.render();
+        },
+
+        showEditMessageForm: function(ev) {
+
+            var msgId = parseInt($(ev.target).attr('data-messageid'), 10),
+                msg = app.thread.where({'message_id': msgId})[0];
+            var edView = new app.EditView({ model: msg });
             edView.render();
         },
 

@@ -100,7 +100,8 @@
                 </tr>
                 <tr class="row-group-spacer">
                     <td colspan="3">
-                    <a class="msg-btns suppress" data-messageid="<%= message_id %>" style="display: <% suppressed ? 'inline' : 'none' %>">marca como no apropiado</a>
+                      <a class="msg-btns suppress" data-messageid="<%= message_id %>" style="display: <% suppressed ? 'inline' : 'none' %>">marca como no apropiado</a>
+                      <a class="msg-btns edit" data-messageid="<%= message_id %>" style="display: <% author === app.handle ? 'inline' : 'none' %>">edit message</a>
                     </td>
                 </tr>
             </script>
@@ -209,8 +210,8 @@
             <script type="text/template" id="postform-template">
 
                 <h3>Escribe</h3>
-                <div id="subject" class="editable" data-button-class="title" data-position="#postform"></div>
-                <div id="new-message" class="editable" data-button-class="new" data-position="#postform"></div>
+                <div id="subject" class="editable" data-button-class="title" data-position="#postform"><%= title %></div>
+                <div id="new-message" class="editable" data-button-class="new" data-position="#postform"><%= body %></div>
 
                 <div>
                     <button id="post-message">Post</button>
