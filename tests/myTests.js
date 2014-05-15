@@ -234,32 +234,40 @@ asyncTest('full select with message_model', 4, function() {
 });
 
 
-function confirm(that) {
+function confirm(that, pattern) {
+
+    if ( ! pattern ) {
+        pattern = '!!%%';
+    }
 
     var p = that.e.postData({
 
         userName: 'super',
         authcode: demo_s_authcode,
-        q: "SELECT * FROM messages WHERE body LIKE '!!%%'",
+        q: "SELECT * FROM messages WHERE body LIKE '~1'".replace('~1', pattern),
         format: 'json-easy'
     });
     p.then(function(resp) {
         ok(resp.row_count[0] > 0, 'record found - confirmed');
     });
     p.fail(function(err) {
-
+        return err;
     });
 
     return p.promise();
 }
 
-function cleanup(that) {
+function cleanup(that, pattern) {
+
+    if ( ! pattern ) {
+        pattern = '!!%%';
+    }
 
     var p = that.e.postData({
 
         userName: 'super',
         authcode: demo_s_authcode,
-        q: "DELETE FROM messages WHERE body LIKE '!!%%'",
+        q: "DELETE FROM messages WHERE body LIKE '~1'".replace('~1', pattern),
         format: 'json-easy'
     });
 
@@ -368,7 +376,7 @@ asyncTest('insert n update with message_model', 4, function() {
 });
 
 
-asyncTest('message_model save', 4, function() {
+asyncTest('message_model save', 1+1, function() {
 
     var mdl = new app.Message({title: 'de ', body: '!! de '}),
         that = this;
@@ -378,8 +386,6 @@ asyncTest('message_model save', 4, function() {
     function passCallback(resp) {
 
         ok(typeof resp === 'object', 'response is object'); // 0th assert
-        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
-        ok(resp.result_sets[0].row_count[0] == 1, 'rec_count 1');
 
         var p = confirm(that),
             q;
@@ -396,7 +402,7 @@ asyncTest('message_model save', 4, function() {
 
     mdl.save({}, {
         success: function(mdl, resp, opt) {
-            passCallback(resp);
+            passCallback(mdl);
         },
         error: function(mdl, resp, opt) {
             alert('fail ' + resp[0] + ' ' + resp[1]);
@@ -405,29 +411,39 @@ asyncTest('message_model save', 4, function() {
 
 });
 
-asyncTest('message_model update', 4, function() {
+asyncTest('message_model update', 2+1, function() {
 
-    var mdl = new app.Message({title: 'de ', body: '!! de ', message_id: 99999}),
+    var mdl = new app.Message({title: 'de ', body: '!! de '}),
         that = this;
     app.userId = user_identifier;
     app.userKey = user_key;
 
-    function continueCallback(resp) {
+    function continueCallback(mdl) {
 
-        ok(typeof resp === 'object', 'response is object'); // 0th assert
-        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
-        ok(resp.result_sets[0].row_count[0] == 1, 'rec_count 1');
+        ok(typeof mdl === 'object', 'response is object');
 
         mdl.id = 1; // negates isNew
-        mdl.attributes.title = '!! tu';
+        mdl.attributes.body = '!! tu';
 
         mdl.save({}, {
 
             success: function (mdl, resp, opt) {
 
-                ok(true, 'second success called');
+                var p = confirm(that, '!! tu%%'),
+                    q;
+                p.then(function() {
+                    ok(true, 'second success called');
+                    q = cleanup(that, '!!%%');
+                    app.userId = app.userKey = undefined;
+                    q.then(start);
+                });
+                p.fail(function() {
+                    app.userId = app.userKey = undefined;
+                    start();
+                });
+
                 app.userId = app.userKey = undefined;
-                start();
+                //start();
             },
 
             error: function (mdl, resp, opt) {
@@ -441,7 +457,7 @@ asyncTest('message_model update', 4, function() {
 
     mdl.save({}, {
         success: function(mdl, resp, opt) {
-            continueCallback(resp);
+            continueCallback(mdl);
         },
         error: function(mdl, resp, opt) {
             alert('fail ' + resp[0] + ' ' + resp[1]);
@@ -621,7 +637,7 @@ asyncTest('good two words', 4, function() {
 });
 
 
-asyncTest('message_model save', 4, function() {
+asyncTest('message_model save', 1+1, function() {
 
     var // mdl = new app.Message({body: 'amigo de amigos', title: '!! de amigos amigo'}),
         mdl = new app.Message({title: 'de ', body: '!! de amigo '}),
@@ -632,8 +648,6 @@ asyncTest('message_model save', 4, function() {
     function notPassCallback(resp) {
 
         ok(typeof resp === 'object', 'response is object'); // 0th assert
-        ok(resp.status[1].toLowerCase() == 'ok', 'status is not ok: ' + resp.status[1]); // 1st assert
-        ok(resp.result_sets[0].row_count[0] == 1, 'rec_count 1');
 
         var p = confirm(that),
             q;

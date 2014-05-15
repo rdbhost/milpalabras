@@ -16,11 +16,13 @@
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +
         "SELECT * FROM post_msg(%(title), %(body), %s, %s, %(thread_id)); \n" +
         " -- and lastly, make thread_id match message_id for new threads \n" +
-        "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n";
+        "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n" +
+        "SELECT currval('messages_message_id_seq'::regclass) AS message_id; \n";
 
     var updateQuery =
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +
-        "SELECT * FROM replace_msg(%(title), %(body), %s, %s, %(message_id)); \n";
+        "SELECT * FROM replace_msg(%(title), %(body), %s, %s, %(message_id)); \n" +
+        "SELECT %(message_id) AS message_id; \n";
 
     // Our basic Message model.
     app.Message = Backbone.Model.extend({
@@ -51,7 +53,7 @@
                     });
                     p.then(function(resp) {
                         console.log('successful save ' + resp.status);
-                        options.success(resp);
+                        options.success(resp.result_sets[2].records.rows[0]);
                     });
                     p.fail(function(err) {
                         console.log('failing save ' + err[0] + ' ' + err[1]);
@@ -71,7 +73,7 @@
                     });
                     pU.then(function(resp) {
                         console.log('successful save ' + resp.status);
-                        options.success(resp);
+                        options.success(resp.result_sets[1].records.rows[0]);
                     });
                     pU.fail(function(err) {
                         console.log('failing save ' + err[0] + ' ' + err[1]);
