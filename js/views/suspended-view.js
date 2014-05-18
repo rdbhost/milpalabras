@@ -14,18 +14,18 @@
         render: function () {
 
             var data = this.model.toJSON();
-            data.makeHtml = app.UserMessageView.markdown.makeHtml;
+            data.makeHtml = app.MessageView.markdown.makeHtml;
 
             this.$el.html(this.template(data));
             this.$el.show();
 
             return this;
         }
-    },
-    { // class properties
+    });
+/*    { // class properties
 
         markdown: new Showdown.converter()
-    });
+    })*/
 
 
     // Suspended View

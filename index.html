@@ -208,10 +208,15 @@
             </div>
 
             <script type="text/template" id="postform-template">
+                <% var title_md = makeHtml(title);
+                title_md = title_md.replace(/<\/?p>/g, '');
+                var body_md = makeHtml(body);
+                body_md = body_md.replace(/<\/?p>/g, '');
+                %>
 
                 <h3>Escribe</h3>
-                <div id="subject" class="editable" data-button-class="title" data-position="#postform"><%= title %></div>
-                <div id="new-message" class="editable" data-button-class="new" data-position="#postform"><%= body %></div>
+                <div id="subject" class="editable" data-button-class="title" data-position="#postform"><%= title_md %></div>
+                <div id="new-message" class="editable" data-button-class="new" data-position="#postform"><%= body_md %></div>
 
                 <div>
                     <button id="post-message">Post</button>

@@ -27,6 +27,15 @@
     // Our basic Message model.
     app.Message = Backbone.Model.extend({
 
+        idAttribute: 'message_id',
+
+        // Default attributes for a thread
+        defaults: {
+            post_date: (new Date()).toISOString(),
+            title: '',
+            body: ''
+        },
+
         sync: function(method, model, options) {
 
             options = options || {};

@@ -245,7 +245,7 @@
             if ( divEval[1].length )
                 doReplacements($rawDiv, divEval[1]);
 
-            p.resolve(divEval[0].length);
+            p.resolve(divEval[0].length || null);
         });
 
         auditPromise.fail(function(err) {
@@ -285,9 +285,10 @@
         // Render the edit box
         render: function () {
 
-            // todo - change template to add makeHtml step, so content in editor is html
+            var data = this.model.toJSON();
+            data.makeHtml = app.MessageView.markdown.makeHtml;
 
-            this.$el.html(this.template(this.model.toJSON()));
+            this.$el.html(this.template(data));
             this.$el.closest('#postform').show();
             this._manageButtons();
 
