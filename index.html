@@ -18,7 +18,7 @@
                     <h1>Topics</h1>
                     <!-- a href="#">principal</a -->
                     <span class="user-id"></span>
-                    <a href="#/login" class="loginLink">acceder</a>
+                    <a href="#!/login" class="loginLink">acceder</a>
                 </header>
 
                 <button class="add-topic-button">Create new Topic</button>
@@ -42,7 +42,7 @@
                 <% var topic_md = makeHtml(topic);
                    topic_md = topic_md.replace(/<\/?p>/g, '');
                 %>
-                <td class="topic"><a href="#t/<%- thread_id %>"><%= topic_md %></a></td>
+                <td class="topic"><a href="#!/t/<%- thread_id %>"><%= topic_md %></a></td>
                 <td class="inituser"><%- initiating_user %></td>
                 <td class="startdate"><time class="timeago" datetime="<%- start_date %>z"></time></td>
                 <td class="msgct"><%- message_ct %></td>
@@ -62,7 +62,7 @@
                     <h1></h1>
                     <a href="#">principal</a>
                     <span class="user-id"></span>
-                    <a href="#/login" class="loginLink">acceder</a>
+                    <a href="#!/login" class="loginLink">acceder</a>
                 </header>
 
                 <table id="thread-main">
@@ -89,10 +89,15 @@
                 <% var body_md = makeHtml(body);
                 var title_md = makeHtml(title);
                 title_md = title_md.replace(/<\/?p>/g, '');
+                var now = new Date(Date.now() - 5*60*1000),
+                    pDate = new Date(post_date),
+                    suppressable = suppressed !== false ? 'inline' : 'none',
+                    editable = ((author === app.handle && pDate > now  ) || app.isAdmin)
+                       ? 'inline' : 'none';
                 %>
                 <tr>
                     <td class="topic"><%= title_md %></td>
-                    <td class="inituser"><a href="#u/<%- author %>"><%- author %></a></td>
+                    <td class="inituser"><a href="#!/u/<%- author %>"><%- author %></a></td>
                     <td class="startdate"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>
                 <tr>
@@ -100,8 +105,8 @@
                 </tr>
                 <tr class="row-group-spacer">
                     <td colspan="3">
-                      <a class="msg-btns suppress" data-messageid="<%= message_id %>" style="display: <% suppressed ? 'inline' : 'none' %>">marca como no apropiado</a>
-                      <a class="msg-btns edit" data-messageid="<%= message_id %>" style="display: <% author === app.handle ? 'inline' : 'none' %>">edit message</a>
+                      <a class="msg-btns suppress" data-messageid="<%= message_id %>" style="display: <%= suppressable %>">marca como no apropiado</a>
+                      <a class="msg-btns edit" data-messageid="<%= message_id %>" style="display: <%= editable %>">edit message</a>
                     </td>
                 </tr>
             </script>
@@ -116,7 +121,7 @@
                     <h1></h1>
                     <a href="#">principal</a>
                     <span class="user-id"></span>
-                    <a href="#/login" class="loginLink">acceder</a>
+                    <a href="#!/login" class="loginLink">acceder</a>
                 </header>
                 <div id="user-main"></div>
                 <footer></footer>
@@ -144,7 +149,7 @@
                 topic_md = topic_md.replace(/<\/?p>/g, '');
                 %>
                 <tr>
-                    <td class="topic"><a href="#t/<%= thread_id %>"><%= topic_md %></a> > <%= (message_id === thread_id) ? '' : title_md %></td>
+                    <td class="topic"><a href="#!/t/<%= thread_id %>"><%= topic_md %></a> > <%= (message_id === thread_id) ? '' : title_md %></td>
                     <td class="inituser"><%- author %></td>
                     <td class="startdate"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>
@@ -164,7 +169,7 @@
                     <h1></h1>
                     <a href="#">principal</a>
                     <span class="user-id"></span>
-                    <a href="#/login" class="loginLink">acceder</a>
+                    <a href="#!/login" class="loginLink">acceder</a>
                 </header>
                 <div id="suspended-main"></div>
                 <footer></footer>
@@ -181,7 +186,7 @@
                 %>
                 <tr>
                     <td class="topic"><%= title_md %></td>
-                    <td class="inituser"><a href="#u/<%- author %>"><%- author %></a></td>
+                    <td class="inituser"><a href="#!/u/<%- author %>"><%- author %></a></td>
                     <td class="startdate"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>
                 <tr>

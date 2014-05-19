@@ -32,7 +32,7 @@
             app.userKey = key;
 
             var p = R.preauthPostData({
-                q:  'SELECT handle FROM users u JOIN auth.openid_accounts o ON u.idx = o.idx \n' +
+                q:  'SELECT handle, admin FROM users u JOIN auth.openid_accounts o ON u.idx = o.idx \n' +
                     'WHERE o.identifier = %s AND o.key = %s; ',
                 args: [ident, key]
             });
@@ -43,7 +43,8 @@
                     if ( resp.row_count[0] ) {
 
                         app.handle = resp.records.rows[0].handle;
-                        $('a.loginLink').attr('href', '#/logout');
+                        app.isAdmin = resp.records.rows[0].admin;
+                        $('a.loginLink').attr('href', '#!/logout');
                         $('a.loginLink').text('salir');
                         // if results, add to display
                         $('span.user-id').text(app.handle);

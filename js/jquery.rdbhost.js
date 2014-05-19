@@ -1143,12 +1143,14 @@ window.Rdbhost = {};
          */
         function useHash() {
 
-            // var hashRe = new RegExp('#http[^#]{32,}');
-            var hashRe = new RegExp('#[^\#! ]*(%26|&)[^/\!# ]{32,}');
+            var hashRe0 = new RegExp('#http[^#]{32,}'),
+                hashRe1 = new RegExp('#[^\#! ]*(%26|&)[^/\!# ]{32,}');
 
             if (window.location.hash) {
 
-                var t = hashRe.exec(window.location.hash);
+                var t0 = hashRe0.exec(window.location.hash),
+                    t1 = hashRe1.exec(window.location.hash),
+                    t = t0 || t1;
 
                 if (t && t[0]) {
 

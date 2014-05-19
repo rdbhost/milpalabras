@@ -10,12 +10,13 @@
     var MilPalabrasRouter = Backbone.Router.extend({
 
         routes: {
-            't/:thread': 'showThread',
-            'u/:user':   'showUser',
-            'suspended': 'showSuspended',
-            'login':     'login',
-            'logout':    'logout',
-            '':          'showIndex'
+            '!/t/:thread': 'showThread',
+            '!/u/:user':   'showUser',
+            '!/suspended': 'showSuspended',
+            '!/login':     'login',
+            '!/logout':    'logout',
+            '!':          'showIndex',
+            '':           'showIndex'
         },
 
         showThread: function (param) {
@@ -106,8 +107,8 @@
             app.userId = app.userKey = app.handle = undefined;
             $.cookie(myKeyName, '');
 
-            $('a.loginLink').attr('href', '#/login');
-            $('a.loginLink').text('login');
+            $('a.loginLink').attr('href', '#!/login');
+            $('a.loginLink').text('acceder');
             $('span.user-id').text('');
 
             app.milPalabrasRouter.navigate('', {trigger: true});

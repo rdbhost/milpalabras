@@ -110,7 +110,7 @@
                 msgModel.destroy();
                 app.thread.remove(msgModel);
                 if ( msgModel.attributes.message_id === msgModel.attributes.thread_id ) {
-                    var tmp = app.threads.find({'thread_id': msgModel.attributes.thread_d});
+                    var tmp = app.threads.find({'thread_id': msgModel.attributes.thread_id});
                     if ( tmp )
                         app.threads.remove(msgModel);
                 }
