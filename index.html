@@ -89,10 +89,13 @@
                 <% var body_md = makeHtml(body);
                 var title_md = makeHtml(title);
                 title_md = title_md.replace(/<\/?p>/g, '');
-                var now = new Date(Date.now() - 5*60*1000),
+                var now5 = new Date(Date.now() - 5*60*1000),
+                    now10 = new Date(Date.now() - 10*60*1000),
                     pDate = new Date(post_date),
                     suppressable = suppressed !== false ? 'inline' : 'none',
-                    editable = ((author === app.handle && pDate > now  ) || app.isAdmin)
+                    editable = ((author === app.handle && pDate > now5  ) || app.isAdmin)
+                       ? 'inline' : 'none',
+                    deletable = ((author === app.handle && pDate > now10  ) || app.isAdmin)
                        ? 'inline' : 'none';
                 %>
                 <tr>
@@ -107,6 +110,7 @@
                     <td colspan="3">
                       <a class="msg-btns suppress" data-messageid="<%= message_id %>" style="display: <%= suppressable %>">marca como no apropiado</a>
                       <a class="msg-btns edit" data-messageid="<%= message_id %>" style="display: <%= editable %>">edit message</a>
+                      <a class="msg-btns delete" data-messageid="<%= message_id %>" style="display: <%= deletable %>">delete message</a>
                     </td>
                 </tr>
             </script>

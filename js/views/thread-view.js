@@ -47,7 +47,8 @@
 		events: {
             'click #add-post-button': 'showAddMessageForm',
             'click .suppress':        'suppressMsg',
-            'click .edit':            'showEditMessageForm'
+            'click .edit':            'showEditMessageForm',
+            'click .delete':          'deleteMsg'
 		},
 
 		// The ThreadView listens for changes to its model, re-rendering. Since there's
@@ -130,6 +131,25 @@
 
                 msgModel.suppress();
                 app.thread.remove(msgModel);
+                app.threadView.render();
+            }
+
+            ev.stopImmediatePropagation();
+            return false;
+       },
+
+       deleteMsg: function(ev) {
+
+            if ( ! app.handle ) {
+
+                alert('Please login to use the Delete feature.');
+            }
+            else {
+
+                var msgId = $(ev.target).data('messageid'),
+                    msgModel = app.thread.findWhere({'message_id': msgId});
+
+                msgModel.deleteMsg();
                 app.threadView.render();
             }
 

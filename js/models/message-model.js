@@ -144,6 +144,38 @@
             });
         },
 
+        deleteMsg: function(options) {
+
+            var attrs = this.attributes;
+            attrs.title = '~ eliminado ~';
+            attrs.body = '~ mensaje se ha eliminado ~';
+
+            var sql =
+                "UPDATE messages m SET body = '~1', \n" +
+                "       title = '~2' \n" +
+                " FROM auth.openid_accounts o, users u  \n" +
+                " WHERE m.message_id = %(message_id) \n" +
+                "  AND m.post_date > now() - '10 minutes'::interval \n" +
+                "  AND o.idx = u.idx AND u.admin \n" +
+                "  AND o.identifier = %s AND o.key = %s";
+            sql = sql.replace('~2', attrs.title).replace('~1', attrs.body);
+
+            var this_ = this,
+                p = R.preauthPostData({
+                    q: sql,
+                    namedParams: this_.attributes,
+                    args: [app.userId, app.userKey]
+                });
+            p.then(function(resp) {
+                if ( options && options.success )
+                    options.success(rows);
+            });
+            p.fail(function(err) {
+                if ( options && options.error )
+                    options.error(err);
+            });
+        },
+
         destroy: function(options) {
 
             var this_ = this,
