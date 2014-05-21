@@ -27,7 +27,7 @@ header { display: block; margin-bottom: 22px }
 
 .topic { width: 450px; padding-left: 6px; }
 .inituser { width: 125px; overflow: hidden; padding-left: 6px;}
-.startdate { width: 140px; text-align: left; padding-left: 6px;}
+.startdate { width: 170px; text-align: left; padding-left: 6px;}
 .msgct { width: 22px; text-align: right; padding-right: 6px; }
 
 .body {
