@@ -3,6 +3,8 @@
 (function ($) {
 	'use strict';
 
+    var MAX_THREAD_LEN = 50;
+
     app.MessageView = Backbone.View.extend({
 
         tagName: 'tbody',
@@ -81,13 +83,26 @@
                 app.thread.each(this.addOneMessageToDisplay, this);
 
                 this.$header.html(this.headerTemplate({
-                    topic: app.thread.models[app.thread.models.length-1].get('title')
+                    topic: app.thread.models[0].get('title')
                 }));
 
-                if (app.userId)
-                    $('#add-post-button').removeAttr('disabled');
-                else
-                    $('#add-post-button').attr('disabled', 'disabled');
+                var $postButton = $('#add-post-button'),
+                    $threadCompleteNote = $('#thread-complete');
+
+                if (app.thread.models.length >= MAX_THREAD_LEN) {
+
+                    $postButton.hide();
+                    $threadCompleteNote.show();
+                }
+                else {
+
+                    $postButton.show();
+                    if (app.userId)
+                        $postButton.removeAttr('disabled');
+                    else
+                        $postButton.attr('disabled', 'disabled');
+                    $threadCompleteNote.hide();
+                }
 
                 $('time.timeago').timeago();
             }

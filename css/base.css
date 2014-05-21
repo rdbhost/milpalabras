@@ -1,20 +1,35 @@
 
-header { display: block }
+header { display: block; margin-bottom: 22px }
+
+#mpapp > header {
+
+    font-family: Verdana;
+    font-size: 32pt;
+}
 
 #mpapp h1 {
     align-content: center;
 }
 
-#topics, #thread, #user, #suspended {
+#topics, #thread, #user, #suspended, #mpapp > header {
     margin-left: auto;
     margin-right: auto;
-    font-size: large;
     width: 800px;
 }
 
-.topic { width: 450px; }
-.inituser { max-width: 75px; overflow: hidden; }
-.startdate { width: 200px; text-align: right; }
+#topics, #thread, #user, #suspended {
+    font-size: large;
+}
+
+#topics-main thead {
+    background-color: darkgray;
+}
+
+.topic { width: 450px; padding-left: 6px; }
+.inituser { width: 125px; overflow: hidden; padding-left: 6px;}
+.startdate { width: 140px; text-align: left; padding-left: 6px;}
+.msgct { width: 22px; text-align: right; padding-right: 6px; }
+
 .body {
     width: 550px;
     border: solid 3px #033;
@@ -22,10 +37,18 @@ header { display: block }
     -moz-padding-start: 0px;
 }
 
+td.body {
+    padding: 18px 18px 18px 18px;
+}
+
 .msg-btns {
     float: right;
     margin-bottom: 2em;
-    padding: 5px;
+    padding: 2px 2px 2px 5px;
+}
+a.msg-btns {
+    padding-left: 18px;
+    text-decoration: underline;
 }
 
 .editable {
@@ -57,6 +80,11 @@ header { display: block }
     margin-bottom: 8px;
     margin-left: 8px;
     line-height: 15px;
+}
+
+.add-topic-button {
+    margin-bottom: 22px;
+    margin-top: 22px;
 }
 
 #postform h3 {
@@ -146,4 +174,5 @@ footer {
 #null-msg {
     padding: 20px;
 }
+
 

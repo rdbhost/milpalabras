@@ -9,32 +9,37 @@
 	<body>
 		<section id="mpapp">
 
+            <header>
+                Mil Palabras
+            </header>
+
             <!--
             templates and blocks for the main topics page
 
             -->
             <div id="topics" class="page">
                 <header>
-                    <h1>Topics</h1>
+                    <h1>Temas</h1>
                     <!-- a href="#">principal</a -->
                     <span class="user-id"></span>
                     <a href="#!/login" class="loginLink">acceder</a>
                 </header>
 
-                <button class="add-topic-button">Create new Topic</button>
+                <button class="add-topic-button">Crea Nuevo Tema</button>
                 <table id="topics-main">
                     <thead>
                         <tr>
-                            <th>topic</th>
-                            <th>owner</th>
-                            <th>new at</th>
-                            <th>msg ct</th>
+                            <th>tema</th>
+                            <th>propietario</th>
+                            <th>edad</th>
+                            <th>tamaño</th>
                         </tr>
                     </thead>
                     <tbody id="topic-list">
                     </tbody>
                 </table>
-                <button class="add-topic-button">Create new Topic</button>
+
+                <button class="add-topic-button">Crea Nuevo Tema</button>
                 <footer></footer>
             </div>
 
@@ -78,6 +83,7 @@
                     </thead>
                 </table>
                 <button id="add-post-button">Respuesta al Tema</button>
+                <span id="thread-complete">Tema está Lleno</span>
                 <footer></footer>
             </div>
 
@@ -109,8 +115,8 @@
                 <tr class="row-group-spacer">
                     <td colspan="3">
                       <a class="msg-btns suppress" data-messageid="<%= message_id %>" style="display: <%= suppressable %>">marca como no apropiado</a>
-                      <a class="msg-btns edit" data-messageid="<%= message_id %>" style="display: <%= editable %>">edit message</a>
-                      <a class="msg-btns delete" data-messageid="<%= message_id %>" style="display: <%= deletable %>">delete message</a>
+                      <button class="msg-btns edit" data-messageid="<%= message_id %>" style="display: <%= editable %>">edit message</button>
+                      <button class="msg-btns delete" data-messageid="<%= message_id %>" style="display: <%= deletable %>">delete message</button>
                     </td>
                 </tr>
             </script>

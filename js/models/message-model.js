@@ -153,10 +153,10 @@
             var sql =
                 "UPDATE messages m SET body = '~1', \n" +
                 "       title = '~2' \n" +
-                " FROM auth.openid_accounts o, users u  \n" +
+                " FROM auth.openid_accounts o  \n" +
                 " WHERE m.message_id = %(message_id) \n" +
                 "  AND m.post_date > now() - '10 minutes'::interval \n" +
-                "  AND o.idx = u.idx AND u.admin \n" +
+                "  AND o.idx = m.author \n" +
                 "  AND o.identifier = %s AND o.key = %s";
             sql = sql.replace('~2', attrs.title).replace('~1', attrs.body);
 
