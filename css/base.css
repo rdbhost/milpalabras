@@ -1,10 +1,21 @@
 
+body {
+    background-color: #fe7276;
+}
+
 header { display: block; margin-bottom: 22px }
 
-#mpapp > header {
+.nav {
+    float: right;
+    margin-top: -75px;
+}
+
+#mpapp > header > h1 {
 
     font-family: Verdana;
-    font-size: 32pt;
+    font-size: 42pt;
+    color: #ffb173;
+    margin: 0px 0px 10px -25px;
 }
 
 #mpapp h1 {
@@ -19,20 +30,33 @@ header { display: block; margin-bottom: 22px }
 
 #topics, #thread, #user, #suspended {
     font-size: large;
+    background: white;
+    border: 3px solid #006561 /* #a64a00 */;
+    color: #300;
+    padding: 20px;
+/*    background-image: -moz-linear-gradient(center bottom, #f77 0%, #f88 100%);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f99), to(#faa)); */
+    -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;
+}
+
+.user-id {
+    padding: 10px;
 }
 
 #topics-main thead {
     background-color: darkgray;
 }
 
-.topic { width: 450px; padding-left: 6px; }
-.inituser { width: 125px; overflow: hidden; padding-left: 6px;}
-.startdate { width: 170px; text-align: left; padding-left: 6px;}
-.msgct { width: 22px; text-align: right; padding-right: 6px; }
+.topic { width: 450px; padding-left: 10px; }
+.inituser { width: 125px; overflow: hidden; padding-left: 10px;}
+.startdate { width: 170px; text-align: left; padding-right: 10px;}
+.msgct { width: 22px; text-align: right; padding-right: 10px; }
+
+.rgt { text-align: right }
 
 .body {
     width: 550px;
-    border: solid 3px #033;
+    border: solid 3px #006561;
     -webkit-padding-start: 0px;
     -moz-padding-start: 0px;
 }
@@ -52,7 +76,7 @@ a.msg-btns {
 }
 
 .editable {
-    border: thin solid blue;
+    border: thin solid #1d7471;
 }
 
 #subject {
@@ -98,12 +122,12 @@ a.msg-btns {
     bottom: 10px;
     right: 10px;
     padding: 12px;
-    background: #ff5555;
-    /* border: 1px solid #bdbdbd; */
-    color: #333;
-    /* text-shadow: 0 1px 0 #fff; */
+    background: #be2f33;
+    border: 2px solid #ff7100;
+    color: #ffb173;
+    /* text-shadow: 0 1px 0 #fff;
     background-image: -moz-linear-gradient(center bottom, #f77 0%, #f88 100%);
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f99), to(#faa));
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f99), to(#faa)); */
     -webkit-border-radius: 6px; -moz-border-radius: 6px; border-radius: 6px;
 }
 
@@ -142,12 +166,14 @@ ul.oops {
 #login {
     position: fixed;
     width: 500px;
-    height: 300px;
+    height: 200px;
     left: 300px;
     right: 300px;
     top: 200px;
     bottom: 200px;
     background-color: lightblue;
+    border: thin solid mediumblue;
+    -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
 }
 
 #set-username {
@@ -175,4 +201,12 @@ footer {
     padding: 20px;
 }
 
+.modal-body {
+    padding: 30px;
+}
 
+.login-btn {
+    width: 100px;
+    height: 35px;
+    margin: 20px;
+}

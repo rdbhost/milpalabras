@@ -4,6 +4,14 @@
 
     var R = window.Rdbhost;
 
+    var $ooi = $('#other-openid'),
+        $ooibtn = $('#other');
+    $ooi.hide();
+    $ooibtn.click(function(evt) {
+        $ooi.show();
+        $ooibtn.hide();
+        return false;
+    });
 
     // set up openId login form
     //
@@ -12,8 +20,6 @@
         loginForm : 'openidForm',
         errback : function () {},
         callback : function(key, ident) {
-
-            //$.cookie('LOGIN_KEY', '');
 
             // login user in
             login(ident, key);
