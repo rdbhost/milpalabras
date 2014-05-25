@@ -24,15 +24,27 @@
                 case 'read':
                     var p = R.preauthPostData({
 
-                        q: 'SELECT thread_id, message_id, title, post_date, body, \n' +
-                           '       u.handle AS author, suppressed \n' +
+                        q: 'SELECT * FROM \n' +
+
+                           '(SELECT m.thread_id, m.message_id, m.title, m.post_date, m.body, m.branch_from, \n' +
+                           '       u.handle AS author, m.suppressed, mr.message_id AS branch_to \n' +
+                           ' FROM messages m \n' +
+                           '  LEFT JOIN messages mr ON mr.branch_from = m.message_id \n' +
+                           '  JOIN users u ON m.author = u.idx \n' +
+                           ' WHERE m.thread_id = %s AND (m.suppressed = false OR m.suppressed IS NULL) \n' +
+
+                           'UNION ALL \n' +
+
+                           'SELECT m.thread_id, m.message_id, \'~ oculta temporalmente ~\' AS title, m.post_date, \'\' AS body, ' +
+                           '       m.branch_from, u.handle AS author, m.suppressed, 0 AS branch_to \n' +
                            ' FROM messages m \n' +
                            '  JOIN users u ON m.author = u.idx \n' +
-                           ' WHERE thread_id = %s AND (suppressed = false OR suppressed IS NULL) \n' +
-                           'ORDER BY post_date ASC LIMIT 100; ',
+                           ' WHERE m.thread_id = %s AND m.suppressed) AS foo\n' +
+
+                           'ORDER BY foo.post_date ASC LIMIT 100; ',
 
                         // q: 'SELECT * FROM messages WHERE thread_id = %s ORDER BY post_date ASC LIMIT 100',
-                        args: [this.thread_id]
+                        args: [this.thread_id, this.thread_id]
                     });
                     p.then(function(resp) {
                         var rows = resp.row_count[0] > 0 ? resp.records.rows : [];

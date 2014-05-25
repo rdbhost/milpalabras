@@ -10,7 +10,13 @@
 		<section id="mpapp">
 
             <header>
-                Mil Palabras
+                <h1>Mil Palabras</h1>
+
+                <span class="nav">
+                   <a href="#">principal</a>
+                   <span class="user-id"></span>
+                   <a href="#!/login" class="loginLink">acceder</a>
+                </span>
             </header>
 
             <!--
@@ -19,10 +25,8 @@
             -->
             <div id="topics" class="page">
                 <header>
+
                     <h1>Temas</h1>
-                    <!-- a href="#">principal</a -->
-                    <span class="user-id"></span>
-                    <a href="#!/login" class="loginLink">acceder</a>
                 </header>
 
                 <button class="add-topic-button">Crea Nuevo Tema</button>
@@ -31,7 +35,7 @@
                         <tr>
                             <th>tema</th>
                             <th>propietario</th>
-                            <th>edad</th>
+                            <th>cuando</th>
                             <th>tamaño</th>
                         </tr>
                     </thead>
@@ -49,7 +53,7 @@
                 %>
                 <td class="topic"><a href="#!/t/<%- thread_id %>"><%= topic_md %></a></td>
                 <td class="inituser"><%- initiating_user %></td>
-                <td class="startdate"><time class="timeago" datetime="<%- start_date %>z"></time></td>
+                <td class="startdate rgt"><time class="timeago" datetime="<%- start_date %>z"></time></td>
                 <td class="msgct"><%- message_ct %></td>
             </script>
 
@@ -65,9 +69,6 @@
             <div id="thread" class="page" style="display: none">
                 <header>
                     <h1></h1>
-                    <a href="#">principal</a>
-                    <span class="user-id"></span>
-                    <a href="#!/login" class="loginLink">acceder</a>
                 </header>
 
                 <table id="thread-main">
@@ -75,7 +76,7 @@
                         <tr>
                             <th class="topic">title</th>
                             <th class="inituser">author</th>
-                            <th class="startdate">post_date</th>
+                            <th class="startdate rgt">post_date</th>
                         </tr>
                         <!-- tr>
                             <th colspan="3">body</th>
@@ -103,11 +104,16 @@
                        ? 'inline' : 'none',
                     deletable = ((author === app.handle && pDate > now10  ) || app.isAdmin)
                        ? 'inline' : 'none';
+                if (suppressed) {
+                    topic_md = '~ oculta temporalmente ~';
+                    body_md = '';
+                    suppressable = 'none';
+                }
                 %>
                 <tr>
                     <td class="topic"><%= title_md %></td>
-                    <td class="inituser"><a href="#!/u/<%- author %>"><%- author %></a></td>
-                    <td class="startdate"><time class="timeago" datetime="<%- post_date %>z"></time></td>
+                    <td class="inituser"><a href="#!/u/<%- author %>" style="display: <%= suppressable %>"><%- author %></a></td>
+                    <td class="startdate rgt"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>
                 <tr>
                     <td class="body" colspan="3"><%= body_md %></td>
@@ -129,9 +135,6 @@
             <div id="user" class="page" style="display: none">
                 <header>
                     <h1></h1>
-                    <a href="#">principal</a>
-                    <span class="user-id"></span>
-                    <a href="#!/login" class="loginLink">acceder</a>
                 </header>
                 <div id="user-main"></div>
                 <footer></footer>
@@ -145,7 +148,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th><span id="posts-by">Messages By: </span><%- user %></th>
+                            <th><span id="posts-by">Mensajes de: </span><%- user %></th>
                         </tr>
                     </thead>
                 </table>
@@ -161,7 +164,7 @@
                 <tr>
                     <td class="topic"><a href="#!/t/<%= thread_id %>"><%= topic_md %></a> > <%= (message_id === thread_id) ? '' : title_md %></td>
                     <td class="inituser"><%- author %></td>
-                    <td class="startdate"><time class="timeago" datetime="<%- post_date %>z"></time></td>
+                    <td class="startdate rgt"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>
                 <tr>
                     <td class="body" colspan="3"><%= body_md %></td>
@@ -177,9 +180,6 @@
             <div id="suspended" class="page" style="display: none">
                 <header>
                     <h1></h1>
-                    <a href="#">principal</a>
-                    <span class="user-id"></span>
-                    <a href="#!/login" class="loginLink">acceder</a>
                 </header>
                 <div id="suspended-main"></div>
                 <footer></footer>
@@ -197,7 +197,7 @@
                 <tr>
                     <td class="topic"><%= title_md %></td>
                     <td class="inituser"><a href="#!/u/<%- author %>"><%- author %></a></td>
-                    <td class="startdate"><time class="timeago" datetime="<%- post_date %>z"></time></td>
+                    <td class="startdate rgt"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>
                 <tr>
                     <td class="body" colspan="3"><%= body_md %></td>
@@ -264,16 +264,25 @@
             -->
             <div id="login" class="page modal-body" style="display: none">
                 <form id="openidForm"  action="~" method="post">
-                    <p>Provide your OpenId identifier, complete with http: <br/>
-                        Examples: <ul><li>http://example.livejournal.com</li>
-                    <li>http://example.myopenid.com</li></ul>
-                    ... or click one of the host buttons below.
-                    </p>
-                    OpenID Identifier URL<input name="openidurl" size="75"/>  <br/>
-                    <input type="submit" class="btn" />
                     <div>
-                        <input type="submit" value="Google" id="google" class="btn" />
-                        <input type="submit" value="Yahoo" id="yahoo" class="btn" />
+                        <div id="main-openid">
+
+                            <p>Acceder con: </p>
+                            <input type="submit" value="Google" id="google" class="login-btn" />
+                            <input type="submit" value="Yahoo" id="yahoo" class="login-btn" />
+                            <input type="submit" value="Otro" id="other" class="login-btn" />
+                        </div>
+
+
+                        <div id="other-openid">
+                            <!-- p>Proporcione a su identificador de OpenID, con http: <br/>
+                                Ejemplo: <ul><li>http://example.livejournal.com</li>
+                            <li>http://example.myopenid.com</li></ul>
+                            ... or click one of the host buttons below.
+                            </p -->
+                            OpenID Identificader URL<input name="openidurl" size="75"/>  <br/>
+                            <input type="submit" class="btn" />
+                        </div>
                     </div>
                 </form>
             </div>
