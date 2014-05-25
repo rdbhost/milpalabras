@@ -101,14 +101,13 @@
 
         deleteMsg: function(ev) {
 
-
             var msgId = $(ev.target).data('messageid'),
                 msgModel = app.thread.findWhere({'message_id': msgId});
 
             if ( msgModel ) {
 
-                msgModel.destroy();
-                app.thread.remove(msgModel);
+                msgModel.deleteMsg({});
+                // app.thread.remove(msgModel);
                 if ( msgModel.attributes.message_id === msgModel.attributes.thread_id ) {
                     var tmp = app.threads.find({'thread_id': msgModel.attributes.thread_id});
                     if ( tmp )

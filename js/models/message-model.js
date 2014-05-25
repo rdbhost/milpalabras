@@ -178,6 +178,9 @@
 
         destroy: function(options) {
 
+            // todo - replace with two different queries - one for thread-head, and one for others
+            //    - thread-head version would promote another message to be thread-head
+
             var this_ = this,
                 p = R.preauthPostData({
 
@@ -190,10 +193,12 @@
                     namedParams: this_.attributes,
                     args: [app.userId, app.userKey]
                 });
+
             p.then(function(resp) {
                 if ( options && options.success )
                     options.success(rows);
             });
+
             p.fail(function(err) {
                 if ( options && options.error )
                     options.error(err);
