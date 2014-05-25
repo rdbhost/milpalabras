@@ -1,6 +1,7 @@
 
 body {
-    background-color: #fe7276;
+   /* background-color: #fe7276; */
+    background-color: #5ccdc9;
 }
 
 header { display: block; margin-bottom: 22px }
@@ -14,7 +15,7 @@ header { display: block; margin-bottom: 22px }
 
     font-family: Verdana;
     font-size: 42pt;
-    color: #ffb173;
+    color: #a64a00; /* #ffb173; */
     margin: 0px 0px 10px -25px;
 }
 

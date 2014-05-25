@@ -152,12 +152,14 @@
 
             var sql =
                 "UPDATE messages m SET body = '~1', \n" +
-                "       title = '~2' \n" +
+                "       title = '~2', suppressed = false \n" +
                 " FROM auth.openid_accounts o  \n" +
+                "  JOIN users u ON u.idx = o.idx \n" +
                 " WHERE m.message_id = %(message_id) \n" +
-                "  AND m.post_date > now() - '10 minutes'::interval \n" +
-                "  AND o.idx = m.author \n" +
-                "  AND o.identifier = %s AND o.key = %s";
+                "   AND (u.admin OR \n" +
+                "       (m.post_date > now() - '10 minutes'::interval \n" +
+                "          AND o.idx = m.author) ) \n" +
+                "   AND o.identifier = %s AND o.key = %s";
             sql = sql.replace('~2', attrs.title).replace('~1', attrs.body);
 
             var this_ = this,
