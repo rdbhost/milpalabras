@@ -53,7 +53,8 @@ header { display: block; margin-bottom: 22px }
 .startdate { width: 170px; text-align: left; padding-right: 10px;}
 .msgct { width: 22px; text-align: right; padding-right: 10px; }
 
-.rgt { text-align: right }
+.rgt { text-align: right !important }
+.lft { text-align: left !important; float: left !important }
 
 .body {
     width: 550px;

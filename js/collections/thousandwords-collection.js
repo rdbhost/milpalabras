@@ -10,7 +10,7 @@
         MAX_QUOTED_RATIO = 0.15,
 
     // ?!#$%&«‹¡-¿»›
-        trimmingRegExp = new RegExp('(^[?!#$%&\u00ab\u2039\u00a1\u00bf-]+|[?!#$&.,\u00bb\u203a-]+$)', 'g'),
+        trimmingRegExp = new RegExp('(^[?!#$%[\\]&\u00ab\u2039\u00a1\u00bf-]+)|([?!#$[\\]&.,\u00bb\u203a-]+$)', 'g'),
 
         okNonWords = new RegExp('^[1-9.,+-]+$', 'g'),
 
@@ -68,7 +68,7 @@
                     // skip numbers and other ok non-words
                     if ( trimmed && ! okNonWords.test(trimmed) ) {
 
-                        var p = dict.findOne(trimmed);
+                        var p = dict.findOne(trimmed.toLowerCase());
                         p.then(function(refWd) {
 
                             if ( ! refWd ) {

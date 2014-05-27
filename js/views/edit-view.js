@@ -7,7 +7,7 @@
         KEY_SPACE = 32,
         KEY_TAB = 9,
 
-        WORD_BREAK_RE = new RegExp('[^a-zA-Z`~\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00E1\u00E9\u00ED\u00F3\u00FA\u00F1]+', 'g');
+        WORD_BREAK_RE = new RegExp('[^a-zA-Z\\[\\]`~\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00E1\u00E9\u00ED\u00F3\u00FA\u00F1]+', 'g');
 
     function getCaretPos($div) {
 
@@ -322,8 +322,7 @@
             $.when(pS1, pM1).then(function () {
 
                 that._manageButtons();
-                if ( ! that.errorStats['new-message'] && ! that.errorStats['subject'] && $rawSubj.text().length )
-                    saveMessage();
+                saveMessage();
             });
 
             function saveMessage() {
@@ -341,6 +340,17 @@
                 msg = msg.replace(tagRe, '').replace(htmlEntityRe, convertHtmlEntities);
                 subj = subj.replace(tagRe, '').replace(htmlEntityRe, convertHtmlEntities);
 
+                function onSuccess(mdl, resp, opt) {
+                    if ( typeof that.model.attributes.thread_id === 'undefined' )
+                        app.threads.fetch({ reset: true });
+                    else
+                        app.thread.fetch({ reset: true });
+                    that._cleanup(ev);
+                }
+                function onError(mdl, err, opt) {
+                    alert('fail ' + err[0] + err[1] );
+                }
+
                 var newModel = new app.Message({
                     body: msg,
                     title: subj,
@@ -349,19 +359,36 @@
                     author: app.userId
                 });
 
-                newModel.save({}, {
-                        success: function(mdl, resp, opt) {
-                            if ( typeof that.model.attributes.thread_id === 'undefined' )
-                                app.threads.fetch({ reset: true });
-                            else
-                                app.thread.fetch({ reset: true });
-                            that._cleanup(ev);
+                if (newModel.attributes.thread_id) {
+
+                    newModel.save({}, {
+                        success: onSuccess,
+                        error: onError
+                    });
+                }
+                else if (that.attributes.parent) {
+
+                    var parent = that.attributes.parent;
+                    parent.branch({
+                        success: function(resp) {
+
+                            var thread_id = resp.message_id;
+                            newModel.attributes.thread_id = thread_id;
+                            newModel.save({}, {
+                                success: onSuccess,
+                                error: onError
+                            });
                         },
-                        error: function(mdl, err, opt) {
-                            alert('fail ' + err[0] + err[1] );
-                        }
-                    }
-                );
+                        error: onError
+                    });
+                }
+                else {
+
+                    newModel.save({}, {
+                        success: onSuccess,
+                        error: onError
+                    });
+                }
             }
 
             ev.stopImmediatePropagation();
@@ -461,6 +488,7 @@
                 });
             }
             else {
+
                 console.log('clearing word list');
                 that.wordsView.render(false);
             }

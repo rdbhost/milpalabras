@@ -11,12 +11,13 @@
 
         routes: {
             '!/t/:thread': 'showThread',
+            '!/br/:msg':   'showBranch',
             '!/u/:user':   'showUser',
             '!/suspended': 'showSuspended',
             '!/login':     'login',
             '!/logout':    'logout',
-            '!':          'showIndex',
-            '':           'showIndex'
+            '!':           'showIndex',
+            '':            'showIndex'
         },
 
         showThread: function (param) {
@@ -34,6 +35,39 @@
                     alert('error in thread loading ' + err);
                 }
             });
+        },
+
+        showBranch: function (param) {
+
+            function newBody(body, src_title) {
+
+                return '\nEste mensaje se antes en [' + src_title + ']\n\n' +
+                       '-------------------------------------------------------------\n\n' + body;
+            }
+
+            param = parseInt(param, 10);
+            var models = app.thread.where({'message_id': param});
+
+            if (models.length) {
+
+                var srcModel = models[0].clone();
+                srcModel.attributes.body = 'Este mensaje se antes en [' + srcModel.attributes.title + ']\n\n' +
+                    '-------------------------------\n\n' + srcModel.attributes.body;
+
+                app.thread = new app.Thread([srcModel], {});
+                app.threadView = new app.ThreadView({model: app.thread});
+
+                app.threadView.render();
+
+                var nullMsg = new app.Message({
+                    thread_id: undefined,
+                    message_id: undefined,
+                    author: app.userId
+                });
+
+                var edView = new app.EditView({ model: nullMsg, attributes: {parent: srcModel} });
+                edView.render();
+            }
         },
 
         showSuspended: function (param) {

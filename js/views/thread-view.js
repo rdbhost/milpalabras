@@ -50,7 +50,8 @@
             'click #add-post-button': 'showAddMessageForm',
             'click .suppress':        'suppressMsg',
             'click .edit':            'showEditMessageForm',
-            'click .delete':          'deleteMsg'
+            'click .delete':          'deleteMsg',
+            'click .as-new-thread':   'branchThread'
 		},
 
 		// The ThreadView listens for changes to its model, re-rendering. Since there's
@@ -171,6 +172,12 @@
             ev.stopImmediatePropagation();
             return false;
        },
+
+        branchThread: function(ev) {
+
+            var msgId = parseInt($(ev.target).attr('data-messageid'), 10);
+            app.milPalabrasRouter.navigate('!/br/'+msgId, {trigger:true});
+        },
 
         // Add a single thread item to the list by creating a view for it, and
         // appending its element to the `<ul>`.

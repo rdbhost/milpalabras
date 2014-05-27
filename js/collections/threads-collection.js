@@ -24,19 +24,22 @@
 
                 case 'read':
                     var p = R.preauthPostData({
-                        q: 'SELECT thread_id, topic, start_date, u.handle AS initiating_user, \n' +
+                        q: 'SELECT thread_id, topic, start_date, change_date, u.handle AS initiating_user, \n' +
                            '       suppressed, message_ct \n' +
                            ' FROM threads t \n' +
                            '  JOIN users u ON t.initiating_user = u.idx \n' +
-                           ' WHERE suppressed = false OR suppressed IS NULL \n' +
-                           'ORDER BY start_date DESC LIMIT 100; '
+                           ' WHERE (suppressed = false OR suppressed IS NULL) \n' +
+                           "   AND topic != '~ eliminado ~' \n" +
+                           'ORDER BY change_date DESC LIMIT 50; '
                     });
                     p.then(function(resp) {
                         options.success(resp.records.rows);
                         app.trigger('show:index');
                     });
                     p.fail(function(err) {
-                        options.error(err);
+                        if ( options && options.error )
+                            options.error(err);
+                        console.log('Error ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]));
                     });
                     break;
 

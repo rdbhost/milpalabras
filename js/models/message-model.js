@@ -14,7 +14,7 @@
 
     var saveQuery =
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +
-        "SELECT * FROM post_msg(%(title), %(body), %s, %s, %(thread_id)); \n" +
+        "SELECT * FROM post_msg(%(title), %(body), %s, %s, %(thread_id), %(branch_from)); \n" +
         " -- and lastly, make thread_id match message_id for new threads \n" +
         "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n" +
         "SELECT currval('messages_message_id_seq'::regclass) AS message_id; \n";
@@ -23,6 +23,18 @@
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +
         "SELECT * FROM replace_msg(%(title), %(body), %s, %s, %(message_id)); \n" +
         "SELECT %(message_id) AS message_id; \n";
+
+    var branchingQuery =
+        "-- create new thread from old message \n" +
+        "INSERT INTO messages (thread_id, title, author, post_date, branch_from, body) \n" +
+        "SELECT NULL, m.title, m.author, m.post_date, %(message_id), \n" +
+        "'Este mensaje se antes en [' || (SELECT title FROM messages m1 WHERE m1.message_id = m.thread_id) || \n" +
+        "     ']\n\n--------------------\n\n' || m.body \n" +
+        "FROM messages m, auth.openid_accounts o WHERE m.message_id = %(message_id) \n" +
+        "  AND o.identifier = %s AND o.key = %s; \n" +
+        "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n" +
+        "SELECT currval('messages_message_id_seq'::regclass) AS message_id; \n";
+
 
     // Our basic Message model.
     app.Message = Backbone.Model.extend({
@@ -33,7 +45,12 @@
         defaults: {
             post_date: (new Date()).toISOString(),
             title: '',
-            body: ''
+            body: '',
+            suppressed: undefined,
+            branch_from: undefined,
+            branch_to: undefined,
+            message_id: undefined,
+            thread_id: undefined
         },
 
         sync: function(method, model, options) {
@@ -50,10 +67,6 @@
                         q = q.replace('%(thread_id)', 'NULL');
                     }
 
-                    // if ( _.contains( ['', undefined], model.attributes.message_id ) ) {
-                    //     q = q.replace('%(message_id),', '').replace(', message_id,', ', ');
-                    // }
-
                     var p = R.preauthPostData({
                         authcode: '-',
                         q: q,
@@ -62,11 +75,13 @@
                     });
                     p.then(function(resp) {
                         console.log('successful save ' + resp.status);
+                        // pass message_id to success callback
                         options.success(resp.result_sets[2].records.rows[0]);
                     });
                     p.fail(function(err) {
                         console.log('failing save ' + err[0] + ' ' + err[1]);
-                        options.error(err);
+                        if ( options && options.error )
+                            options.error(err);
                     });
                     break;
 
@@ -85,8 +100,9 @@
                         options.success(resp.result_sets[1].records.rows[0]);
                     });
                     pU.fail(function(err) {
+                        if ( options && options.error )
+                            options.error(err);
                         console.log('failing save ' + err[0] + ' ' + err[1]);
-                        options.error(err);
                     });
                     break;
 
@@ -117,6 +133,7 @@
             p.fail(function(err) {
                 if ( options && options.error )
                     options.error(err);
+                console.log('ERROR ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]))
             });
         },
 
@@ -141,6 +158,29 @@
             p.fail(function(err) {
                 if ( options && options.error )
                     options.error(err);
+                console.log('ERROR ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]))
+            });
+        },
+
+        branch: function(options) {
+
+            var this_ = this,
+                p = R.preauthPostData({
+
+                    q: branchingQuery,
+                    namedParams: this_.attributes,
+                    args: [app.userId, app.userKey]
+                });
+            p.then(function(resp) {
+                console.log('successful branch ' + resp.status);
+                // provide message_id to
+                if ( options && options.success )
+                    options.success(resp.result_sets[2].records.rows[0]);
+            });
+            p.fail(function(err) {
+                if ( options && options.error )
+                    options.error(err);
+                console.log('ERROR ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]))
             });
         },
 
@@ -152,7 +192,7 @@
 
             var sql =
                 "UPDATE messages m SET body = '~1', \n" +
-                "       title = '~2', suppressed = false \n" +
+                "       title = '~2', suppressed = false, branch_from = NULL \n" +
                 " FROM auth.openid_accounts o  \n" +
                 "  JOIN users u ON u.idx = o.idx \n" +
                 " WHERE m.message_id = %(message_id) \n" +
@@ -174,14 +214,12 @@
             });
             p.fail(function(err) {
                 if ( options && options.error )
-                    options.error(err);
+                   options.error(err);
+                console.log('ERROR ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]))
             });
         },
 
         destroy: function(options) {
-
-            // todo - replace with two different queries - one for thread-head, and one for others
-            //    - thread-head version would promote another message to be thread-head
 
             var this_ = this,
                 p = R.preauthPostData({
@@ -204,6 +242,7 @@
             p.fail(function(err) {
                 if ( options && options.error )
                     options.error(err);
+                console.log('ERROR ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]))
             });
         }
 
