@@ -97,6 +97,7 @@
                 var body_md = makeHtml(body);
                 var title_md = makeHtml(title);
                 title_md = title_md.replace(/<\/?p>/g, '');
+
                 var now5 = new Date(Date.now() - 5*60*1000),
                     now10 = new Date(Date.now() - 10*60*1000),
                     pDate = new Date(post_date),
@@ -107,6 +108,7 @@
                        ? 'inline' : 'none',
                     also_thread = branch_to ? 'inline' : 'none',
                     branch_ok = branch_to ? 'none' : 'inline';
+
                 if (suppressed) {
                     topic_md = '~ oculta temporalmente ~';
                     body_md = '';
@@ -122,7 +124,7 @@
                 }
                 %>
                 <tr>
-                    <td class="topic"><%= title_md %></td>
+                    <td class="topic"><a name="<%= message_id %>"></a><%= title_md %></td>
                     <td class="inituser"><a href="#!/u/<%- author %>" style="display: <%= suppressable %>"><%- author %></a></td>
                     <td class="startdate rgt"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>

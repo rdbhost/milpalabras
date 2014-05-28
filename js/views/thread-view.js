@@ -186,11 +186,20 @@
             this.$tMain.append(msgView.render().el);
         },
 
+        // scroll document to show last post by given user.
+        //   does nothing if user has no posts on page
         scrollToMyLastPost: function (userHandle) {
 
-            var p = _.find(app.thread, {'author': userHandle});
+            var p = app.thread.where({'author': userHandle});
 
+            if (p && p.length) {
 
+                var mid = _.last(p).attributes.message_id,
+                    $mid = $('[name="' + mid + '"]'),
+                    pos = $mid.offset();
+
+                $(document).scrollTop(parseInt(pos.top, 10));
+            }
         }
 
 

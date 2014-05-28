@@ -29,6 +29,7 @@
                 success: function(mdl, resp, opt) {
 
                     app.threadView.render();
+                    app.threadView.scrollToMyLastPost(app.handle);
                 },
                 error: function(mdl, err, opt) {
 
