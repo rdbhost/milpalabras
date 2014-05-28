@@ -17,6 +17,7 @@ header { display: block; margin-bottom: 22px }
     font-size: 42pt;
     color: #a64a00; /* #ffb173; */
     margin: 0px 0px 10px -25px;
+    text-shadow: 1px 2px 0 #fff;
 }
 
 #mpapp h1 {
@@ -97,6 +98,7 @@ a.msg-btns {
     padding: 8px;
     margin: 8px;
     background: white;
+    color: black;
 }
 #postform div.editable:nth-of-type(1)  {
     height: 15px;
@@ -138,10 +140,12 @@ a.msg-btns {
     font-size: 16px;
     width: 7em;
     /* max-height: 300px; */
-    bottom: 0px;
-    right: 535px;
+    bottom: -6px;
+    right: 537px;
     background-color: white;
+    color: black;
     border: thin solid mediumpurple;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
 }
 span.okmulti {
     border-bottom-style: solid;

@@ -258,8 +258,8 @@
 
     _.extend(etch.config.buttonClasses, {
         'default': ['bold', 'italic', 'save'],
-        'all': ['bold', 'italic', 'unordered-list', 'ordered-list', 'link', 'clear-formatting', 'save'],
-        'new': ['bold', 'italic', 'unordered-list', 'ordered-list', 'link', 'clear-formatting'],
+        /* 'all': ['bold', 'italic', 'unordered-list', 'ordered-list', 'link', 'clear-formatting', 'save'], */
+        'new': ['bold', 'italic', 'unordered-list', 'ordered-list', 'clear-formatting'],
         'title': ['bold', 'italic']
     });
 

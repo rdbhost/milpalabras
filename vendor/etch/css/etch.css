@@ -3,16 +3,16 @@
 
     position: fixed;
     font-size: 16px;
-    width: 14em;
-    bottom: 405px;
-    right: 300px;
+    width: 10em;
+    bottom: 408px;
+    right: 366px;
 }
 
 .etch-editor-panel {
 
     display: none; padding: 5px; position: fixed; z-index: 10000;
     background: #0000aa;
-    /* border: 1px solid #bdbdbd; */
+    border: 1px solid #bdbdbd;
     color: #535399;
     text-shadow: 0 1px 0 #fff;
     background-image: -moz-linear-gradient(center bottom, #00c 0%, #00d 100%);

@@ -27,16 +27,19 @@
                         q: 'SELECT * FROM \n' +
 
                            '(SELECT m.thread_id, m.message_id, m.title, m.post_date, m.body, m.branch_from, \n' +
-                           '       u.handle AS author, m.suppressed, mr.message_id AS branch_to \n' +
+                           '       u.handle AS author, m.suppressed, mt.message_id AS branch_to, \n' +
+                           '       mf.thread_id AS branched_from, mf.title AS title_from \n' +
                            ' FROM messages m \n' +
-                           '  LEFT JOIN messages mr ON mr.branch_from = m.message_id \n' +
+                           '  LEFT JOIN messages mt ON mt.branch_from = m.message_id \n' +
+                           '  LEFT JOIN messages mf ON mf.message_id = m.branch_from \n' +
                            '  JOIN users u ON m.author = u.idx \n' +
                            ' WHERE m.thread_id = %s AND (m.suppressed = false OR m.suppressed IS NULL) \n' +
 
                            'UNION ALL \n' +
 
-                           'SELECT m.thread_id, m.message_id, \'~ oculta temporalmente ~\' AS title, m.post_date, \'\' AS body, ' +
-                           '       m.branch_from, u.handle AS author, m.suppressed, 0 AS branch_to \n' +
+                           "SELECT m.thread_id, m.message_id, '~ oculta temporalmente ~' AS title, m.post_date, \n" +
+                           "       '' AS body, m.branch_from, u.handle AS author, m.suppressed, NULL AS branch_to, \n" +
+                           '       NULL AS branched_from, NULL AS title_from \n' +
                            ' FROM messages m \n' +
                            '  JOIN users u ON m.author = u.idx \n' +
                            ' WHERE m.thread_id = %s AND m.suppressed) AS foo\n' +

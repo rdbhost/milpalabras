@@ -93,16 +93,17 @@
             </script>
 
             <script type="text/template" id="message-template">
-                <% var body_md = makeHtml(body);
+                <%
+                var body_md = makeHtml(body);
                 var title_md = makeHtml(title);
                 title_md = title_md.replace(/<\/?p>/g, '');
                 var now5 = new Date(Date.now() - 5*60*1000),
                     now10 = new Date(Date.now() - 10*60*1000),
                     pDate = new Date(post_date),
                     suppressable = (suppressed !== false) ? 'inline' : 'none',
-                    editable = ((author === app.handle && pDate > now5  ) || app.isAdmin)
+                    editable = ((author === app.handle && pDate > now5) || app.isAdmin)
                        ? 'inline' : 'none',
-                    deletable = ((author === app.handle && pDate > now10  ) || app.isAdmin)
+                    deletable = ((author === app.handle && pDate > now10) || app.isAdmin)
                        ? 'inline' : 'none',
                     also_thread = branch_to ? 'inline' : 'none',
                     branch_ok = branch_to ? 'none' : 'inline';
@@ -113,6 +114,11 @@
                 }
                 if ( title === '~ eliminado ~' ) {
                     suppressable = editable = deletable = branch_ok = 'none';
+                }
+                if (branched_from && ~body_md.indexOf('s en [')) {
+                    var url = '#!/t/' + branched_from;
+                    body_md = body_md.replace('s en [', 's en <a href="' + url + '">[');
+                    body_md = body_md.replace(']', ']</a>');
                 }
                 %>
                 <tr>
