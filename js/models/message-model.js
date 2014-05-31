@@ -3,9 +3,9 @@
 (function () {
 	'use strict';
 
-    var R = window.Rdbhost /*,
+    var R = window.Rdbhost
 
-        MAX_QUOTED_RATIO = 0.15,
+        /* MAX_QUOTED_RATIO = 0.15,
 
         QUOTED_TEST = '([\"\'\'\u00ab\u2039]\\S+[\"\'\'\u00bb\u203a])|([0-9]+)',
 
@@ -114,6 +114,22 @@
             }
         },
 
+        purgeTailingDeletes: function() {
+
+            var qPTD =
+                'DELETE FROM messages \n' +
+                ' WHERE message_id IN \n' +
+                '    (SELECT max(max.message_id) FROM messages AS max GROUP BY max.thread_id) \n' +
+                "  AND title = '~1' ";
+            qPTD = qPTD.replace('~1', app.constants.ELIMINATION_TITLE);
+
+            var pU = R.preauthPostData({
+                authcode: '-',
+                q: qPTD
+            });
+
+        },
+
         suppress: function(options) {
 
             var this_ = this,
@@ -187,7 +203,7 @@
         deleteMsg: function(options) {
 
             var attrs = this.attributes;
-            attrs.title = '~ eliminado ~';
+            attrs.title = app.constants.ELIMINATION_TITLE;
             attrs.body = '~ mensaje se ha eliminado ~';
 
             var sql =
@@ -242,10 +258,15 @@
             p.fail(function(err) {
                 if ( options && options.error )
                     options.error(err);
-                console.log('ERROR ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]))
+                console.log('ERROR ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]));
             });
-        }
+        }/*,
 
+        wasDeleted: function () {
+
+            return this.attributes.title == app.constants.ELIMINATION_TITLE;
+        }
+*/
     });
 
     // Object for each thread in threads list.

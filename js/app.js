@@ -1,9 +1,10 @@
 /*global $ */
 /*jshint unused:false $ */
 
-var ENTER_KEY = 13,
+/* var ENTER_KEY = 13,
     ESC_KEY = 27,
     myKeyName = 'OPENID_KEY';
+*/
 
 // dummy a console, for ie
 if ( ! window.console )
@@ -16,6 +17,19 @@ if ( ! ~window.location.host.indexOf('localhost') && window.location.protocol.su
 // create app object, for use in other modules
 var app = _.extend({ userId: undefined, userKey: undefined }, Backbone.Events);
 
+app.constants = {
+
+    ENTER_KEY: 13,
+    ESC_KEY: 27,
+    SPACE_KEY: 32,
+    TAB_KEY: 9,
+
+    MAX_THREAD_SIZE: 20,
+    ELIMINATION_TITLE: '~ eliminado ~',
+
+    myKeyName: 'OPENID_KEY'
+};
+
 
 (function () {
 
@@ -23,11 +37,8 @@ var app = _.extend({ userId: undefined, userKey: undefined }, Backbone.Events);
 
     var R = window.Rdbhost;
 
-    var PREAUTH_ROLE = 'p0000001355',
-        DOMAIN = 'www.rdbhost.com';
-
     R.rdbHostConfig({
-        domain: DOMAIN,
+        domain: 'www.rdbhost.com',
         accountNumber: 1355,
         userName: 'preauth'
     });

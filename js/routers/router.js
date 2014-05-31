@@ -140,7 +140,7 @@
             window.console.log('logged out as ' + app.userId);
 
             app.userId = app.userKey = app.handle = undefined;
-            $.cookie(myKeyName, '');
+            $.cookie(app.constants.myKeyName, '');
 
             $('a.loginLink').attr('href', '#!/login');
             $('a.loginLink').text('acceder');

@@ -57,14 +57,23 @@ header { display: block; margin-bottom: 22px }
 .rgt { text-align: right !important }
 .lft { text-align: left !important; float: left !important }
 
-.body {
+.body, .prefix {
     width: 550px;
     border: solid 3px #006561;
     -webkit-padding-start: 0px;
     -moz-padding-start: 0px;
 }
 
-td.body {
+table {
+    border-collapse: collapse;
+}
+
+.prefix {
+    border: solid 3px #006561;
+    /* background-color: #5ccdc9 /* #6ee768 */;
+}
+
+td.body, td.prefix {
     padding: 18px 18px 18px 18px;
 }
 
@@ -76,6 +85,10 @@ td.body {
 a.msg-btns {
     padding-left: 18px;
     text-decoration: underline;
+}
+a.lft {
+    padding-right: 18px;
+    padding-left: 0;
 }
 
 .editable {

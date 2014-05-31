@@ -113,6 +113,7 @@
                     if ( tmp )
                         app.threads.remove(msgModel);
                 }
+                msgModel.purgeTailingDeletes();
 
                 app.suspendedView.render();
             }

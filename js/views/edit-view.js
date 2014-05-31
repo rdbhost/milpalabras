@@ -3,11 +3,7 @@
 (function ($) {
 	'use strict';
 
-    var KEY_ENTER = 13,
-        KEY_SPACE = 32,
-        KEY_TAB = 9,
-
-        WORD_BREAK_RE = new RegExp('[^a-zA-Z\\[\\]`~\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00E1\u00E9\u00ED\u00F3\u00FA\u00F1]+', 'g');
+    var WORD_BREAK_RE = new RegExp('[^a-zA-Z\\[\\]`~\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00E1\u00E9\u00ED\u00F3\u00FA\u00F1]+', 'g');
 
     function getCaretPos($div) {
 
@@ -414,13 +410,13 @@
             if ( ev.charCode )
                 this._queue.push(ev.charCode);
 
-            if ( ev.charCode === KEY_ENTER ) {
+            if ( ev.charCode === app.constants.ENTER_KEY ) {
 
                 var $div = $(ev.target).closest('[contenteditable]');
                 this._needBlankPadding = getCaretLine($div);
             }
 
-            //else if (ev.charCode === KEY_TAB) {
+            //else if (ev.charCode === app.constants.TAB_KEY) {
             //    var $div = $(ev.target).closest('[contenteditable]');
             //}
 
@@ -457,7 +453,7 @@
                 padBlankLines($div, this._needBlankPadding);
                 this._needBlankPadding = undefined;
             }
-            else if ( ~this._queue.indexOf(KEY_SPACE) ) {
+            else if ( ~this._queue.indexOf(app.constants.SPACE_KEY) ) {
 
                 var pS = handleInputErrors($div);
                 pS.then(function(res) {

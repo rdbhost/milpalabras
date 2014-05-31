@@ -18,6 +18,8 @@
         render: function () {
 
             var data = this.model.toJSON();
+            // data.wasDeleted = this.model.wasDeleted();
+
             data.makeHtml = app.MessageView.markdown.makeHtml;
 
             this.$el.html(this.template(data));
@@ -47,7 +49,7 @@
 
 		// The DOM events specific to an item.
 		events: {
-            'click #add-post-button': 'showAddMessageForm',
+            'click .add-post':        'showAddMessageForm',
             'click .suppress':        'suppressMsg',
             'click .edit':            'showEditMessageForm',
             'click .delete':          'deleteMsg',
@@ -166,6 +168,7 @@
                     msgModel = app.thread.findWhere({'message_id': msgId});
 
                 msgModel.deleteMsg();
+                msgModel.purgeTailingDeletes();
                 app.threadView.render();
             }
 
@@ -201,7 +204,6 @@
                 $(document).scrollTop(parseInt(pos.top, 10));
             }
         }
-
 
     });
 })(jQuery);

@@ -29,9 +29,10 @@
                            ' FROM threads t \n' +
                            '  JOIN users u ON t.initiating_user = u.idx \n' +
                            ' WHERE (suppressed = false OR suppressed IS NULL) \n' +
-                           "   AND topic != '~ eliminado ~' \n" +
+                         //  "   AND topic != '~ eliminado ~' \n" +
                            'ORDER BY change_date DESC LIMIT 50; '
                     });
+
                     p.then(function(resp) {
                         options.success(resp.records.rows);
                         app.trigger('show:index');
