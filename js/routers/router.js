@@ -157,6 +157,9 @@
     // Create our global collection of available words.
     app.thousand_words = new app.ThousandWords();
 
+    // Create our global collection of word definitions.
+    app.translations = new app.Translations();
+
     // Create our global collection of **Threads**.
     app.threads = new app.Threads();
 

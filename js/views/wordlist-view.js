@@ -29,8 +29,15 @@
 		//... is a list tag.
         el: 'ul.okwords',
 
-		// The DOM events specific to an item.
+        initialize: function () {
+            this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
+        },
+
+        // The DOM events specific to an item.
 		events: {
+            'mouseenter .DL':         'hoverhelpIn',
+            'mouseleave .DL':         'hoverhelpOut',
+            'dictionaryHelp':         'dictionaryHelp'
 		},
 
 		// Re-render the words in the wordlist
@@ -42,6 +49,7 @@
 
                 this.$el.closest('ul').show();
                 this.$el.empty();
+                $('#definition-hover-left').hide();
 
                 var p = app.thousand_words.prefixLimited(partialWord, 25);
 
@@ -77,6 +85,68 @@
         addOneWordToDisplay: function (word) {
             var wordView = new app.WordView({ model: word });
             this.$el.append(wordView.render().el);
+        },
+
+        hoverTimer: null,
+        hoverhelpIn: function(ev) {
+
+            var that = this;
+            this.hoverTimer = setTimeout(function() {
+                that.trigger('dictionaryHelp', ev);
+                that.hoverTimer = null;
+            }, 500);
+        },
+        hoverhelpOut: function(ev) {
+
+            if (this.hoverTimer) {
+                window.clearTimeout(this.hoverTimer);
+                this.hoverTimer = null;
+            }
+            else {
+
+                var $hover = $('#definition-hover-left');
+                $hover.hide();
+            }
+        },
+
+        dictionaryHelp: function(ev) {
+
+            var word = $(ev.target).text(),
+                pos = $(ev.target).offset(),
+                $hover = $('#definition-hover-left');
+
+            var pw = app.thousand_words.findOne(word.toLowerCase());
+            pw.then(function(resp) {
+
+                if (resp) {
+
+                    var lemma = resp.attributes.lemmas[0];
+
+                    var pt = app.translations.findOne(lemma.toLowerCase());
+
+                    pt.then(function(resp) {
+
+                        if ( resp ) {
+
+                            var attrs = resp.attributes;
+                            $hover.find('.def-lemma').text(lemma);
+                            $hover.find('.def-forms').text(attrs.forms.join(', '));
+                            $hover.find('.def-definition').text(attrs.definition);
+
+                            $hover.css({'top': pos.top-30, 'right': 680});
+                            $hover.show();
+                        }
+                    });
+                    pt.fail(function(err) {
+
+                        alert('fail ' + err[0] + ' ' + err[1]);
+                    })
+                }
+            });
+            pw.fail(function(err) {
+
+                alert('fail ' + err[0] + ' ' + err[1]);
+            });
         }
 
     });

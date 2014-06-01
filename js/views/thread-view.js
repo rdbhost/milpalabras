@@ -3,7 +3,22 @@
 (function ($) {
 	'use strict';
 
-    var MAX_THREAD_LEN = 50;
+    var MAX_THREAD_LEN = 50,
+        wordRe = new RegExp('<?/?[a-zA-Z' + app.constants.FANCY_WORD_CHARS + ']+', 'g');
+
+    function generateHtml(md) {
+
+        function newVal(f) {
+
+            if (f.charAt(0) === '<')
+                return f;
+            return "<span class='DL'>" + f + "</span>";
+        }
+
+        var mkdn = app.MessageView.markdown.makeHtml(md);
+
+        return mkdn.replace(wordRe, newVal);
+    }
 
     app.MessageView = Backbone.View.extend({
 
@@ -20,7 +35,7 @@
             var data = this.model.toJSON();
             // data.wasDeleted = this.model.wasDeleted();
 
-            data.makeHtml = app.MessageView.markdown.makeHtml;
+            data.makeHtml = generateHtml;
 
             this.$el.html(this.template(data));
             this.$el.show();
@@ -53,7 +68,10 @@
             'click .suppress':        'suppressMsg',
             'click .edit':            'showEditMessageForm',
             'click .delete':          'deleteMsg',
-            'click .as-new-thread':   'branchThread'
+            'click .as-new-thread':   'branchThread',
+            'mouseenter .DL':         'hoverhelpIn',
+            'mouseleave .DL':         'hoverhelpOut',
+            'dictionaryHelp':         'dictionaryHelp'
 		},
 
 		// The ThreadView listens for changes to its model, re-rendering. Since there's
@@ -67,6 +85,7 @@
             this.$tMain = $('#thread-main');
 
             this.listenTo(app.thread, 'reset', this.render);
+            this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
 		},
 
 		// Re-render the titles of the thread item.
@@ -117,6 +136,7 @@
 			return this;
 		},
 
+        // show message editor, blank
         showAddMessageForm: function(ev) {
 
             var newMsg = new app.Message({
@@ -128,6 +148,7 @@
             edView.render();
         },
 
+        // show message editer, with selected message loaded
         showEditMessageForm: function(ev) {
 
             var msgId = parseInt($(ev.target).attr('data-messageid'), 10),
@@ -136,6 +157,8 @@
             edView.render();
         },
 
+        // marks message as hidden.  will show up, for admins on #!/suspended
+        // page.  shown as '~ oscur... ' in regular pages
         suppressMsg: function(ev) {
 
             if ( ! app.handle ) {
@@ -155,6 +178,8 @@
             return false;
        },
 
+       // replace message with a generic 'was deleted' message
+       //   - should be followed up with a message-model.purgeTailingDeletes
        deleteMsg: function(ev) {
 
             if ( ! app.handle ) {
@@ -175,6 +200,7 @@
             return false;
        },
 
+        // loads clicked message into branch page
         branchThread: function(ev) {
 
             var msgId = parseInt($(ev.target).attr('data-messageid'), 10);
@@ -202,6 +228,70 @@
 
                 $(document).scrollTop(parseInt(pos.top, 10));
             }
+        },
+
+        hoverTimer: null,
+        hoverhelpIn: function(ev) {
+
+            var that = this;
+            this.hoverTimer = setTimeout(function() {
+                that.trigger('dictionaryHelp', ev);
+                that.hoverTimer = null;
+            }, 500);
+        },
+        hoverhelpOut: function(ev) {
+
+            if (this.hoverTimer) {
+                window.clearTimeout(this.hoverTimer);
+                this.hoverTimer = null;
+            }
+            else {
+
+                var $hover = $('#definition-hover');
+                $hover.hide();
+            }
+        },
+
+        dictionaryHelp: function(ev) {
+
+            var word = $(ev.target).text(),
+                pos = $(ev.target).position(),
+                $hover = $('#definition-hover');
+
+            var pw = app.thousand_words.findOne(word.toLowerCase());
+            pw.then(function(resp) {
+
+                if (resp) {
+
+                    var lemma = resp.attributes.lemmas[0];
+
+                    var pt = app.translations.findOne(lemma.toLowerCase());
+
+                    pt.then(function(resp) {
+
+                        if ( resp ) {
+
+                            var attrs = resp.attributes;
+                            $hover.find('#def-lemma').text(lemma);
+                            $hover.find('#def-forms').text(attrs.forms.join(', '));
+                            $hover.find('#def-definition').text(attrs.definition);
+
+                            var size = $hover.size();
+
+                            $hover.css({'top': pos.top+15, 'left': pos.left-40});
+                            $hover.show();
+                        }
+                    });
+                    pt.fail(function(err) {
+
+                        alert('fail ' + err[0] + ' ' + err[1]);
+                    })
+                }
+            });
+            pw.fail(function(err) {
+
+               alert('fail ' + err[0] + ' ' + err[1]);
+            });
         }
 
     });

@@ -110,7 +110,7 @@
                 <tr>
                     <td class="topic"><a name="<%= message_id %>"></a><%= title_md %></td>
                     <td class="inituser"><a href="#!/u/<%- author %>"
-                       style="display: <%= (suppressed === null || deleted) ? 'inline': 'none' %>"><%- author %></a></td>
+                       style="display: <%= !(suppressed || deleted) ? 'inline': 'none' %>"><%- author %></a></td>
                     <td class="startdate rgt"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>
                 <tr style="display: <%= title_from ? 'table-row': 'none' %>">
@@ -122,7 +122,7 @@
                 <tr class="row-group-spacer">
                     <td colspan="3">
                       <a class="msg-btns suppress" data-messageid="<%= message_id %>"
-                         style="display: <%= suppressed === null || deleted ? 'inline': 'none' %>">marca como no apropiado</a>
+                         style="display: <%= suppressed === null && !deleted ? 'inline': 'none' %>">marca como no apropiado</a>
                       <button class="msg-btns edit" data-messageid="<%= message_id %>"
                               style="display: <%= editable ? 'inline' : 'none' %>">edite el mensaje</button>
                       <button class="msg-btns delete" data-messageid="<%= message_id %>"
@@ -168,6 +168,7 @@
                 <% var body_md = makeHtml(body);
                 var title_md = makeHtml(title);
                 title_md = title_md.replace(/<\/?p>/g, '');
+                // topic is thread title
                 var topic_md = makeHtml(topic);
                 topic_md = topic_md.replace(/<\/?p>/g, '');
                 %>
@@ -253,7 +254,7 @@
             </script>
 
             <script type="text/template" id="okword-template">
-                <span class="<%= okmulti %>"><%= word %></span>
+                <span class="DL <%= okmulti %>"><%= word %></span>
             </script>
 
             <script type="text/template" id="edit-menu">
@@ -348,6 +349,26 @@
                 </form>
             </div>
 
+            <div id="definition-hover" class="hover" style="display: none">
+                <div class="arrow-up"></div>
+                <div class="hover-body">
+                    <div id="def-lemma" class="hover lft">lemma</div>
+                    <div class="hover" >
+                        <div id="def-definition">DEFINITION</div>
+                        <div id="def-forms">FORMS</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="definition-hover-left" class="hover" style="display: none">
+                <div class="hover-body">
+                    <div class="def-lemma hover lft">lemma</div>
+                    <div class="hover" >
+                        <div class="def-definition">DEFINITION</div>
+                        <div class="def-forms">FORMS</div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!--
@@ -357,7 +378,7 @@
         <script src="https://www.rdbhost.com/js/jquery.cookie.js"></script>
 		<script src="https://www.rdbhost.com/vendor/underscore/1.5/underscore.js"></script>
 		<script src="https://www.rdbhost.com/vendor/backbone/1.1/backbone.js"></script>
-        <script src="https://dev.rdbhost.com/vendor/rdbhost/1.2/jquery.rdbhost.js"></script>
+        <script src="https://www.rdbhost.com/vendor/rdbhost/1.2/jquery.rdbhost.js"></script>
         <script src="https://www.rdbhost.com/vendor/showdown/0.3/src/showdown.js"></script>
         <script src="https://www.rdbhost.com/vendor/jquery-plugins/jquery.timeago.js"></script>
         <script src="https://www.rdbhost.com/vendor/jquery-plugins/jquery.timeago.es.js"></script>
@@ -377,6 +398,7 @@
         <script src="js/collections/user-model.js"></script>
         <script src="js/collections/suspended-model.js"></script>
         <script src="js/collections/thousandwords-collection.js"></script>
+        <script src="js/collections/translation-collection.js"></script>
 		<script src="js/collections/threads-collection.js"></script>
 		<script src="js/views/thread-view.js"></script>
 		<script src="js/views/threads-view.js"></script>

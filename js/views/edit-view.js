@@ -3,7 +3,7 @@
 (function ($) {
 	'use strict';
 
-    var WORD_BREAK_RE = new RegExp('[^a-zA-Z\\[\\]`~\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00E1\u00E9\u00ED\u00F3\u00FA\u00F1]+', 'g');
+    var WORD_BREAK_RE = new RegExp('[^a-zA-Z\\[\\]`~' + app.constants.FANCY_WORD_CHARS + ']+', 'g');
 
     function getCaretPos($div) {
 
@@ -428,9 +428,11 @@
         _manageButtons: function() {
 
             var $rawMsg = this.$('#new-message').text(),
-                $rawSubj = this.$('#subject').text();
+                $rawSubj = this.$('#subject').text(),
+                nmErr = this.errorStats['new-message'],
+                subErr = this.errorStats['subject'];
 
-            if ( (! this.errorStats['subject'].length) &&  (! this.errorStats['new-message'].length)
+            if ( (! subErr || ! subErr.length) &&  (! nmErr || ! nmErr.length)
                 && $rawMsg.length && $rawSubj.length) {
 
                 this.$el.find('#post-message').removeAttr('disabled');
@@ -439,9 +441,7 @@
                 this.$el.find('#post-message').attr('disabled', 'disabled');
             }
 
-            var $err = this.$el.find('#edit-error'),
-                nmErr = this.errorStats['new-message'],
-                subErr = this.errorStats['subject'];
+            var $err = this.$el.find('#edit-error');
 
             if ( nmErr && nmErr.length ) {
 

@@ -24,6 +24,8 @@ app.constants = {
     SPACE_KEY: 32,
     TAB_KEY: 9,
 
+    FANCY_WORD_CHARS: '\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00E1\u00E9\u00ED\u00F3\u00FA\u00F1',
+
     MAX_THREAD_SIZE: 20,
     ELIMINATION_TITLE: '~ eliminado ~',
 

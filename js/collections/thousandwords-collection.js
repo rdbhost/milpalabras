@@ -9,7 +9,7 @@
 
         MAX_QUOTED_RATIO = 0.15,
 
-    // ?!#$%&«‹¡-¿»›
+    // ?!#$%[]&«‹¡-¿»›
         trimmingRegExp = new RegExp('(^[?!#$%[\\]&\u00ab\u2039\u00a1\u00bf-]+)|([?!#$[\\]&.,\u00bb\u203a-]+$)', 'g'),
 
         okNonWords = new RegExp('^[1-9.,+-]+$', 'g'),
@@ -17,8 +17,6 @@
         splitWordsOn = /(\s+)/g,
 
         x;
-
-    // todo - add unicode spec chars
 
 
     /*
@@ -207,9 +205,10 @@
             function getRecords(ltr) {
 
                 var p = R.preauthPostData({
-                    q: 'SELECT distinct word, \n' +
+                    q: 'SELECT distinct word, array_agg(lemma) AS lemmas, \n' +
                         ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts \n' +
                         "FROM wordlist w  WHERE substring(word from 1 for 1) = %s \n" +
+                        'GROUP BY word \n' +
                         'ORDER BY word ASC LIMIT 500;\n',
                     args: [ltr]
                 });

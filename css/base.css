@@ -145,9 +145,6 @@ a.lft {
     background: #be2f33;
     border: 2px solid #ff7100;
     color: #ffb173;
-    /* text-shadow: 0 1px 0 #fff;
-    background-image: -moz-linear-gradient(center bottom, #f77 0%, #f88 100%);
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f99), to(#faa)); */
     -webkit-border-radius: 6px; -moz-border-radius: 6px; border-radius: 6px;
 }
 
@@ -155,7 +152,6 @@ a.lft {
     position: fixed;
     font-size: 16px;
     width: 7em;
-    /* max-height: 300px; */
     bottom: -6px;
     right: 537px;
     background-color: white;
@@ -185,16 +181,47 @@ ul.oops {
     height: 20px;
 }
 
-#set-username {
+#definition-hover {
     position: fixed;
-    width: 500px;
-    height: 150px;
-    left: 300px;
-    right: 300px;
-    top: 200px;
-    bottom: 200px;
-    padding: 20px;
-    background-color: lightgreen;
+}
+
+#definition-hover-left {
+    position: fixed;
+}
+
+.hover-body {
+    padding: 5px;
+    min-height: 45px;
+    font-size: larger;
+    background-color: #ffb173;
+    border: thin solid #ff7100;
+    -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
+}
+
+#def-forms {
+    font-size: x-small;
+}
+
+.hover {
+    float: right;
+    padding: 8px;
+}
+
+.arrow-up {
+    width: 0;
+    height: 0;
+    margin-left: 30px;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 15px solid #ff7100;
+}
+.arrow-right {
+    width: 0;
+    height: 0;
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    border-left: 15px solid #ff7100;
+    float: right;
 }
 
 #suspend {
