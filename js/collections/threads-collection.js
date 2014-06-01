@@ -29,7 +29,7 @@
                            ' FROM threads t \n' +
                            '  JOIN users u ON t.initiating_user = u.idx \n' +
                            ' WHERE (suppressed = false OR suppressed IS NULL) \n' +
-                         //  "   AND topic != '~ eliminado ~' \n" +
+                           "   AND message_ct > 0 \n" +
                            'ORDER BY change_date DESC LIMIT 50; '
                     });
 

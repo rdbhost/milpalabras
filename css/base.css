@@ -8,7 +8,7 @@ header { display: block; margin-bottom: 22px }
 
 .nav {
     float: right;
-    margin-top: -75px;
+    margin-top: -70px;
 }
 
 #mpapp > header > h1 {
@@ -182,14 +182,23 @@ ul.oops {
     height: 20px;
 }
 
-#login {
+#set-username {
     position: fixed;
     width: 500px;
-    height: 200px;
+    height: 150px;
     left: 300px;
     right: 300px;
     top: 200px;
     bottom: 200px;
+    padding: 20px;
+    background-color: lightgreen;
+}
+
+#suspend {
+    position: fixed;
+    left: 150px;
+    top: 80px;
+    padding: 24px;
     background-color: lightblue;
     border: thin solid mediumblue;
     -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
@@ -221,7 +230,15 @@ footer {
 }
 
 .modal-body {
+    position: fixed;
+    height: 195px;
     padding: 30px;
+    left: 150px;
+    top: 150px;
+    background-color: #42e73a;
+    width: 500px;
+    border: thin solid mediumblue;
+    -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
 }
 
 .login-btn {

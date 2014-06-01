@@ -96,28 +96,21 @@
                 <%
                 var body_md = suppressed ? '' : makeHtml(body);
                 var title_md = makeHtml(title);
-                title_md = suppressed ? '~oculta temporalments ~' : title_md.replace(/<\/?p>/g, '');
+                title_md = suppressed ? '~ oculta temporalmente ~' : title_md.replace(/<\/?p>/g, '');
 
                 var now5 = new Date(Date.now() - 5*60*1000),
                     now10 = new Date(Date.now() - 10*60*1000),
                     pDate = new Date(post_date),
-                    suppressable = (suppressed === null) ? 'inline' : 'none',
-                    editable = ((author === app.handle && pDate > now5) || app.isAdmin)
-                       ? 'inline' : 'none',
-                    deletable = ((author === app.handle && pDate > now10) || app.isAdmin)
-                       ? 'inline' : 'none',
-                    also_thread = branch_to ? 'inline' : 'none',
-                    reply_ok = ( app.thread.length <= app.constants.MAX_THREAD_SIZE ) ? 'inline' : 'none',
-                    branch_ok = (branch_to || (message_id === thread_id && ! reply_ok)) ? 'none' : 'inline',
-                    prefix = null;
-
-                if ( title == app.constants.ELIMINATION_TITLE ) {
-                    suppressable = editable = deletable = branch_ok = reply_ok = 'none';
-                }
+                    deleted = title === app.constants.ELIMINATION_TITLE;
+                    deletable = (!deleted) && ((author === app.handle && pDate > now10) || app.isAdmin),
+                    editable = (!deleted) && ((author === app.handle && pDate > now5) || app.isAdmin),
+                    branch_ok = (!deleted) && (!branch_to),
+                    reply_ok = (!deleted) && (app.thread.length <= app.constants.MAX_THREAD_SIZE);
                 %>
                 <tr>
                     <td class="topic"><a name="<%= message_id %>"></a><%= title_md %></td>
-                    <td class="inituser"><a href="#!/u/<%- author %>" style="display: <%= suppressable %>"><%- author %></a></td>
+                    <td class="inituser"><a href="#!/u/<%- author %>"
+                       style="display: <%= (suppressed === null || deleted) ? 'inline': 'none' %>"><%- author %></a></td>
                     <td class="startdate rgt"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>
                 <tr style="display: <%= title_from ? 'table-row': 'none' %>">
@@ -128,12 +121,18 @@
                 </tr>
                 <tr class="row-group-spacer">
                     <td colspan="3">
-                      <a class="msg-btns suppress" data-messageid="<%= message_id %>" style="display: <%= suppressable %>">marca como no apropiado</a>
-                      <button class="msg-btns edit" data-messageid="<%= message_id %>" style="display: <%= editable %>">edite el mensaje</button>
-                      <button class="msg-btns delete" data-messageid="<%= message_id %>" style="display: <%= deletable %>">elimine el mensaje</button>
-                      <a class="msg-btns lft" href="#!/t/<%= branch_to %>" style="display: <%= also_thread %>">ver también</a>
-                      <button class="msg-btns add-post lft"  style="display: <%= reply_ok %>">respuesta</button>
-                      <button class="msg-btns as-new-thread lft" data-messageid="<%= message_id %>" style="display: <%= branch_ok %>">respuesta tan nueva tema</button>
+                      <a class="msg-btns suppress" data-messageid="<%= message_id %>"
+                         style="display: <%= suppressed === null || deleted ? 'inline': 'none' %>">marca como no apropiado</a>
+                      <button class="msg-btns edit" data-messageid="<%= message_id %>"
+                              style="display: <%= editable ? 'inline' : 'none' %>">edite el mensaje</button>
+                      <button class="msg-btns delete" data-messageid="<%= message_id %>"
+                              style="display: <%= deletable ? 'inline' : 'none' %>">elimine el mensaje</button>
+                      <a class="msg-btns lft" href="#!/t/<%= branch_to %>"
+                         style="display: <%= branch_to ? 'inline' : 'none' %>">ver también</a>
+                      <button class="msg-btns add-post lft"
+                              style="display: <%= reply_ok ? 'inline' : 'none' %>">respuesta</button>
+                      <button class="msg-btns as-new-thread lft" data-messageid="<%= message_id %>"
+                              style="display: <%= branch_ok ? 'inline' : 'none' %>">respuesta tan nueva tema</button>
                     </td>
                 </tr>
             </script>
@@ -215,6 +214,8 @@
                 </tr>
                 <tr class="row-group-spacer">
                     <td colspan="3">
+                        Reported by: <%= suspender %>
+                        Reason: <%= reason %>
                         <a class="msg-btns delete" data-messageid="<%= message_id %>">delete</a>
                         <a class="msg-btns unflag" data-messageid="<%= message_id %>">unflag</a>
                     </td>
@@ -267,6 +268,45 @@
                     <span></span></a>
                 <a href="#" class="etch-editor-button etch-clear-formatting" title="clear formatting">
                     <span></span></a>
+            </script>
+
+            <!--
+            blocks and templates for the message suspension form
+
+            -->
+
+            <div id="suspend" class="page" style="display: none">
+                <div class="form"></div>
+            </div>
+
+            <script type="text/template" id="suspend-template">
+
+                <h3>Por que este mensaje malo?</h3>
+                <input name="message_id" value="<%= message_id %>" type="hidden">
+
+                <ol>
+                    <!-- radio buttons for reasons -->
+                    <li><input type="radio" name="suspend-reason" value="adhominem">
+                      Post is attack on another user.
+                    </li>
+                    <li><input type="radio" name="suspend-reason" value="notspanish">
+                      Post is not Spanish enough, as it includes obvious padding verbage.
+                    </li>
+                    <li><input type="radio" name="suspend-reason" value="irrelevant">
+                      Post is not relevant to thread topic.
+                    </li>
+                    <li><input type="radio" name="suspend-reason" value="vulgar">
+                      Post is vulgar, or includes reference to sexuality or hate.
+                    </li>
+                    <li><input type="radio" name="suspend-reason" value="nonsense">
+                      Post is not intelligible, as grammar is too poor to communicate meaning.
+                    </li>
+                </ol>
+
+                <div>
+                    <button id="post-suspend">Post</button>
+                    <button id="cancel-suspend">Cancel</button>
+                </div>
             </script>
 
             <!--
@@ -331,6 +371,7 @@
         <script src="js/views/username-view.js"></script>
         <script src="js/routers/login.js"></script>
         <script src="js/models/message-model.js"></script>
+        <script src="js/models/suspend-reason-model.js"></script>
 		<script src="js/collections/thread-model.js"></script>
         <script src="js/collections/user-model.js"></script>
         <script src="js/collections/suspended-model.js"></script>
@@ -340,6 +381,7 @@
 		<script src="js/views/threads-view.js"></script>
         <script src="js/views/user-view.js"></script>
         <script src="js/views/suspended-view.js"></script>
+        <script src="js/views/suspend-view.js"></script>
         <script src="js/views/wordlist-view.js"></script>
         <script src="js/views/edit-view.js"></script>
         <script src="js/routers/router.js"></script>

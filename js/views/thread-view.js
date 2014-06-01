@@ -145,11 +145,10 @@
             else {
 
                 var msgId = $(ev.target).data('messageid'),
-                    msgModel = app.thread.findWhere({'message_id': msgId});
+                    msgModel = app.thread.findWhere({'message_id': msgId}),
+                    suspView = new app.SuspendView({model: msgModel});
 
-                msgModel.suppress();
-                app.thread.remove(msgModel);
-                app.threadView.render();
+                suspView.render();
             }
 
             ev.stopImmediatePropagation();
