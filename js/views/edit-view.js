@@ -241,7 +241,7 @@
             if ( divEval[1].length )
                 doReplacements($rawDiv, divEval[1]);
 
-            p.resolve(divEval[0].length || null);
+            p.resolve(divEval[0] || null);
         });
 
         auditPromise.fail(function(err) {
@@ -430,13 +430,29 @@
             var $rawMsg = this.$('#new-message').text(),
                 $rawSubj = this.$('#subject').text();
 
-            if ( (! this.errorStats['subject']) &&  (! this.errorStats['new-message'])
-                && $rawMsg.length && $rawSubj.length ) {
+            if ( (! this.errorStats['subject'].length) &&  (! this.errorStats['new-message'].length)
+                && $rawMsg.length && $rawSubj.length) {
 
                 this.$el.find('#post-message').removeAttr('disabled');
             }
             else {
                 this.$el.find('#post-message').attr('disabled', 'disabled');
+            }
+
+            var $err = this.$el.find('#edit-error'),
+                nmErr = this.errorStats['new-message'],
+                subErr = this.errorStats['subject'];
+
+            if ( nmErr && nmErr.length ) {
+
+                $err.text('Mensaje tiene errores. Por favor corrija antes de enviarla.');
+            }
+            else if ( subErr && subErr.length ) {
+
+                $err.text('Sujeto tiene errores. Por favor corrija antes de enviarla.');
+            }
+            else {
+                $err.text('');
             }
         },
 

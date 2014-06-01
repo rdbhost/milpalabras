@@ -122,6 +122,9 @@ a.lft {
     margin-left: 8px;
     line-height: 15px;
 }
+#edit-error {
+    margin-left: 8px;
+}
 
 .add-topic-button {
     margin-bottom: 22px;
