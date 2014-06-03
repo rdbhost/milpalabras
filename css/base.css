@@ -262,8 +262,11 @@ footer {
     margin-right: auto;
     margin-top: 50px;
     font-size: large;
-    width: 800px;
+    width: 200px;
     align-content: center;
+}
+footer a {
+    padding: 16px;
 }
 
 #null-msg {

@@ -14,6 +14,8 @@
             '!/br/:msg':   'showBranch',
             '!/u/:user':   'showUser',
             '!/suspended': 'showSuspended',
+            '!/intro':     'showIntro',
+            '!/allwords':  'showAllWordsList',
             '!/login':     'login',
             '!/logout':    'logout',
             '!':           'showIndex',
@@ -125,6 +127,16 @@
             });
         },
 
+        showIntro: function() {
+
+            alert('not implemented');
+        },
+
+        showAllWordsList: function() {
+
+            alert('not implemented');
+        },
+
         login: function() {
 
             if ( app.userId ) {
@@ -144,6 +156,7 @@
 
             $('a.loginLink').attr('href', '#!/login');
             $('a.loginLink').text('acceder');
+            $('a.loginLink').attr('data-help', 'login');
             $('span.user-id').text('');
 
             app.milPalabrasRouter.navigate('', {trigger: true});
