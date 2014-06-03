@@ -163,6 +163,9 @@
     // Create our global collection of **Threads**.
     app.threads = new app.Threads();
 
+    // Create global-view to handle help tooltips everywhere
+    app.globalView = new app.GlobalView();
+
     Backbone.history.start();
 
 

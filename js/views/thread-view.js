@@ -45,7 +45,8 @@
     },
     { // class properties
 
-        markdown: new Showdown.converter()
+        markdown: new Showdown.converter(),
+        htmlGenerator: generateHtml
     });
 
     // Thread Item View

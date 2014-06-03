@@ -224,6 +224,17 @@ ul.oops {
     float: right;
 }
 
+#help-hover {
+    position: fixed;
+}
+
+.hover-tooltip {
+    padding: 5px;
+    background-color: #ffb173;
+    border: thin solid #ff7100;
+    -webkit-border-radius: 6px; -moz-border-radius: 6px; border-radius: 6px;
+}
+
 #suspend {
     position: fixed;
     left: 150px;

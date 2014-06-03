@@ -13,9 +13,9 @@
                 <h1>Mil Palabras</h1>
 
                 <span class="nav">
-                   <a href="#">principal</a>
+                   <a href="#" data-help="main page">principal</a>
                    <span class="user-id"></span>
-                   <a href="#!/login" class="loginLink">acceder</a>
+                   <a href="#!/login" class="loginLink" data-help="login">acceder</a>
                 </span>
             </header>
 
@@ -26,24 +26,24 @@
             <div id="topics" class="page">
                 <header>
 
-                    <h1>Temas</h1>
+                    <h1><span data-help="Topics">Temas</span></h1>
                 </header>
 
-                <button class="add-topic-button">Crea Nuevo Tema</button>
+                <button data-help="Create New Topic" class="add-topic-button">Crea Nuevo Tema</button>
                 <table id="topics-main">
                     <thead>
                         <tr>
-                            <th>tema</th>
-                            <th>propietario</th>
-                            <th>cuando cambiado</th>
-                            <th>tamaño</th>
+                            <th><span data-help="topic">tema</span>
+                            <th><span data-help="owner">propietario</span></th>
+                            <th><span data-help="when changed">cuando cambiado</span></th>
+                            <th><span data-help="size">tamaño</span></th>
                         </tr>
                     </thead>
                     <tbody id="topic-list">
                     </tbody>
                 </table>
 
-                <button class="add-topic-button">Crea Nuevo Tema</button>
+                <button class="add-topic-button" data-help="Create New Topic">Crea Nuevo Tema</button>
                 <footer></footer>
             </div>
 
@@ -58,7 +58,7 @@
             </script>
 
             <script type="text/template" id="null-message-template">
-                <div id="null-msg">No Messages Were Found</div>
+                <div id="null-msg" data-help="No messages were found">No se encontraron mensajes</div>
             </script>
 
 
@@ -72,24 +72,26 @@
                 </header>
 
                 <table id="thread-main">
+<!--
                     <thead>
                         <tr>
                             <th class="topic">title</th>
                             <th class="inituser">author</th>
                             <th class="startdate rgt">post_date</th>
                         </tr>
-                        <!-- tr>
+                        &lt;!&ndash; tr>
                             <th colspan="3">body</th>
-                        </tr -->
+                        </tr &ndash;&gt;
                     </thead>
+-->
                 </table>
-                <button id="add-post-button" class="add-post">Respuesta al Tema</button>
-                <span id="thread-complete">Tema está Lleno</span>
+                <button id="add-post-button" class="add-post" data-help="Reply to thread">Respuesta al Tema</button>
+                <span id="thread-complete" data-help="Thread is full">Tema está Lleno</span>
                 <footer></footer>
             </div>
 
             <script type="text/template" id="header-template">
-                Tema [<%= topic %>]
+                <span  data-help="Topic">Tema</span> [<%= topic %>]
             </script>
 
             <script type="text/template" id="message-template">
@@ -114,24 +116,24 @@
                     <td class="startdate rgt"><time class="timeago" datetime="<%- post_date %>z"></time></td>
                 </tr>
                 <tr style="display: <%= title_from ? 'table-row': 'none' %>">
-                    <td class="prefix" colspan="3">Este mensaje se antes en <a href="#!/t/<%= branched_from %>"><%= title_from %></a>.</td>
+                    <td class="prefix" colspan="3"><span  data-help="This message is in prior thread:">Este mensaje se antes en </span><a href="#!/t/<%= branched_from %>"><%= title_from %></a>.</td>
                 </tr>
                 <tr>
                     <td class="body" colspan="3"><%= body_md %></td>
                 </tr>
                 <tr class="row-group-spacer">
                     <td colspan="3">
-                      <a class="msg-btns suppress" data-messageid="<%= message_id %>"
+                      <a class="msg-btns suppress" data-messageid="<%= message_id %>" data-help="flag as inappropriate"
                          style="display: <%= suppressed === null && !deleted ? 'inline': 'none' %>">marca como no apropiado</a>
-                      <button class="msg-btns edit" data-messageid="<%= message_id %>"
+                      <button class="msg-btns edit" data-messageid="<%= message_id %>" data-help="edit Message"
                               style="display: <%= editable ? 'inline' : 'none' %>">edite el mensaje</button>
-                      <button class="msg-btns delete" data-messageid="<%= message_id %>"
+                      <button class="msg-btns delete" data-messageid="<%= message_id %>" data-help="delete Message"
                               style="display: <%= deletable ? 'inline' : 'none' %>">elimine el mensaje</button>
-                      <a class="msg-btns lft" href="#!/t/<%= branch_to %>"
+                      <a class="msg-btns lft" href="#!/t/<%= branch_to %>" data-help="see other"
                          style="display: <%= branch_to ? 'inline' : 'none' %>">ver también</a>
-                      <button class="msg-btns add-post lft"
+                      <button class="msg-btns add-post lft" data-help="reply"
                               style="display: <%= reply_ok ? 'inline' : 'none' %>">respuesta</button>
-                      <button class="msg-btns as-new-thread lft" data-messageid="<%= message_id %>"
+                      <button class="msg-btns as-new-thread lft" data-messageid="<%= message_id %>" data-help="reply in new thread"
                               style="display: <%= branch_ok ? 'inline' : 'none' %>">respuesta tan nueva tema</button>
                     </td>
                 </tr>
@@ -151,14 +153,14 @@
             </div>
 
             <script type="text/template" id="user-header-template">
-                User [<%= user %>]
+                <span data-help="User">Usuario</span> [<%= user %>]
             </script>
 
             <script type="text/template" id="user-subheader-template">
                 <table>
                     <thead>
                         <tr>
-                            <th><span id="posts-by">Mensajes de: </span><%- user %></th>
+                            <th><span id="posts-by" data-help="Messages from:">Mensajes de: </span><%- user %></th>
                         </tr>
                     </thead>
                 </table>
@@ -248,8 +250,8 @@
 
                 <div>
                     <div id="edit-error"></div>
-                    <button id="post-message">Post</button>
-                    <button id="post-cancel">Cancel</button>
+                    <button id="post-message" data-help="Post">Enviíe</button>
+                    <button id="post-cancel" data-help="Cancel">Cancele</button>
                 </div>
             </script>
 
@@ -289,25 +291,32 @@
                 <ol>
                     <!-- radio buttons for reasons -->
                     <li><input type="radio" name="suspend-reason" value="adhominem">
-                      Post is attack on another user.
+                      <span  data-help="Post is attack on another user.">Mensaje es el ataque de otro usuario</span>
                     </li>
                     <li><input type="radio" name="suspend-reason" value="notspanish">
-                      Post is not Spanish enough, as it includes obvious padding verbage.
+                      <span  data-help="Post is not Spanish enough, as it includes obvious padding verbage.">
+                          El artículo no es suficiente español
+                      </span>
                     </li>
                     <li><input type="radio" name="suspend-reason" value="irrelevant">
-                      Post is not relevant to thread topic.
+                      <span  data-help="Post is not relevant to thread topic.">
+                          El artículo no es relevante para el tema.</span>
                     </li>
                     <li><input type="radio" name="suspend-reason" value="vulgar">
-                      Post is vulgar, or includes reference to sexuality or hate.
+                      <span  data-help="Post is vulgar, or includes reference to sexuality or hate.">
+                          Mensaje es vulgar, o incluye una referencia a la sexualidad o el odio.
+                      </span>
                     </li>
                     <li><input type="radio" name="suspend-reason" value="nonsense">
-                      Post is not intelligible, as grammar is too poor to communicate meaning.
+                      <span  data-help="Post is not intelligible, as grammar is too poor to communicate meaning.">
+                          El artículo no es inteligible, la gramática es muy pobre para comunicar significados.
+                      </span>
                     </li>
                 </ol>
 
                 <div>
-                    <button id="post-suspend">Post</button>
-                    <button id="cancel-suspend">Cancel</button>
+                    <button id="post-suspend" data-help="Post">Envíe</button>
+                    <button id="cancel-suspend" data-help="Cancel">Cancele</button>
                 </div>
             </script>
 
@@ -320,7 +329,7 @@
                     <div>
                         <div id="main-openid">
 
-                            <p>Acceder con: </p>
+                            <p data-help="Login with:">Acceder con: </p>
                             <input type="submit" value="Google" id="google" class="login-btn" />
                             <input type="submit" value="Yahoo" id="yahoo" class="login-btn" />
                             <input type="submit" value="Otro" id="other" class="login-btn" />
@@ -334,7 +343,7 @@
                             ... or click one of the host buttons below.
                             </p -->
                             OpenID Identificader URL<input name="openidurl" size="75"/>  <br/>
-                            <input type="submit" class="btn" />
+                            <input type="submit" class="btn" title="continuúa" />
                         </div>
                     </div>
                 </form>
@@ -342,7 +351,8 @@
 
             <div id="set-username" class="modal-body" style="display: none">
                 <form>
-                    <p>Provide your preferred username, by which you will be known here. </p>
+                    <p data-help="Provide your preferred username.">
+                        Proporcione su nombre de usuario preferido.</p>
                     <p id="su-error"></p>
                     <input name="username" size="75"/>  <br/>
                     <input type="submit" class="btn" />
@@ -368,6 +378,10 @@
                         <div class="def-forms">FORMS</div>
                     </div>
                 </div>
+            </div>
+
+            <div id="help-hover" class="hover" style="display: none">
+                <div class="hover-tooltip"></div>
             </div>
         </section>
 
@@ -407,6 +421,7 @@
         <script src="js/views/suspend-view.js"></script>
         <script src="js/views/wordlist-view.js"></script>
         <script src="js/views/edit-view.js"></script>
+        <script src="js/views/global-view.js"></script>
         <script src="js/routers/router.js"></script>
 
 	</body>

@@ -52,6 +52,7 @@
                         app.isAdmin = resp.records.rows[0].admin;
                         $('a.loginLink').attr('href', '#!/logout');
                         $('a.loginLink').text('salir');
+                        $('a.loginLink').attr('data-help', 'logout');
                         // if results, add to display
                         $('span.user-id').text(app.handle);
                         window.console.log('logged in as ' + app.userId);

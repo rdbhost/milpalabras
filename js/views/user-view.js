@@ -14,7 +14,7 @@
         render: function () {
 
             var data = this.model.toJSON();
-            data.makeHtml = app.MessageView.markdown.makeHtml;
+            data.makeHtml = app.MessageView.htmlGenerator;
 
             this.$el.html(this.template(data));
             this.$el.show();
@@ -41,6 +41,13 @@
 
         nullTemplate: _.template($('#null-message-template').html()),
 
+        // The DOM events specific to an item.
+        events: {
+            'mouseenter .DL':         'hoverhelpIn',
+            'mouseleave .DL':         'hoverhelpOut',
+            'dictionaryHelp':         'dictionaryHelp'
+        },
+
         // The ThreadView listens for changes to its model, re-rendering. Since there's
 		// a one-to-one correspondence between a **Thread** and a **ThreadView** in this
 		// app, we set a direct reference on the model for convenience.
@@ -51,7 +58,9 @@
             this.$main = this.$('#user');
             this.$tMain = $('#user-main');
 
-		},
+            this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
+
+        },
 
 		// Re-render the titles of the thread item.
 		render: function () {
@@ -90,6 +99,22 @@
         addOneMessageToDisplay: function (message) {
             var msgView = new app.UserMessageView({ model: message });
             this.$tMain.append(msgView.render().el);
+        },
+
+        hoverTimer: null,
+        hoverHideTimer: null,
+        hoverhelpIn: function(ev) {
+
+            app.ThreadView.prototype.hoverhelpIn.call(this, ev);
+        },
+        hoverhelpOut: function(ev) {
+
+            app.ThreadView.prototype.hoverhelpOut.call(this, ev);
+        },
+
+        dictionaryHelp: function(ev) {
+
+            app.ThreadView.prototype.dictionaryHelp.call(this, ev);
         }
 
     });
