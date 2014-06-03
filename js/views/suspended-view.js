@@ -14,7 +14,7 @@
         render: function () {
 
             var data = this.model.toJSON();
-            data.makeHtml = app.MessageView.markdown.makeHtml;
+            data.makeHtml = app.MessageView.htmlGenerator;
 
             this.$el.html(this.template(data));
             this.$el.show();
@@ -45,7 +45,10 @@
         // The DOM events specific to an item.
         events: {
             'click .delete':        'deleteMsg',
-            'click .unflag':        'unflagMsg'
+            'click .unflag':        'unflagMsg',
+            'mouseenter .DL':       'hoverhelpIn',
+            'mouseleave .DL':       'hoverhelpOut',
+            'dictionaryHelp':       'dictionaryHelp'
         },
 
 
@@ -59,6 +62,7 @@
             this.$main = this.$('#user');
             this.$tMain = $('#suspended-main');
 
+            this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
 		},
 
 		// Re-render the titles of the thread item.
@@ -109,8 +113,8 @@
                 msgModel.deleteMsg({});
                 // app.thread.remove(msgModel);
                 if ( msgModel.attributes.message_id === msgModel.attributes.thread_id ) {
-                    var tmp = app.threads.find({'thread_id': msgModel.attributes.thread_id});
-                    if ( tmp )
+                    var tmps = app.threads.where({'thread_id': msgModel.attributes.thread_id});
+                    if ( tmps )
                         app.threads.remove(msgModel);
                 }
                 msgModel.purgeTailingDeletes();
@@ -136,7 +140,25 @@
 
             ev.stopImmediatePropagation();
             return false;
+        },
+
+        hoverTimer: null,
+        hoverHideTimer: null,
+        hoverhelpIn: function(ev) {
+
+            app.ThreadView.prototype.hoverhelpIn.call(this, ev);
+        },
+        hoverhelpOut: function(ev) {
+
+            app.ThreadView.prototype.hoverhelpOut.call(this, ev);
+        },
+
+        dictionaryHelp: function(ev) {
+
+            app.ThreadView.prototype.dictionaryHelp.call(this, ev);
         }
+
+
 
     });
 })(jQuery);

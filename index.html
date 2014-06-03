@@ -285,17 +285,17 @@
 
             <script type="text/template" id="suspend-template">
 
-                <h3>Por que este mensaje malo?</h3>
+                <h3 data-help="Why is this message bad?">¿Por qué este mensaje malo?</h3>
                 <input name="message_id" value="<%= message_id %>" type="hidden">
 
                 <ol>
                     <!-- radio buttons for reasons -->
                     <li><input type="radio" name="suspend-reason" value="adhominem">
-                      <span  data-help="Post is attack on another user.">Mensaje es el ataque de otro usuario</span>
+                      <span  data-help="Post is attack on another user.">Mensaje es el ataque de otro usuario.</span>
                     </li>
                     <li><input type="radio" name="suspend-reason" value="notspanish">
                       <span  data-help="Post is not Spanish enough, as it includes obvious padding verbage.">
-                          El artículo no es suficiente español
+                          El artículo no es suficiente español, ya que incluye el relleno obvio.
                       </span>
                     </li>
                     <li><input type="radio" name="suspend-reason" value="irrelevant">
