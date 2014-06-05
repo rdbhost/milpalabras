@@ -67,7 +67,7 @@
                 var pos = $(ev.target).offset(),
                     $hover = $('#help-hover');
 
-                $hover.find('.hover-tooltip').text(help);
+                $hover.find('.hover-tooltip').html(help.replace(/\s/g, ' '));
                 $hover.css({'top': pos.top+20, 'left': pos.left});
                 $hover.show();
 

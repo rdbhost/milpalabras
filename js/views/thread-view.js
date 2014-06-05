@@ -82,7 +82,6 @@
 
             this.$header = this.$('header h1');
             this.$footer = this.$('footer');
-            this.$main = this.$('#thread');
             this.$tMain = $('#thread-main');
 
             this.listenTo(app.thread, 'reset', this.render);
@@ -96,8 +95,6 @@
             this.$el.show();
 
             if ( app.thread.length ) {
-
-                this.$main.show();
 
                 // Add all items in the **threads** collection at once.
                 var hd = this.$tMain.find('#thead');

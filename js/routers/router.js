@@ -16,6 +16,7 @@
             '!/suspended': 'showSuspended',
             '!/intro':     'showIntro',
             '!/allwords':  'showAllWordsList',
+            '!/faq':       'showFaq',
             '!/login':     'login',
             '!/logout':    'logout',
             '!':           'showIndex',
@@ -129,12 +130,19 @@
 
         showIntro: function() {
 
-            alert('not implemented');
+            $('.page').hide();
+            $('#intro').show();
         },
 
         showAllWordsList: function() {
 
             alert('not implemented');
+        },
+
+        showFaq: function() {
+
+            $('.page').hide();
+            $('#faq').show();
         },
 
         login: function() {
