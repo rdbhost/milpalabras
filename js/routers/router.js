@@ -136,7 +136,8 @@
 
         showAllWordsList: function() {
 
-            alert('not implemented');
+            var awV = new app.AllWordsView({collection: null});
+            awV.render();
         },
 
         showFaq: function() {

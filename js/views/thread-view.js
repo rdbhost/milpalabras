@@ -97,9 +97,7 @@
             if ( app.thread.length ) {
 
                 // Add all items in the **threads** collection at once.
-                var hd = this.$tMain.find('#thead');
                 this.$tMain.empty();
-                this.$tMain.html(hd.html());
                 app.thread.each(this.addOneMessageToDisplay, this);
 
                 this.$header.html(this.headerTemplate({

@@ -97,6 +97,7 @@
 
             var that = this;
             that.byLetter = {};
+            that.formsByLemma = {};
         },
 
         findOne: function (word) {
@@ -130,6 +131,77 @@
                         p.reject(rsp);
                     }
                 })
+            }
+
+            return p;
+        },
+
+        getDefCollection: function (ltr) {
+
+            var ltrList = this.byLetter[ltr.charAt(0)],
+                p = $.Deferred(),
+                that = this,
+                tmp, wc;
+
+            if ( ltrList ) {
+
+                p.resolve(ltrList);
+            }
+            else {
+
+                tmp = new DefinitionCollection();
+                tmp.letter = ltr.charAt(0);
+                tmp.fetch({
+
+                    success: function(list, rsp, opt) {
+
+                        that.byLetter[tmp.letter] = tmp;
+                        p.resolve(tmp);
+                    },
+
+                    error: function(col, err, opt) {
+
+                        p.reject(err);
+                    }
+                })
+            }
+
+            return p;
+        },
+
+        getFormsByLemma: function (lemma) {
+
+            var wordList = this.formsByLemma[lemma],
+                p = $.Deferred(),
+                that = this;
+
+            if ( wordList ) {
+
+                p.resolve(wordList);
+            }
+            else {
+
+                var q =
+                 "SELECT lemma, array_agg(distinct word) AS words \n" +
+                 "  FROM wordlist w  \n" +
+                 "WHERE lemma = %s \n" +
+                 "GROUP BY lemma ";
+
+                var p0 = R.preauthPostData({
+                    q: q,
+                    args: [lemma]
+                });
+
+                p0.then(function(resp) {
+
+                    var tmp = resp.records.rows[0].words;
+                    that.formsByLemma[lemma] = tmp;
+                    p.resolve(tmp);
+                });
+
+                p0.fail(function(err) {
+                    p.reject(err);
+                });
             }
 
             return p;

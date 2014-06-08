@@ -25,13 +25,13 @@ h2, h3, dt {
     color: #a64a00; /* #ffb173; */
 }
 
-#topics, #thread, #user, #suspended, #intro, #faq, #mpapp > header {
+#topics, #thread, #user, #suspended, #intro, #faq, #allwords, #mpapp > header {
     margin-left: auto;
     margin-right: auto;
     width: 800px;
 }
 
-#topics, #thread, #user, #suspended, #intro, #faq {
+#topics, #thread, #user, #suspended, #intro, #faq, #allwords {
     font-size: large;
     background: white;
     border: 3px solid #006561 /* #a64a00 */;
@@ -238,6 +238,26 @@ ul.oops {
     background-color: lightblue;
     border: thin solid mediumblue;
     -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
+}
+
+#allwords .left-col {
+    float: left;
+    width: 25%;
+}
+#allwords .right-col {
+    float: right;
+    width: 75%;
+}
+#allwords div.right-col .lemma { float: left; width: 35%; }
+#allwords div.right-col .defn { float: right; width: 65% }
+#allwords div.right-col .forms { float: right; width: 65%; font-size: x-small;  }
+#allwords div.right-col .seperator { clear: both; margin-bottom: 12px; }
+
+#allwords ul {
+    list-style-type: none;
+}
+#allwords .clear {
+    clear: both;
 }
 
 #set-username {
