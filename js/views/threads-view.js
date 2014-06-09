@@ -75,14 +75,16 @@
                 this.$list.empty();
                 app.threads.each( this.addOneThread, this );
 
-                //this.$footer.html(this.statsTemplate({
-				//	completed: threadCount
-				//}));
+                if (app.userId) {
 
-                if (app.userId)
+                    $('#login-to-create-warn').hide();
                     $('.add-topic-button').removeAttr('disabled');
-                else
+                }
+                else {
+
+                    $('#login-to-create-warn').show();
                     $('.add-topic-button').attr('disabled', 'disabled');
+                }
 
                 $('time.timeago').timeago();
 			}

@@ -2,7 +2,8 @@
 <html lang="en" data-framework="backbonejs">
 	<head>
 		<meta charset="utf-8">
-		<title>Mil Palabras</title>
+        <meta name="fragment" content="!">
+        <title>Mil Palabras</title>
 		<link rel="stylesheet" href="css/base.css">
         <link rel="stylesheet" href="vendor/etch/css/etch.css">
 	</head>
@@ -47,6 +48,7 @@
                     </tbody>
                 </table>
 
+                <div id="login-to-create-warn">Acceder para Enviar</div>
                 <button class="add-topic-button" data-help="Create New Topic">Crea Nuevo Tema</button>
                 <!-- footer></footer -->
             </div>
@@ -236,7 +238,7 @@
                 body_md = body_md.replace(/<\/?p>/g, '');
                 %>
 
-                <h3>Escribe</h3>
+                <h3 class="escribe">Escribe</h3>
                 <div id="subject" class="editable" data-button-class="title" data-position="#postform"><%= title_md %></div>
                 <div id="new-message" class="editable" data-button-class="new" data-position="#postform"><%= body_md %></div>
 
@@ -425,39 +427,17 @@
                 allwords page
             -->
             <div id="allwords" class="page" style="display: none">
-                <h3>Word list of acceptable 1000 words.</h3>
+                <h3 data-help="Word list of acceptable 1000 words.">Glosario de 1.000 palabras agradables.</h3>
                 <div class="left-col">
                     <ul>
-                        <li>a</li>
-                        <li>á</li>
-                        <li>b</li>
-                        <li>c</li>
-                        <li>d</li>
-                        <li>e</li>
-                        <li>é</li>
-                        <li>f</li>
-                        <li>g</li>
-                        <li>h</li>
-                        <li>i</li>
-                        <li>j</li>
-                        <li>l</li>
-                        <li>m</li>
-                        <li>n</li>
-                        <li>o</li>
-                        <li>p</li>
-                        <li>q</li>
-                        <li>r</li>
-                        <li>s</li>
-                        <li>t</li>
-                        <li>u</li>
-                        <li>ú</li>
-                        <li>v</li>
-                        <li>y</li>
-                        <li>z</li>
+                        <li>a</li><li>á</li><li>b</li><li>c</li><li>d</li><li>e</li>
+                        <li>é</li><li>f</li><li>g</li><li>h</li><li>i</li><li>j</li>
+                        <li>l</li><li>m</li><li>n</li><li>o</li><li>p</li><li>q</li>
+                        <li>r</li><li>s</li><li>t</li><li>u</li><li>ú</li><li>v</li>
+                        <li>y</li><li>z</li>
                     </ul>
-                </div>
-                <div class="right-col">
-                   Click a first letter (on left) to display words.
+                </div><div class="right-col">
+                   <span data-help="Click an initial letter (on left) to display words.">Haga clic en una letra inicial (a la izquierda) para mostrar palabras.</span>
                 </div>
                 <div class="clear"></div>
             </div>
@@ -543,6 +523,9 @@
             <a href="#!/intro" data-help="introduction">introducción</a>
             <a href="#!/allwords" data-help="all permissible words">todas las palabras permisibles</a>
             <a href="#!/faq" data-help="frequent questions">preguntas frecuentes</a>
+        </footer>
+        <footer>
+            <span id="poweredby">powered by <a href="http://www.rdbhost.com">Rdbhost</a>.</span>
         </footer>
 
         <!--

@@ -68,7 +68,7 @@
                     $hover = $('#help-hover');
 
                 $hover.find('.hover-tooltip').html(help.replace(/\s/g, ' '));
-                $hover.css({'top': pos.top-20, 'left': pos.left});
+                $hover.css({'top': pos.top+20, 'left': pos.left});
                 $hover.show();
 
                 poll();

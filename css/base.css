@@ -89,6 +89,9 @@ a.lft {
     border: thin solid #1d7471;
 }
 
+h3.escribe {
+    color: #ff9540;
+}
 #subject {
     width: 500px;
     height: 1em;
@@ -276,10 +279,10 @@ footer {
     margin-left: auto;
     margin-right: auto;
     margin-top: 50px;
+    margin-bottom: 24px;
     font-size: large;
     width: 650px;
     align-content: center;
-    margin-bottom: 24px;
 }
 footer a, h4 {
     font-family: Verdana;
@@ -288,6 +291,11 @@ footer a, h4 {
     padding: 8px;
     font-weight: bolder;
     text-shadow: 1px 0 0 #fff;
+}
+#poweredby {
+    text-align: center;
+    margin: auto;
+    display: table;
 }
 
 #null-msg {
@@ -310,4 +318,10 @@ footer a, h4 {
     width: 100px;
     height: 35px;
     margin: 20px;
+}
+
+#login-to-create-warn {
+    margin-top: 20px;
+    color: #a64a00;
+    margin-bottom: -15px;
 }

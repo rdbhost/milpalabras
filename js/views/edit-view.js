@@ -182,6 +182,9 @@
         var sel = rangy.getSelection(),
             rng = rangy.createRange();
 
+        if ( !$div.get(0) )
+            debugger;
+
         var charRanges = sel.saveCharacterRanges($div.get(0)),
             caretPos = charRanges[0].characterRange.start;
 
@@ -362,7 +365,7 @@
                         error: onError
                     });
                 }
-                else if (that.attributes.parent) {
+                else if (that.attributes && that.attributes.parent) {
 
                     var parent = that.attributes.parent;
                     parent.branch({
@@ -421,6 +424,7 @@
             //}
 
             console.log('keypress ' + ev.charCode);
+            //ev.preventDefault();
         },
 
         errorStats: {},
@@ -445,11 +449,17 @@
 
             if ( nmErr && nmErr.length ) {
 
-                $err.text('Mensaje tiene errores. Por favor corrija antes de enviarla.');
+                if ( nmErr[0].type === 'quoted' )
+                    $err.text('Hay texto demasiado cotizado.');
+                else
+                    $err.text('Mensaje tiene errores. Por favor corrija antes de enviarla.');
             }
             else if ( subErr && subErr.length ) {
 
-                $err.text('Sujeto tiene errores. Por favor corrija antes de enviarla.');
+                if ( subErr[0].type === 'quoted' )
+                    $err.text('Hay texto demasiado cotizado.');
+                else
+                    $err.text('Sujeto tiene errores. Por favor corrija antes de enviarla.');
             }
             else {
                 $err.text('');
@@ -489,11 +499,11 @@
 
             if ( word && word.length ) {
 
-                p = app.thousand_words.startsWith(word);
+                p = app.thousand_words.startsWith(word.toLowerCase());
                 p.then(function(wordCandidates) {
 
-                    console.log('words: ' + _.pluck(_.pluck(wordCandidates, 'attributes'), 'word').join(' '));
-                    that.wordsView.render(word);
+                    //console.log('words: ' + _.pluck(_.pluck(wordCandidates, 'attributes'), 'word').join(' '));
+                    that.wordsView.render(word.toLowerCase());
                 });
                 p.fail(function(err) {
                    var _nada = 0;
@@ -507,6 +517,7 @@
 
             console.log('word ' + word);
             console.log('caret pos ' + caretPos);
+            ev.preventDefault();
         }
     });
 

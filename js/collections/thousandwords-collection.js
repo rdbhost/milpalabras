@@ -35,11 +35,29 @@
         var textParts = text.split(splitWordsOn),
             p = $.Deferred(),
             accum = 0, errs = [], replacements = [], quotedParts = [],
-            wd, trimmed, err;
+            wd, trimmed, trimmedLeadLen, err;
 
         if ( ! /\S/.test(text) ) {
             err = {start: 0, end: 0, type: 'blank'};
             p.resolve([err]);
+        }
+
+        function getFlippable(text) {
+
+            var flipRe = new RegExp('([?!])[a-zA-Z]', 'g'),
+                errs = [], m;
+
+            while (m = flipRe.exec(text)) {
+
+                if (m[1] === '!')
+                    err = {begin: m.index, end: m.index+1, newVal: '\u00a1', type: 'replace'};
+                else if (m[1] === '?')
+                    err = {begin: m.index, end: m.index+1, newVal: '\u00bf', type: 'replace'};
+
+                errs.push(err);
+            }
+
+            return errs;
         }
 
         function handleOneWord() {
@@ -62,6 +80,8 @@
                 else {
 
                     trimmed = trim(wd);
+                    trimmedLeadLen = wd.indexOf(trimmed);
+
 
                     // skip numbers and other ok non-words
                     if ( trimmed && ! okNonWords.test(trimmed) ) {
@@ -72,14 +92,19 @@
                             if ( ! refWd ) {
 
                                 console.log('word not found: ' + trimmed);
-                                err = {begin: accum, end: accum + wd.length, type: 'not-found'};
+                                err = {begin: accum + trimmedLeadLen,
+                                       end: accum + trimmedLeadLen + trimmed.length,
+                                       type: 'not-found'};
                                 errs.push(err);
                             }
                             else if ( refWd.attributes.word !== trimmed.toLowerCase() ) {
 
                                 console.log('replacement: ' + refWd.attributes.word + ' ' + trimmed);
                                 var normRefWord = normalizeWord(trimmed, refWd.attributes.word);
-                                err = {begin: accum, end: accum + wd.length, newVal: normRefWord, type: 'replace'};
+                                err = {begin: accum + trimmedLeadLen,
+                                       end: accum + trimmedLeadLen + trimmed.length,
+                                       newVal: normRefWord,
+                                       type: 'replace'};
                                 replacements.push(err);
                             }
                             else
@@ -124,7 +149,11 @@
             }
             var quotedTot = _.reduce(quotedParts, _quoteTot, 0);
             if ( quotedTot / accum > MAX_QUOTED_RATIO )
-                errs.push.apply(quotedParts);
+                errs.push.apply(errs, quotedParts);
+
+            var flippedParts = getFlippable(text);
+            if ( flippedParts.length )
+                replacements.push.apply(replacements, flippedParts);
 
             p.resolve([errs, replacements]);
         }
@@ -209,7 +238,7 @@
                         ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts \n' +
                         "FROM wordlist w  WHERE substring(word from 1 for 1) = %s \n" +
                         'GROUP BY word \n' +
-                        'ORDER BY word ASC LIMIT 500;\n',
+                        'ORDER BY word ASC LIMIT 1000;\n',
                     args: [ltr]
                 });
 
