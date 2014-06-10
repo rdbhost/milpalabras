@@ -284,6 +284,9 @@ footer {
     width: 650px;
     align-content: center;
 }
+footer.centered {
+    width: 850px;
+}
 footer a, h4 {
     font-family: Verdana;
     font-size: 12pt;
@@ -292,12 +295,11 @@ footer a, h4 {
     font-weight: bolder;
     text-shadow: 1px 0 0 #fff;
 }
-#poweredby {
-    text-align: center;
-    margin: auto;
-    display: table;
+footer.centered span, footer.centered a {
+    font-size: 10pt;
+    margin: 0;
+    padding: 0;
 }
-
 #null-msg {
     padding: 20px;
 }

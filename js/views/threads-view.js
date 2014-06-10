@@ -102,8 +102,10 @@
                 author: app.userId
             });
 
-            var edView = new app.EditView({ model: nullMsg });
-            edView.render();
+            if (app.editView)
+                app.editView.cleanup();
+            app.editView = new app.EditView({ model: nullMsg });
+            app.editView.render();
         },
 
         // Add a single thread item to the list by creating a view for it, and

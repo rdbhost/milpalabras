@@ -106,8 +106,7 @@
 
     function padBlankLines($dom, formerCaretLine) {
 
-        var dom = $dom.html(),
-            caretPos = getCaretPos($dom);
+        var dom = $dom.html();
 
         if ( ! ~dom.indexOf('<div><br>') )
             return;
@@ -125,7 +124,8 @@
         while (eols.length < formerCaretLine + 1) {
 
             var eol = eolRe.exec(_dom);
-            eols.push(eol);
+            if (eol)
+                eols.push(eol);
         }
         var newCaretPos = eols.pop().index + 1;
 
@@ -374,7 +374,10 @@
                             var thread_id = resp.message_id;
                             newModel.attributes.thread_id = thread_id;
                             newModel.save({}, {
-                                success: onSuccess,
+                                success: function(mdl, resp, opt) {
+                                    onSuccess(mdl, resp, opt);
+                                    app.milPalabrasRouter.navigate('#!/t/'+mdl.attributes.thread_id, {trigger: true});
+                                },
                                 error: onError
                             });
                         },
@@ -403,6 +406,10 @@
             this.$el.empty();
             this.undelegateEvents();
             this.wordsView.render(false);
+        },
+
+        cleanup: function(ev) {
+            return this._cleanup(ev);
         },
 
         _queue: [],

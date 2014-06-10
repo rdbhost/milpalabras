@@ -140,8 +140,10 @@
                 message_id: undefined,
                 author: app.userId
             });
-            var edView = new app.EditView({ model: newMsg });
-            edView.render();
+            if (app.editView)
+                app.editView.cleanup();
+            app.editView = new app.EditView({ model: newMsg });
+            app.editView.render();
         },
 
         // show message editer, with selected message loaded
@@ -149,8 +151,10 @@
 
             var msgId = parseInt($(ev.target).attr('data-messageid'), 10),
                 msg = app.thread.where({'message_id': msgId})[0];
-            var edView = new app.EditView({ model: msg });
-            edView.render();
+            if (app.editView)
+                app.editView.cleanup();
+            app.editView = new app.EditView({ model: msg });
+            app.editView.render();
         },
 
         // marks message as hidden.  will show up, for admins on #!/suspended

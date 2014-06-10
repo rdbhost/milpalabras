@@ -69,8 +69,10 @@
                     author: app.userId
                 });
 
-                var edView = new app.EditView({ model: nullMsg, attributes: {parent: srcModel} });
-                edView.render();
+                if (app.editView)
+                    app.editView.cleanup();
+                app.editView = new app.EditView({ model: nullMsg, attributes: {parent: srcModel} });
+                app.editView.render();
             }
         },
 
