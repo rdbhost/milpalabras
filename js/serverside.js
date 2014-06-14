@@ -1,0 +1,38 @@
+/**
+ * Created by David on 6/14/2014.
+ */
+
+var R = window.Rdbhost;
+R.rdbHostConfig({
+    domain: 'www.rdbhost.com',
+    accountNumber: 1355,
+    userName: 'super'
+});
+
+
+function clickHandler(evt) {
+
+    var id = $(evt.target).attr('id'),
+        sqlId = id.substr(0, id.length-4),
+        sql = $('#'+sqlId).text();
+
+    sql = sql.replace('~bdyratio', app.constants.BODY_RATIO)
+        .replace('~ttlratio', app.constants.TITLE_RATIO);
+
+    var p = R.superPostData({
+        q: sql
+    });
+    p.fail(function (errArray) {
+        alert('ERROR ' + errArray[0] + ' ' + errArray[1]);
+    });
+    p.then(function (r) {
+        alert('SUCCESS ' + sqlId);
+    })
+}
+
+
+$('#post_msg_btn').click(clickHandler);
+
+$('#replace_msg_btn').click(clickHandler);
+
+$('#test_msg_btn').click(clickHandler);

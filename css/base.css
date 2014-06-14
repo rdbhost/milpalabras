@@ -48,7 +48,7 @@ h2, h3, dt {
     background-color: darkgray;
 }
 
-.topic { width: 450px; padding-left: 10px; }
+.topic { width: 410px; padding-left: 10px; }
 .inituser { width: 125px; overflow: hidden; padding-left: 10px;}
 .startdate { text-align: left; padding-right: 10px;}
 .msgct { width: 22px; text-align: right; padding-right: 10px; }

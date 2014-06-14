@@ -3,14 +3,7 @@
 (function () {
 	'use strict';
 
-    var R = window.Rdbhost
-
-        /* MAX_QUOTED_RATIO = 0.15,
-
-        QUOTED_TEST = '([\"\'\'\u00ab\u2039]\\S+[\"\'\'\u00bb\u203a])|([0-9]+)',
-
-        // ?!#$%&«‹¡-¿»›
-        SEPARATOR_RE = '[\\s?!#$%%&.,\u00ab\u2039\u00a1\u00bf\u00bb\u203a-]+'  */;
+    var R = window.Rdbhost;
 
     var saveQuery =
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +

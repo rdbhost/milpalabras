@@ -10,9 +10,9 @@
         MAX_QUOTED_RATIO = 0.15,
 
     // ?!#$%[]&«‹¡-¿»›
-        trimmingRegExp = new RegExp('(^[?!#$%[\\]&\u00ab\u2039\u00a1\u00bf-]+)|([?!#$[\\]&.,\u00bb\u203a-]+$)', 'g'),
+        trimmingRegExp = new RegExp(app.constants.TRIMMING_RE, 'g'),
 
-        okNonWords = new RegExp('^[1-9.,+-]+$', 'g'),
+        okNonWords = new RegExp(app.constants.NONWORD_RE, 'g'),
 
         splitWordsOn = /(\s+)/g,
 

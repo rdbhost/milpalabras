@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Server side functions.</title>
+    <script src="https://www.rdbhost.com/vendor/jquery/1.8/jquery-1.8.3.js"></script>
+    <script src="https://www.rdbhost.com/vendor/underscore/1.5/underscore.js"></script>
+    <script src="https://www.rdbhost.com/vendor/backbone/1.1/backbone.js"></script>
+    <script src="https://www.rdbhost.com/vendor/rdbhost/1.2/jquery.rdbhost.js"></script>
+    <script src="js/app.js"></script>
+</head>
+<body>
+
+<script type="text/template" id="post_msg">
+    CREATE OR REPLACE FUNCTION "post_msg"
+        (IN ttl text, IN bdy text, IN identr varchar, IN ikey varchar, IN thdid int8, IN branchfrom int8)
+    RETURNS varchar
+    AS $$
+    DECLARE
+        tmp VARCHAR;
+        uid BIGINT;
+    BEGIN
+
+        SELECT * INTO tmp FROM test_msg(bdy, ~bdyratio);
+        IF FOUND AND tmp IS NOT NULL THEN
+            RAISE EXCEPTION 'invalid body %%', tmp USING ERRCODE = 'RD001';
+        END IF;
+
+        SELECT * INTO tmp FROM test_msg(ttl, ~ttlratio);
+        IF FOUND AND tmp IS NOT NULL THEN
+            RAISE EXCEPTION 'invalid title %%', tmp USING ERRCODE = 'RD002';
+        END IF;
+
+        SELECT o.idx INTO uid FROM auth.openid_accounts o
+            WHERE o.identifier = identr AND o.key = ikey;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'bad login %%', identr USING ERRCODE = 'RD003';
+        END IF;
+
+        INSERT INTO messages (thread_id, title, body, post_date, author, branch_from)
+            SELECT thdid, ttl, bdy, NOW(), uid::BIGINT, branchfrom;
+
+        RETURN NULL;
+    END;
+    $$
+    LANGUAGE plpgsql VOLATILE
+    SECURITY DEFINER;
+</script>
+<button id="post_msg_btn" value="update" >Update post_msg</button>
+
+<script type="text/template" id="replace_msg">
+    CREATE OR REPLACE FUNCTION "replace_msg"
+        (IN ttl text, IN bdy text, IN identr varchar, IN ikey varchar, IN msgid int8)
+    RETURNS varchar
+    AS $$
+    DECLARE
+        tmp VARCHAR;
+        uid BIGINT;
+    BEGIN
+
+    SELECT * INTO tmp FROM test_msg(bdy, ~bdyratio);
+    IF FOUND AND tmp IS NOT NULL THEN
+        RAISE EXCEPTION 'invalid body %%', tmp USING ERRCODE = 'RD001';
+    END IF;
+
+    SELECT * INTO tmp FROM test_msg(ttl, ~ttlratio);
+    IF FOUND AND tmp IS NOT NULL THEN
+        RAISE EXCEPTION 'invalid title %%', tmp USING ERRCODE = 'RD002';
+    END IF;
+
+    SELECT o.idx INTO uid FROM auth.openid_accounts o
+        WHERE o.identifier = identr AND o.key = ikey;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'bad login %%', identr USING ERRCODE = 'RD003';
+    END IF;
+
+    UPDATE messages SET title = ttl, body = bdy
+        WHERE message_id = msgid AND author = uid;
+
+    RETURN NULL;
+
+    END;
+    $$
+    LANGUAGE plpgsql VOLATILE
+    SECURITY DEFINER;
+</script>
+<button id="replace_msg_btn" value="update" >Update replace_msg</button>
+
+
+<script type="text/template" id="test_msg">
+    CREATE OR REPLACE FUNCTION "test_msg"
+       (IN title text, IN ratio_limit float4)
+    RETURNS varchar
+    AS $$
+    DECLARE
+        tmp RECORD;
+        ct INTEGER;
+    BEGIN
+        DROP TABLE IF EXISTS tbl CASCADE;
+
+        CREATE TEMPORARY TABLE tbl AS
+            SELECT regexp_split_to_table(lower(title), '[?\s!#$\[\]%%&.,\u00ab\u2039\u00a1\u00bf\u00bb\u203a-]+') AS wd;
+
+        CREATE TEMPORARY VIEW words AS
+            SELECT DISTINCT tbl.wd, wordlist.word FROM tbl LEFT JOIN wordlist ON wordlist.word = tbl.wd;
+
+        -- test that temp tables are ok
+        SELECT count(*) INTO ct FROM tbl;
+        IF ct < 1 THEN
+            RETURN 'bad tbl table ' || ct || ' [' || lower(title) || ']';
+        END IF;
+
+        -- test that temp tables are ok
+        SELECT count(*) INTO ct FROM words WHERE words.word IS NOT NULL;
+        IF ct < 1 THEN
+            RETURN 'bad words table ' || ct || ' [' || (SELECT wd FROM tbl) || ']';
+        END IF;
+
+        -- check that no illegal words provided (without either dict match or quotes) for subject
+        --
+        SELECT words.wd INTO tmp FROM words WHERE words.word IS NULL
+            AND NOT words.wd ~ '(["''\u00ab\u2039]\S+["''\u00bb\u203a])|([0-9.,\\]]+)'
+            AND words.wd <> '';
+        IF FOUND THEN
+            RETURN 'bad word [' || tmp.wd || ']';
+        END IF;
+
+        -- check that ratio of quoted words not too high
+        --
+        SELECT 'bad ratio' INTO tmp
+            WHERE ((array(SELECT coalesce(sum(char_length(wd)), 0) FROM words WHERE word IS NULL))[1] /
+                (array(SELECT coalesce(sum(char_length(wd)), 0.1) FROM words))[1]) > ratio_limit;
+        IF FOUND THEN
+            RETURN 'bad ratio';
+        END IF;
+
+        -- if not checks failed, return NULL
+        RETURN NULL;
+
+    END;
+    $$
+    LANGUAGE plpgsql VOLATILE
+    SECURITY DEFINER;
+</script>
+<button id="test_msg_btn" value="update" >Update test_msg</button>
+
+
+
+<script src="js/serverside.js"></script>
+
+</body>
+</html>
