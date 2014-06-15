@@ -274,11 +274,13 @@
             'click #post-cancel': 'postCancel',
             'mousedown .editable': 'editableClick',
             'keypress .editable': 'onKeyPress',
-            'keyup .editable': 'onKeyUp'
+            'keyup .editable': 'onKeyUp',
+            'keydown .editable': 'onKeyDown'
         },
 
-        editableClick: etch.editableInit,
-
+        editableClick: function(ev) {
+            return etch.editableInit(ev);
+        },
         wordsView: new app.WordListView(),
 
         // Render the edit box
@@ -430,12 +432,8 @@
             if ( ev.charCode === app.constants.ENTER_KEY ) {
 
                 var $div = $(ev.target).closest('[contenteditable]');
-                this._needBlankPadding = getCaretLine($div);
+                this._needBlankPadding = true;
             }
-
-            //else if (ev.charCode === app.constants.TAB_KEY) {
-            //    var $div = $(ev.target).closest('[contenteditable]');
-            //}
 
             console.log('keypress ' + ev.charCode);
             //ev.preventDefault();
@@ -480,6 +478,30 @@
             }
         },
 
+        onKeyDown: function(ev) {
+
+            if (ev.keyCode === app.constants.TAB_KEY) {
+
+                var $div = $(ev.target).closest('[contenteditable]'),
+                    divId = $div.attr('id'),
+                    newDivId = null;
+
+                if (divId === 'subject') {
+
+                    newDivId = 'new-message';
+                }
+                else if (divId === 'new-message') {
+
+                    newDivId = 'subject';
+                }
+                if (newDivId)
+                    $('#'+newDivId).mousedown();
+
+                ev.stopImmediatePropagation();
+            }
+
+        },
+
         onKeyUp: function(ev) {
 
             var $div, divId, caretPos, wf, word, wordCandidates, p,
@@ -490,10 +512,15 @@
 
             if ( this._needBlankPadding !== undefined ) {
 
-                padBlankLines($div, this._needBlankPadding);
+                // use setTimeout here to allow etch.js to do its thing in response to keystroke first
                 this._needBlankPadding = undefined;
+                setTimeout(function() {
+
+                    padBlankLines($div, getCaretLine($div)); // todo - refactor out second param
+                }, 10);
             }
-            else if ( ~this._queue.indexOf(app.constants.SPACE_KEY) ) {
+            if ( ~this._queue.indexOf(app.constants.SPACE_KEY)
+                     || ~this._queue.indexOf(app.constants.ENTER_KEY)) {
 
                 var pS = handleInputErrors($div);
                 pS.then(function(res) {
@@ -516,11 +543,11 @@
                 p = app.thousand_words.startsWith(word.toLowerCase());
                 p.then(function(wordCandidates) {
 
-                    //console.log('words: ' + _.pluck(_.pluck(wordCandidates, 'attributes'), 'word').join(' '));
                     that.wordsView.render(word.toLowerCase());
                 });
                 p.fail(function(err) {
-                   var _nada = 0;
+
+                   alert(err[0] + ' ' + err[1]);
                 });
             }
             else {
