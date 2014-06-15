@@ -237,11 +237,11 @@
         auditPromise.then(function(divEval) {
 
             unMarkErrors($rawDiv);
-            if ( divEval[0].length ) {
+            if ( divEval && divEval.length && divEval[0].length ) {
                 markErrors($rawDiv, divEval[0]);
             }
 
-            if ( divEval[1].length )
+            if ( divEval.length > 1 && divEval[1].length )
                 doReplacements($rawDiv, divEval[1]);
 
             p.resolve(divEval[0] || null);
@@ -318,11 +318,18 @@
                 that.errorStats['subject'] = res;
             });
 
-            $.when(pS1, pM1).then(function () {
+            var pAll = $.when(pS1, pM1);
+            pAll.then(function (resp) {
 
                 that._manageButtons();
                 saveMessage();
             });
+            pAll.fail(function(err) {
+
+                that._manageButtons();
+                alert('message not saved ' + err[0] + ' ' + err[1]);
+            });
+
 
             function saveMessage() {
 

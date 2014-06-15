@@ -12,7 +12,7 @@
     // ?!#$%[]&«‹¡-¿»›
         trimmingRegExp = new RegExp(app.constants.TRIMMING_RE, 'g'),
 
-        okNonWords = new RegExp(app.constants.NONWORD_RE, 'g'),
+        okNonWords = new RegExp(app.constants.NONWORD_RE, ''),
 
         splitWordsOn = /(\s+)/g,
 

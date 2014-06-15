@@ -17,7 +17,11 @@ function clickHandler(evt) {
         sql = $('#'+sqlId).text();
 
     sql = sql.replace('~bdyratio', app.constants.BODY_RATIO)
-        .replace('~ttlratio', app.constants.TITLE_RATIO);
+        .replace('~ttlratio', app.constants.TITLE_RATIO)
+        .replace('~leftquotes', app.constants.LEFT_QUOTES)
+        .replace('~fancybegin', app.constants.FANCY_BEGIN_PUNCTUATION)
+        .replace('~rightquotes', app.constants.RIGHT_QUOTES)
+        .replace('~nonword', app.constants.NONWORD_RE);
 
     var p = R.superPostData({
         q: sql
