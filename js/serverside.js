@@ -21,7 +21,9 @@ function clickHandler(evt) {
         .replace('~leftquotes', app.constants.LEFT_QUOTES)
         .replace('~fancybegin', app.constants.FANCY_BEGIN_PUNCTUATION)
         .replace('~rightquotes', app.constants.RIGHT_QUOTES)
-        .replace('~nonword', app.constants.NONWORD_RE);
+        .replace('~nonword', app.constants.NONWORD_RE.replace(/'/g, "''"))
+        .replace('~wordsplit', app.constants.WORD_SPLIT_RE.replace(/'/g, "''"))
+        .replace(/%/g, '%%');
 
     var p = R.superPostData({
         q: sql

@@ -36,22 +36,25 @@ app.constants = {
     TITLE_RATIO: '0.5'
 };
 
-/* MAX_QUOTED_RATIO = 0.15,
+_.extend(app.constants, {
 
+    'TRIMMING_RE': '(^[?!#$%[\\]<&' + app.constants.LEFT_QUOTES + app.constants.FANCY_BEGIN_PUNCTUATION +
+                   '-]+)|([?!#$[\\]>&.,' + app.constants.RIGHT_QUOTES + '-]+$)',
+
+    'WORD_SPLIT_RE': '[?\\s!#$\\[\\]%&.,' + app.constants.LEFT_QUOTES + app.constants.FANCY_BEGIN_PUNCTUATION +
+                    app.constants.RIGHT_QUOTES + '_*:-]+'
+});
+
+/*
  QUOTED_TEST = '([\"\'\'\u00ab\u2039]\\S+[\"\'\'\u00bb\u203a])|([0-9]+)',
 
- // ?!#$%&«‹¡-¿»›
- SEPARATOR_RE = '[\\s?!#$%%&.,\u00ab\u2039\u00a1\u00bf\u00bb\u203a-]+'  */
+ ?!#$%&«‹¡-¿»›   */
 
 
 
 (function () {
 
     'use strict';
-
-    app.constants['TRIMMING_RE'] = '(^[?!#$%[\\]<&' + app.constants.LEFT_QUOTES + app.constants.FANCY_BEGIN_PUNCTUATION +
-                                   '-]+)|([?!#$[\\]>&.,' + app.constants.RIGHT_QUOTES + '-]+$)';
-
 
     var R = window.Rdbhost;
 
@@ -60,6 +63,5 @@ app.constants = {
         accountNumber: 1355,
         userName: 'preauth'
     });
-
 
 })();

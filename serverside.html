@@ -23,18 +23,18 @@
 
         SELECT * INTO tmp FROM test_msg(bdy, ~bdyratio);
         IF FOUND AND tmp IS NOT NULL THEN
-            RAISE EXCEPTION 'invalid body %%', tmp USING ERRCODE = 'RD001';
+            RAISE EXCEPTION 'invalid body %', tmp USING ERRCODE = 'RD001';
         END IF;
 
         SELECT * INTO tmp FROM test_msg(ttl, ~ttlratio);
         IF FOUND AND tmp IS NOT NULL THEN
-            RAISE EXCEPTION 'invalid title %%', tmp USING ERRCODE = 'RD002';
+            RAISE EXCEPTION 'invalid title %', tmp USING ERRCODE = 'RD002';
         END IF;
 
         SELECT o.idx INTO uid FROM auth.openid_accounts o
             WHERE o.identifier = identr AND o.key = ikey;
         IF NOT FOUND THEN
-            RAISE EXCEPTION 'bad login %%', identr USING ERRCODE = 'RD003';
+            RAISE EXCEPTION 'bad login %', identr USING ERRCODE = 'RD003';
         END IF;
 
         INSERT INTO messages (thread_id, title, body, post_date, author, branch_from)
@@ -60,18 +60,18 @@
 
     SELECT * INTO tmp FROM test_msg(bdy, ~bdyratio);
     IF FOUND AND tmp IS NOT NULL THEN
-        RAISE EXCEPTION 'invalid body %%', tmp USING ERRCODE = 'RD001';
+        RAISE EXCEPTION 'invalid body %', tmp USING ERRCODE = 'RD001';
     END IF;
 
     SELECT * INTO tmp FROM test_msg(ttl, ~ttlratio);
     IF FOUND AND tmp IS NOT NULL THEN
-        RAISE EXCEPTION 'invalid title %%', tmp USING ERRCODE = 'RD002';
+        RAISE EXCEPTION 'invalid title %', tmp USING ERRCODE = 'RD002';
     END IF;
 
     SELECT o.idx INTO uid FROM auth.openid_accounts o
         WHERE o.identifier = identr AND o.key = ikey;
     IF NOT FOUND THEN
-        RAISE EXCEPTION 'bad login %%', identr USING ERRCODE = 'RD003';
+        RAISE EXCEPTION 'bad login %', identr USING ERRCODE = 'RD003';
     END IF;
 
     UPDATE messages SET title = ttl, body = bdy
@@ -102,7 +102,7 @@
         DROP TABLE IF EXISTS tbl CASCADE;
 
         CREATE TEMPORARY TABLE tbl AS
-            SELECT regexp_split_to_table(lower(title), '[?\s!#$\[\]%%&.,~leftquotes~fancybegin~rightquotes-]+') AS wd;
+            SELECT regexp_split_to_table(lower(title), '~wordsplit') AS wd;
 
         CREATE TEMPORARY VIEW words AS
             SELECT DISTINCT tbl.wd, wordlist.word, tbl.wd ~ '"\S+"' AS quoted, tbl.wd ~ '~nonword' AS nonword

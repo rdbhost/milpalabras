@@ -100,7 +100,7 @@
                     deleted = title === app.constants.ELIMINATION_TITLE;
                     deletable = (!deleted) && ((author === app.handle && pDate > now10) || app.isAdmin),
                     editable = (!deleted) && ((author === app.handle && pDate > now5) || app.isAdmin),
-                    branch_ok = (!deleted) && (!branch_to),
+                    branch_ok = (!deleted) && (!branch_to) && not_first,
                     reply_ok = (!deleted) && (app.thread.length <= app.constants.MAX_THREAD_SIZE);
                 %>
                 <tr>
@@ -127,7 +127,7 @@
                          style="display: <%= branch_to ? 'inline' : 'none' %>">ver también</a>
                       <button class="msg-btns add-post lft" data-help="reply"
                               style="display: <%= reply_ok ? 'inline' : 'none' %>">respuesta</button>
-                      <button class="msg-btns as-new-thread lft" data-messageid="<%= message_id %>" data-help="reply in new thread"
+                      <button class="msg-btns as-new-thread add-post lft" data-messageid="<%= message_id %>" data-help="reply in new thread"
                               style="display: <%= branch_ok ? 'inline' : 'none' %>">respuesta tan nueva tema</button>
                     </td>
                 </tr>

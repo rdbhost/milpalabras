@@ -105,6 +105,8 @@ h3.escribe {
 #postform div.editable {
     width: 470px;
     height: 230px;
+    overflow-y: scroll;
+    overflow-x: hidden;
     padding: 8px;
     margin: 8px;
     background: white;

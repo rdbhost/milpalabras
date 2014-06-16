@@ -14,7 +14,7 @@
 
         okNonWords = new RegExp(app.constants.NONWORD_RE, ''),
 
-        splitWordsOn = /(\s+)/g,
+        splitWordsOn = new RegExp('(' + app.constants.WORD_SPLIT_RE + ')', 'g'),
 
         x;
 

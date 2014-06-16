@@ -30,10 +30,10 @@
         nullTemplate: _.template($('#null-message-template').html()),
 
         // Re-render the titles of the thread item.
-        render: function () {
+        render: function (notFirst) {
 
             var data = this.model.toJSON();
-            // data.wasDeleted = this.model.wasDeleted();
+            data.not_first = notFirst;
 
             data.makeHtml = generateHtml;
 
@@ -105,6 +105,7 @@
                 }));
 
                 var $postButton = $('#add-post-button'),
+                    $postButtons = $('.add-post'),
                     $threadCompleteNote = $('#thread-complete');
 
                 if (app.thread.models.length >= MAX_THREAD_LEN) {
@@ -116,9 +117,9 @@
 
                     $postButton.show();
                     if (app.userId)
-                        $postButton.removeAttr('disabled');
+                        $postButtons.removeAttr('disabled');
                     else
-                        $postButton.attr('disabled', 'disabled');
+                        $postButtons.attr('disabled', 'disabled');
                     $threadCompleteNote.hide();
                 }
 
@@ -209,9 +210,9 @@
 
         // Add a single thread item to the list by creating a view for it, and
         // appending its element to the `<ul>`.
-        addOneMessageToDisplay: function (message) {
+        addOneMessageToDisplay: function (message, idx) {
             var msgView = new app.MessageView({ model: message });
-            this.$tMain.append(msgView.render().el);
+            this.$tMain.append(msgView.render(idx !== 0).el);
         },
 
         // scroll document to show last post by given user.
