@@ -9,12 +9,16 @@
 
         MAX_QUOTED_RATIO = 0.15,
 
-    // ?!#$%[]&«‹¡-¿»›
+        // ?!#$%[]&«‹¡-¿»›
         trimmingRegExp = new RegExp(app.constants.TRIMMING_RE, 'g'),
 
         okNonWords = new RegExp(app.constants.NONWORD_RE, ''),
 
         splitWordsOn = new RegExp('(' + app.constants.WORD_SPLIT_RE + ')', 'g'),
+
+        SUFFIXES = ['me', 'te', 'lo', 'la', 'nos', 'os', 'los', 'las', 'le', 'les',
+                    'melo', 'telo', 'selo', 'mela', 'tela', 'sela',
+                    'melos', 'telos', 'selos', 'melas', 'telas', 'selas' ],
 
         x;
 
@@ -45,19 +49,30 @@
         function getFlippable(text) {
 
             var flipRe = new RegExp('([?!])[a-zA-Z]', 'g'),
-                errs = [], m;
+                convertRe = new RegExp('(<)[a-zA-Z]|[a-zA-Z](>)', 'g'),
+                changes = [], chg, m;
 
             while (m = flipRe.exec(text)) {
 
                 if (m[1] === '!')
-                    err = {begin: m.index, end: m.index+1, newVal: '\u00a1', type: 'replace'};
+                    chg = {begin: m.index, end: m.index+1, newVal: '\u00a1', type: 'replace'};
                 else if (m[1] === '?')
-                    err = {begin: m.index, end: m.index+1, newVal: '\u00bf', type: 'replace'};
+                    chg = {begin: m.index, end: m.index+1, newVal: '\u00bf', type: 'replace'};
 
-                errs.push(err);
+                changes.push(chg);
             }
 
-            return errs;
+            while (m = convertRe.exec(text)) {
+
+                if (m[1] === '<')
+                    chg = {begin: m.index, end: m.index+1, newVal: '\u00ab', type: 'replace'};
+                else if (m[2] === '>')
+                    chg = {begin: m.index+1, end: m.index+2, newVal: '\u00bb', type: 'replace'};
+
+                changes.push(chg);
+            }
+
+            return changes;
         }
 
         function handleOneWord() {
@@ -86,7 +101,7 @@
                     // skip numbers and other ok non-words
                     if ( trimmed && ! okNonWords.test(trimmed) ) {
 
-                        var p = dict.findOne(trimmed.toLowerCase());
+                        var p = dict.findingOne(trimmed.toLowerCase());
                         p.then(function(refWd) {
 
                             if ( ! refWd ) {
@@ -185,30 +200,82 @@
     app.TWEntry = Backbone.Model.extend({
 
         defaults: {
-            okmulti: ''
+            okmulti: '',
+            pronounsExpanded: false
         },
 
         match: function(wd) {
 
-            if ( this.attributes.word.toLowerCase() === wd.toLowerCase() )
-                return this.attributes.word;
-            var alts = _.filter(this.attributes.alts, function(m) {
-                return m.toLowerCase() == wd.toLowerCase();
-            });
+            var attrs = this.attributes;
+            if ( attrs.word.toLowerCase() === wd.toLowerCase() )
+                return attrs.word;
 
-            return alts.length ? alts[0] : false;
+            var alt = _.find(attrs.alts, function(m) {
+                return m.toLowerCase() === wd.toLowerCase();
+            });
+            if ( alt ) return attrs.word;
+
+            if ( attrs.pronounsExpanded && attrs.pronounsExpanded.length ) {
+
+                alt = _.find(attrs.pronounsExpanded, function(m) {
+                    return m[0].toLowerCase() === wd.toLowerCase();
+                });
+                if ( alt )
+                    return attrs.word+alt[1];
+            }
+
+            return null;
         },
 
         startsWith: function(begin) {
 
-            if ( this.attributes.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase() )
+            var attrs = this.attributes,
+                alts;
+
+            if ( attrs.suffix && begin.length > attrs.word.length && ! attrs.pronounsExpanded ) {
+
+                attrs.pronounsExpanded = [];
+                alts = attrs.alts.slice(0);
+                _.forEach(alts, function(alt) {
+                    _.forEach(SUFFIXES, function(suf) {
+
+                        attrs.pronounsExpanded.push([alt+suf, suf]);
+                    })
+                });
+            }
+
+            if ( attrs.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase() )
                 return true;
 
-            var alts = _.filter(this.attributes.alts, function(m) {
-                return m.substr(0, begin.length).toLowerCase() == begin.toLowerCase();
+            alts = _.some(attrs.alts, function(m) {
+                return m.substr(0, begin.length).toLowerCase() === begin.toLowerCase();
             });
+            if ( alts ) return true;
 
-            return alts.length;
+            if ( attrs.pronounsExpanded && attrs.pronounsExpanded.length ) {
+
+                alts = _.find(attrs.pronounsExpanded, function(m) {
+                    return m[0].substr(0, begin.length).toLowerCase() === begin.toLowerCase();
+                });
+                return alts;
+            }
+
+            return false;
+        },
+
+        getPrefix: function(prefixLen) {
+
+            return this.attributes.word.substr(0, prefixLen);
+        },
+
+        setOKMulti: function(val) {
+
+            this.attributes.okmulti = val;
+        },
+
+        getWordLength: function() {
+
+            return this.attributes.word.length;
         }
     });
 
@@ -234,7 +301,7 @@
             function getRecords(ltr) {
 
                 var p = R.preauthPostData({
-                    q: 'SELECT distinct word, array_agg(lemma) AS lemmas, \n' +
+                    q: 'SELECT distinct word, array_agg(lemma) AS lemmas, bool_or(pronoun_suffix) AS suffix, \n' +
                         ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts \n' +
                         "FROM wordlist w  WHERE substring(word from 1 for 1) = %s \n" +
                         'GROUP BY word \n' +
@@ -272,7 +339,7 @@
             }
         },
 
-        // Filter down the list of all threads that are finished.
+        // Filter down the list of words to those that start with _begin_
         startsWith: function (begin) {
 
             return this.filter(function (word) {
@@ -290,7 +357,7 @@
             while ( t.length > lim ) {
 
                 var t1 = t.slice(0),
-                    prefix = t1[0].attributes.word.substr(0, prefixLen);
+                    prefix = t1[0].getPrefix(prefixLen);
                 t.length = 0;
                 t.push(t1[0].clone());
 
@@ -300,15 +367,15 @@
 
                         _t = t1[i].clone();
                         t.push(_t);
-                        prefix = _t.attributes.word.substr(0, prefixLen);
+                        prefix = _t.getPrefix(prefixLen);
                     }
                     else {
 
                         _t = t[t.length-1];
-                        t[t.length-1].attributes.okmulti = 'okmulti';
+                        t[t.length-1].setOKMulti('okmulti');
 
-                        if ( prefix.length < prefixLen && t1[i].attributes.word.length > prefix.length )
-                            prefix = t1[i].attributes.word.substr(0, prefixLen)
+                        if ( prefix.length < prefixLen && t1[i].getWordLength() > prefix.length )
+                            prefix = t1[i].getPrefix(prefixLen)
                     }
                 }
 
@@ -326,6 +393,8 @@
 
         findOne: function (word) {
 
+            // redo so returns new TWEntry with word+pronoun as apropo
+            //  instead of just returning the word object asis
             return this.find(function (wd) {
                 return wd.match(word);
             });
@@ -343,7 +412,7 @@
         },
 
         // Filter down the list of all words to those starting with begin
-        startsWith: function (begin) {
+        startingWith: function (begin) {
 
             var ltrList = this.byLetter[begin.charAt(0)],
                 letter = begin.charAt(),
@@ -394,7 +463,7 @@
                 while (listNew.length > lim) {
 
                     var prevList = listNew.slice(0),
-                        prefix = prevList[0].attributes.word.substr(0, prefixLen);
+                        prefix = prevList[0].getPrefix(prefixLen);
                     listNew.length = 0;
                     listNew.push(prevList[0].clone());
 
@@ -404,15 +473,15 @@
 
                             wordItm = prevList[i].clone();
                             listNew.push(wordItm);
-                            prefix = wordItm.attributes.word.substr(0, prefixLen);
+                            prefix = wordItm.getPrefix(prefixLen);
                         }
                         else {
 
                             wordItm = listNew[listNew.length - 1];
-                            listNew[listNew.length - 1].attributes.okmulti = 'okmulti';
+                            listNew[listNew.length - 1].setOKMulti('okmulti');
 
-                            if (prefix.length < prefixLen && prevList[i].attributes.word.length > prefix.length)
-                                prefix = prevList[i].attributes.word.substr(0, prefixLen)
+                            if (prefix.length < prefixLen && prevList[i].getWordLength() > prefix.length)
+                                prefix = prevList[i].getPrefix(prefixLen)
                         }
                     }
 
@@ -432,19 +501,30 @@
                 p = $.Deferred(),
                 wc, tmp, that;
 
-            if ( ltrList ) {
+            function _ltrList() {
 
-                wc = _prefixLimited(ltrList, begin, lim);
-                p.resolve(wc);
+                if ( ltrList === true ) {
+
+                    setTimeout(_ltrList, 10);
+                }
+                else {
+
+                    wc = _prefixLimited(ltrList, begin, lim);
+                    p.resolve(wc);
+                }
             }
-            // todo - add code for case where wordColl has been requested, but not received
+            if ( ltrList ) {
+                _ltrList();
+            }
             else {
 
                 tmp = new WordCollection();
                 tmp.letter = begin.charAt(0);
+                ltrList = true;
                 tmp.fetch({
 
                     success: function(col, rsp, opt) {
+                        ltrList = tmp;
                         that.byLetter[begin.charAt(0)] = tmp;
                         wc = _prefixLimited(col, begin, lim);
                         p.resolve(wc);
@@ -459,7 +539,7 @@
             return p.promise();
         },
 
-        findOne: function (word) {
+        findingOne: function (word) {
 
             var ltrList = this.byLetter[word.charAt(0)],
                 p = $.Deferred(),

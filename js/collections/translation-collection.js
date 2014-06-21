@@ -100,7 +100,7 @@
             that.formsByLemma = {};
         },
 
-        findOne: function (word) {
+        findingOne: function (word) {
 
             var ltrList = this.byLetter[word.charAt(0)],
                 p = $.Deferred(),

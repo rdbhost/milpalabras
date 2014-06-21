@@ -115,6 +115,10 @@
             dom = dom.replace('<div><br>', '<div>&nbsp;<br>');
         }
 
+        while ( ~dom.indexOf('<li><br>') ) {
+            dom = dom.replace('<li><br>', '<li>&nbsp;<br>');
+        }
+
         $dom.html(dom);
 
         var _dom = rangy.innerText($dom.get(0)),
@@ -540,7 +544,7 @@
 
             if ( word && word.length ) {
 
-                p = app.thousand_words.startsWith(word.toLowerCase());
+                p = app.thousand_words.startingWith(word.toLowerCase());
                 p.then(function(wordCandidates) {
 
                     that.wordsView.render(word.toLowerCase());

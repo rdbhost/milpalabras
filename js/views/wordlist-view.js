@@ -115,14 +115,14 @@
                 pos = $(ev.target).offset(),
                 $hover = $('#definition-hover-left');
 
-            var pw = app.thousand_words.findOne(word.toLowerCase());
+            var pw = app.thousand_words.findingOne(word.toLowerCase());
             pw.then(function(resp) {
 
                 if (resp) {
 
                     var lemma = resp.attributes.lemmas[0];
 
-                    var pt = app.translations.findOne(lemma.toLowerCase());
+                    var pt = app.translations.findingOne(lemma.toLowerCase());
 
                     pt.then(function(resp) {
 

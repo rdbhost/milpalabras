@@ -46,7 +46,6 @@ _.extend(app.constants, {
 });
 
 /*
- QUOTED_TEST = '([\"\'\'\u00ab\u2039]\\S+[\"\'\'\u00bb\u203a])|([0-9]+)',
 
  ?!#$%&«‹¡-¿»›   */
 
@@ -60,7 +59,7 @@ _.extend(app.constants, {
 
     R.rdbHostConfig({
         domain: 'www.rdbhost.com',
-        accountNumber: 1355,
+        accountNumber: 1392,
         userName: 'preauth'
     });
 
