@@ -110,16 +110,32 @@
         purgeTailingDeletes: function() {
 
             var qPTD =
+                'CREATE TEMP VIEW deletable_messages AS \n' +
+                '  SELECT message_id FROM messages WHERE message_id IN \n' +
+                '      (SELECT max(max.message_id) FROM messages AS max GROUP BY max.thread_id) \n' +
+                "    AND title = '~1'; \n" +
+                'UPDATE suspend_reason SET message_id = NULL WHERE message_id IN \n' +
+                '    (SELECT * FROM deletable_messages); \n' +
                 'DELETE FROM messages \n' +
-                ' WHERE message_id IN \n' +
-                '    (SELECT max(max.message_id) FROM messages AS max GROUP BY max.thread_id) \n' +
-                "  AND title = '~1' ";
+                '  WHERE message_id IN (SELECT message_id FROM deletable_messages); \n';
             qPTD = qPTD.replace('~1', app.constants.ELIMINATION_TITLE);
 
             var pU = R.preauthPostData({
                 authcode: '-',
                 q: qPTD
             });
+
+            pU.then(function(resp) {
+
+                    var ct = resp.result_sets[2].row_count[0];
+                    window.console.log(ct + ' messages deleted');
+                },
+                function(err) {
+
+                    alert('ERR: ' + err[0] + ' ' + err[1]);
+                }
+            );
+
 
         },
 
