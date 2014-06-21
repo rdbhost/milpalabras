@@ -104,9 +104,10 @@
     }
 
 
-    function padBlankLines($dom, formerCaretLine) {
+    function padBlankLines($dom) {
 
-        var dom = $dom.html();
+        var dom = $dom.html(),
+            formerCaretLine = getCaretLine($dom);
 
         if ( ! ~dom.indexOf('<div><br>') )
             return;
@@ -339,10 +340,19 @@
 
             function saveMessage() {
 
-                var msg = toMarkdown($rawMsg.html().replace(/div>/g, 'p>')),
-                    subj = toMarkdown($rawSubj.html().replace(/div>/g, 'p>')),
+                var rawMsg = $rawMsg.html().replace(/div>/g, 'p>'),
+                    rawSubj = $rawSubj.html().replace(/div>/g, 'p>'),
+                    msg, subj,
                     tagRe = /<[^>]*>/g,
                     htmlEntityRe = /&[a-zA-Z]+;/g;
+
+                rawMsg = rawMsg.replace(/<i>\s+/g, '<i>').replace(/\s+<\/i>/g, '</i>').replace('<i><br></i>', '<br>')
+                               .replace(/<b>\s+/g, '<b>').replace(/\s+<\/b>/g, '</b>').replace('<b><br></b>', '<br>');
+                rawSubj = rawSubj.replace(/<i>\s+/g, '<i>').replace(/\s+<\/i>/g, '</i>').replace('<i><br></i>', '<br>')
+                                 .replace(/<b>\s+/g, '<b>').replace(/\s+<\/b>/g, '</b>').replace('<b><br></b>', '<br>')
+                                 .replace('\n', ' ');
+                msg = toMarkdown(rawMsg);
+                subj = toMarkdown(rawSubj);
 
                 function convertHtmlEntities(ht) {
                     var c = $('<div/>').html(ht).text().charAt(0);
@@ -437,6 +447,11 @@
 
                 var $div = $(ev.target).closest('[contenteditable]');
                 this._needBlankPadding = true;
+                if ($div.attr('id') === 'subject') {
+                    ev.preventDefault();
+                    var ev1 = $.Event('keypress', {charCode: app.constants.SPACE_KEY});
+                    $div.trigger(ev1);
+                }
             }
 
             console.log('keypress ' + ev.charCode);
@@ -520,7 +535,7 @@
                 this._needBlankPadding = undefined;
                 setTimeout(function() {
 
-                    padBlankLines($div, getCaretLine($div)); // todo - refactor out second param
+                    padBlankLines($div);
                 }, 10);
             }
             if ( ~this._queue.indexOf(app.constants.SPACE_KEY)

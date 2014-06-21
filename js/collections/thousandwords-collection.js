@@ -236,6 +236,8 @@
 
                 attrs.pronounsExpanded = [];
                 alts = attrs.alts.slice(0);
+                if ( ! alts.length )
+                    alts = [attrs.word]; // ensure basic word is expanded
                 _.forEach(alts, function(alt) {
                     _.forEach(SUFFIXES, function(suf) {
 
@@ -393,13 +395,16 @@
 
         findOne: function (word) {
 
-            // redo so returns new TWEntry with word+pronoun as apropo
-            //  instead of just returning the word object asis
-            return this.find(function (wd) {
+            var fnd = this.find(function (wd) {
                 return wd.match(word);
             });
-        }
 
+            if ( ! fnd )
+                return undefined;
+
+            var wd = fnd.match(word);
+            return new app.TWEntry({word: wd});
+        }
     });
 
     // The collection of words backed by a remote server.

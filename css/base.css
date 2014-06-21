@@ -329,3 +329,13 @@ footer.centered span, footer.centered a {
     color: #a64a00;
     margin-bottom: -15px;
 }
+
+.hostname {
+    font-variant: small-caps;
+    font-weight: bold;
+    color: #8c2052;
+    text-decoration: none;
+}
+
+
+/* end */
