@@ -403,7 +403,11 @@
                 return undefined;
 
             var wd = fnd.match(word);
-            return new app.TWEntry({word: wd});
+            return new app.TWEntry({
+                word: wd,
+                lemmas: fnd.attributes.lemmas,
+                forms: fnd.attributes.forms
+            });
         }
     });
 
