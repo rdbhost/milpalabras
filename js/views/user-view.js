@@ -83,7 +83,10 @@
                     user: user
                 }));
 
-                $('time.timeago').timeago();
+                $('time.timeago').each(function() {
+                    var dt = $(this).attr('datetime').split('.');
+                    $(this).text(moment(dt[0]+' Z').fromNow());
+                });
             }
             else  {
                 this.$tMain.empty();

@@ -63,4 +63,5 @@ _.extend(app.constants, {
         userName: 'preauth'
     });
 
+    moment.lang('es');
 })();
