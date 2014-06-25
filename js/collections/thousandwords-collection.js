@@ -20,6 +20,32 @@
                     'melo', 'telo', 'selo', 'mela', 'tela', 'sela',
                     'melos', 'telos', 'selos', 'melas', 'telas', 'selas' ],
 
+        ADD_ACCENT = {
+            'a': '\u00e1',
+            'e': '\u00e9',
+            'i': '\u00ed',
+            'o': '\u00f3',
+            'u': '\u00fa',
+            'A': '\u00c1',
+            'E': '\u00c9',
+            'I': '\u00cd',
+            'O': '\u00d3',
+            'U': '\u00da'
+        },
+
+        REMOVE_ACCENT = {
+            '\u00e1': 'a',
+            '\u00e9': 'e',
+            '\u00ed': 'i',
+            '\u00f3': 'o',
+            '\u00fa': 'u',
+            '\u00c1': 'A',
+            '\u00c9': 'E',
+            '\u00cd': 'I',
+            '\u00d3': 'O',
+            '\u00da': 'U'
+        },
+
         x;
 
 
@@ -96,7 +122,6 @@
 
                     trimmed = trim(wd);
                     trimmedLeadLen = wd.indexOf(trimmed);
-
 
                     // skip numbers and other ok non-words
                     if ( trimmed && ! okNonWords.test(trimmed) ) {
@@ -300,15 +325,16 @@
             var records = [],
                 collection = this;
 
-            function getRecords(ltr) {
+            function getRecords(ltr, accented) {
 
                 var p = R.preauthPostData({
                     q: 'SELECT distinct word, array_agg(lemma) AS lemmas, bool_or(pronoun_suffix) AS suffix, \n' +
                         ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts \n' +
                         "FROM wordlist w  WHERE substring(word from 1 for 1) = %s \n" +
+                        "                    OR substring(word from 1 for 1) = %s \n" +
                         'GROUP BY word \n' +
                         'ORDER BY word ASC LIMIT 1000;\n',
-                    args: [ltr]
+                    args: [ltr, accented || '']
                 });
 
                 p.then(function(resp) {
@@ -331,7 +357,7 @@
 
                 case 'read':
 
-                    getRecords(this.letter);
+                    getRecords(this.letter, ADD_ACCENT[this.letter]);
                     break;
 
                 default:
@@ -423,8 +449,8 @@
         // Filter down the list of all words to those starting with begin
         startingWith: function (begin) {
 
-            var ltrList = this.byLetter[begin.charAt(0)],
-                letter = begin.charAt(),
+            var letter = REMOVE_ACCENT[begin.charAt(0)] || begin.charAt(0),
+                ltrList = this.byLetter[letter],
                 p = $.Deferred(),
                 tmp;
 
@@ -506,7 +532,8 @@
                     return new WordCollection(listNew);
             }
 
-            var ltrList = this.byLetter[begin.charAt(0)],
+            var indexChar = REMOVE_ACCENT[begin.charAt(0)] || begin.charAt(0),
+                ltrList = this.byLetter[indexChar],
                 p = $.Deferred(),
                 wc, tmp, that;
 
@@ -528,13 +555,13 @@
             else {
 
                 tmp = new WordCollection();
-                tmp.letter = begin.charAt(0);
+                tmp.letter = indexChar;
                 ltrList = true;
                 tmp.fetch({
 
                     success: function(col, rsp, opt) {
                         ltrList = tmp;
-                        that.byLetter[begin.charAt(0)] = tmp;
+                        that.byLetter[indexChar] = tmp;
                         wc = _prefixLimited(col, begin, lim);
                         p.resolve(wc);
                     },
@@ -550,7 +577,8 @@
 
         findingOne: function (word) {
 
-            var ltrList = this.byLetter[word.charAt(0)],
+            var indexChar = REMOVE_ACCENT[word.charAt(0)] || word.charAt(0),
+                ltrList = this.byLetter[indexChar],
                 p = $.Deferred(),
                 that = this,
                 tmp, wc;
@@ -563,7 +591,7 @@
             else {
 
                 tmp = new WordCollection();
-                tmp.letter = word.charAt(0);
+                tmp.letter = indexChar;
                 tmp.fetch({
 
                     success: function(list, rsp, opt) {
@@ -583,7 +611,6 @@
 
             return p;
         }
-
     });
 
 })();
