@@ -203,7 +203,9 @@
             rng.selectCharacters(container, rep.begin, rep.end);
             sel.setSingleRange(rng);
 
-            document.execCommand('inserttext', false, rep.newVal);
+            var newVal = rep.newVal + (rep.end-rep.begin > rep.newVal.length ? ' ' : '' );
+
+            document.execCommand('inserttext', false, newVal);
 
             rng.collapse();
             sel.setSingleRange(rng);
