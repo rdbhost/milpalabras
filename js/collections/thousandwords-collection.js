@@ -7,8 +7,6 @@
 
     var R = window.Rdbhost,
 
-        MAX_QUOTED_RATIO = 0.15,
-
         // ?!#$%[]&«‹¡-¿»›
         trimmingRegExp = new RegExp(app.constants.TRIMMING_RE, 'g'),
 
@@ -55,7 +53,7 @@
      *      elements.
      *   If there is a quoted-ratio error, all quoted portions will be included in error list
      */
-    app.audit_text = function (dict, text) {
+    app.audit_text = function (dict, text, quoteRatio) {
 
         function trim(wd) {
 
@@ -188,7 +186,7 @@
                 return t+len;
             }
             var quotedTot = _.reduce(quotedParts, _quoteTot, 0);
-            if ( quotedTot / accum > MAX_QUOTED_RATIO )
+            if ( quotedTot / accum > quoteRatio )
                 errs.push.apply(errs, quotedParts);
 
             var flippedParts = getFlippable(text);
@@ -567,7 +565,9 @@
                     },
 
                     error: function(col, rsp, opt) {
+
                         p.reject(rsp);
+                        delete that.byLetter[indexChar];
                     }
                 })
             }

@@ -236,9 +236,9 @@
     }
 
 
-    function handleInputErrors($rawDiv) {
+    function handleInputErrors($rawDiv, ratio) {
 
-        var auditPromise = app.audit_text(app.thousand_words, rangy.innerText($rawDiv.get(0))),
+        var auditPromise = app.audit_text(app.thousand_words, rangy.innerText($rawDiv.get(0)), ratio),
             p = $.Deferred();
 
         auditPromise.then(function(divEval) {
@@ -315,14 +315,14 @@
             var $rawMsg = this.$('#new-message'),
                 $rawSubj = this.$('#subject'),
                 that = this,
-                pM, pS, pM1, pS1;
+                pM, pS, pM1, pS1, quoteRatio;
 
-            pM = handleInputErrors($rawMsg);
+            pM = handleInputErrors($rawMsg, app.constants.BODY_RATIO);
             pM1 = pM.then(function(res) {
                 that.errorStats['new-message'] = res;
             });
 
-            pS = handleInputErrors($rawSubj);
+            pS = handleInputErrors($rawSubj, app.constants.TITLE_RATIO);
             pS1 = pS.then(function(res) {
                 that.errorStats['subject'] = res;
             });
@@ -525,16 +525,18 @@
 
         onKeyUp: function(ev) {
 
-            var $div, divId, caretPos, wf, word, wordCandidates, p,
+            var $div, divId, caretPos, wf, word, p, quoteRatio,
                 that = this;
 
             $div = $(ev.target).closest('[contenteditable]');
             divId = $div.attr('id');
+            quoteRatio = divId === 'title' ? app.constants.TITLE_RATIO : app.constants.BODY_RATIO;
 
             if ( this._needBlankPadding !== undefined ) {
 
                 // use setTimeout here to allow etch.js to do its thing in response to keystroke first
                 this._needBlankPadding = undefined;
+                console.log('blank padding now.');
                 setTimeout(function() {
 
                     padBlankLines($div);
@@ -543,7 +545,7 @@
             if ( ~this._queue.indexOf(app.constants.SPACE_KEY)
                      || ~this._queue.indexOf(app.constants.ENTER_KEY)) {
 
-                var pS = handleInputErrors($div);
+                var pS = handleInputErrors($div, quoteRatio);
                 pS.then(function(res) {
                     that.errorStats[divId] = res;
                     that._manageButtons();
