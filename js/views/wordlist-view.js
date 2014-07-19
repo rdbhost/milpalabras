@@ -122,16 +122,20 @@
 
                     var lemma = resp.attributes.lemmas[0];
 
+                    // todo - use all lemmas, not just first
+
                     var pt = app.translations.findingOne(lemma.toLowerCase());
 
                     pt.then(function(resp) {
 
                         if ( resp ) {
 
-                            var attrs = resp.attributes;
+                            var attrs = resp.attributes,
+                                forms = _.pluck(attrs.forms, 'form'),
+                                defns = _.pluck(attrs.forms, 'definition');
                             $hover.find('.def-lemma').text(lemma);
-                            $hover.find('.def-forms').text(attrs.forms.join(', '));
-                            $hover.find('.def-definition').text(attrs.definition);
+                            $hover.find('.def-forms').text(forms.join(', '));
+                            $hover.find('.def-definition').text(defns.join(', '));
 
                             $hover.css({'top': pos.top-30, 'right': 680});
                             $hover.show();

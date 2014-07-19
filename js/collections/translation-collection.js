@@ -39,13 +39,27 @@
 
             options = options || {};
 
-            var records = [],
-                collection = this;
+            var collection = this;
+
+            function consolidateTranslateRows(rows) {
+
+                var newRows = {},
+                    tmpForm;
+                _.each(rows, function(row) {
+
+                    if (! newRows.hasOwnProperty(row.lemma))
+                        newRows[row.lemma] = {lemma: row.lemma, forms: []};
+                    tmpForm = {form: row.form, definition: row.definition};
+                    newRows[row.lemma].forms.push(tmpForm);
+                });
+
+                return _.values(newRows);
+            }
 
             function getRecords(ltr) {
 
                 var p = R.preauthPostData({
-                    q: 'SELECT lemma, definition, forms \n' +
+                    q: 'SELECT lemma, definition, form \n' +
                        "  FROM word_definitions w  WHERE substring(lemma from 1 for 1) = %s \n" +
                        'ORDER BY lemma ASC LIMIT 500;\n',
                     args: [ltr]
@@ -53,9 +67,11 @@
 
                 p.then(function(resp) {
 
-                    collection.reset(resp.records.rows);
+                    var rows = consolidateTranslateRows(resp.records.rows);
+
+                    collection.reset(rows);
                     if ( options && options.success )
-                        options.success(resp.records.rows);
+                        options.success(rows);
 
                 });
 
