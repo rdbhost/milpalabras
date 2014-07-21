@@ -191,6 +191,7 @@ ul.oops {
 .hover-body {
     padding: 5px;
     min-height: 45px;
+    width: 450px;
     font-size: larger;
     background-color: #ffb173;
     border: thin solid #ff7100;
@@ -201,10 +202,27 @@ ul.oops {
     font-size: x-small;
 }
 
-.hover {
+.hover-rgt {
     float: right;
     padding: 8px;
+    width: 330px;
+    min-height: 45px;
 }
+
+.hover-lft {
+    float: left;
+    padding: 8px;
+}
+
+span.lemma {
+    text-align: right;
+    float: right;
+    color: #5ccdc9;
+}
+span.defn {
+    color: #006561;
+}
+
 
 .arrow-up {
     width: 0;
@@ -255,7 +273,7 @@ ul.oops {
 }
 #allwords div.right-col .lemma { float: left; width: 35%; }
 #allwords div.right-col .defn { float: right; width: 65% }
-#allwords div.right-col .forms { float: right; width: 65%; font-size: x-small;  }
+#allwords div.right-col .forms { float: left; padding-right: 8px; padding-top: 4px; font-size: x-small;  }
 #allwords div.right-col .seperator { clear: both; margin-bottom: 12px; }
 
 #allwords ul {

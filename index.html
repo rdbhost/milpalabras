@@ -443,13 +443,11 @@
             </div>
 
             <script type="text/template" id="allword-word-template">
-                <%
-                   var  formstring = forms.join(', '),
-                        defstring = definition.replace(/,/g, ', ');
-                %>
                 <div class="lemma WL"><%= lemma %></div>
-                <div class="defn"><%= defstring %></div>
-                <div class="forms"><%= formstring %></div>
+                <% for (_f in forms) { var f = forms[_f]; %>
+                <div class="defn"><span class="forms"><%= f.form %></span> <%= f.definition %></div>
+                <!-- div class="forms"><%= f.form %></div -->
+                <% } %>
                 <div class="seperator"></div>
             </script>
 
@@ -492,26 +490,36 @@
                 </form>
             </div>
 
-            <div id="definition-hover" class="hover" style="display: none">
-                <div class="arrow-up"></div>
-                <div class="hover-body">
-                    <div id="def-lemma" class="hover lft">lemma</div>
-                    <div class="hover" >
-                        <div id="def-definition">DEFINITION</div>
-                        <div id="def-forms">FORMS</div>
+            <script type="text/template" id="hover-template">
+                <div id="definition-hover" style="display: none">
+                    <div class="arrow-up"></div>
+                    <div class="hover-body">
+                        <div class="hover-lft"><%= word %></div>
+                        <% for (_d in defs) { var d = defs[_d]; %>
+                        <div class="hover-rgt">
+                            <div><%= d.form %><%= d.subform ? ':' : '' %> <%= d.subform %> <span class="lemma"><%= d.lemma %></span></div>
+                            <div >defn: <span class="defn"><%= d.definition %></span></div>
+                        </div>
+                        <% }   %>
+                        <div style="clear:both"></div>
                     </div>
                 </div>
-            </div>
+            </script>
 
-            <div id="definition-hover-left" class="hover" style="display: none">
-                <div class="hover-body">
-                    <div class="def-lemma hover lft">lemma</div>
-                    <div class="hover" >
-                        <div class="def-definition">DEFINITION</div>
-                        <div class="def-forms">FORMS</div>
+            <script type="text/template" id="hover-left-template">
+                <div id="definition-hover-left" class="hover" style="display: none">
+                    <div class="hover-body">
+                        <div class="hover-lft"><%= word %></div>
+                        <% for (_d in defs) { var d = defs[_d]; %>
+                        <div class="hover-rgt">
+                            <div><%= d.form %><%= d.subform ? ':' : '' %> <%= d.subform %> <span class="lemma"><%= d.lemma %></span></div>
+                            <div >defn: <span class="defn"><%= d.definition %></span></div>
+                        </div>
+                        <% }   %>
+                        <div style="clear:both"></div>
                     </div>
                 </div>
-            </div>
+            </script>
 
             <div id="help-hover" class="hover" style="display: none">
                 <div class="hover-tooltip"></div>

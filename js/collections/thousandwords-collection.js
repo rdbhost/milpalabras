@@ -320,13 +320,13 @@
 
             options = options || {};
 
-            var records = [],
-                collection = this;
+            var collection = this;
 
             function getRecords(ltr, accented) {
 
                 var p = R.preauthPostData({
                     q: 'SELECT distinct word, array_agg(lemma) AS lemmas, bool_or(pronoun_suffix) AS suffix, \n' +
+                        '   array_agg(part_of_speech) AS pos, array_agg(part_of_speech_detail) as posd, \n' +
                         ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts \n' +
                         "FROM wordlist w  WHERE substring(word from 1 for 1) = %s \n" +
                         "                    OR substring(word from 1 for 1) = %s \n" +
@@ -430,7 +430,9 @@
             return new app.TWEntry({
                 word: wd,
                 lemmas: fnd.attributes.lemmas,
-                forms: fnd.attributes.forms
+                pos: fnd.attributes.pos,
+                posd: fnd.attributes.posd,
+                suffix: fnd.attributes.suffix
             });
         }
     });

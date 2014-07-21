@@ -7,6 +7,7 @@
 
     var R = window.Rdbhost;
 
+    app.TranslateFormEntry = Backbone.Model.extend({});
 
     // Object for each word in okwords list.
     app.TranslateEntry = Backbone.Model.extend({
@@ -18,6 +19,29 @@
 
             if ( this.attributes.lemma.toLowerCase() === wd.toLowerCase() )
                 return this.attributes.lemma;
+
+            return false;
+        },
+
+        matchWithForm: function(wd, frm) {
+
+            var attr = this.attributes;
+            if ( attr.lemma.toLowerCase() === wd.toLowerCase() ) {
+
+                var fnd = _.find(attr.forms, function(f) {
+                    if (f.form === frm) {
+                        return true;
+                    }
+                });
+
+                if (fnd) {
+                    return new app.TranslateFormEntry({
+                        lemma: attr.lemma,
+                        form: fnd.attributes.form,
+                        definition: fnd.attributes.definition
+                    });
+                }
+            }
 
             return false;
         }
@@ -102,6 +126,15 @@
             return this.find(function (wd) {
                 return wd.match(word);
             });
+/*
+        },
+
+        findOneByForm: function(word, form) {
+
+            return this.find(function(wd) {
+                return wd.matchWithForm(word, form);
+            });
+*/
         }
 
     });

@@ -40,7 +40,9 @@
             'dictionaryHelp':         'dictionaryHelp'
 		},
 
-		// Re-render the words in the wordlist
+        hoverTemplate: _.template($('#hover-left-template').html()),
+
+        // Re-render the words in the wordlist
 		render: function (partialWord) {
 
             var that = this;
@@ -113,35 +115,57 @@
 
             var word = $(ev.target).text(),
                 pos = $(ev.target).offset(),
-                $hover = $('#definition-hover-left');
+                that = this;
 
             var pw = app.thousand_words.findingOne(word.toLowerCase());
             pw.then(function(resp) {
 
                 if (resp) {
 
-                    var lemma = resp.attributes.lemmas[0];
+                    var lemmas = resp.attributes.lemmas,
+                        forms = resp.attributes.pos,
+                        subForms = resp.attributes.posd,
+                        subPromises = [], pt, pMaster;
 
-                    // todo - use all lemmas, not just first
+                    _.each(lemmas, function(lemma, i) {
 
-                    var pt = app.translations.findingOne(lemma.toLowerCase());
+                        var def = $.Deferred(),
+                            form = forms[i],
+                            subForm = subForms[i],
+                            ptmp = app.translations.findingOne(lemma.toLowerCase());
 
-                    pt.then(function(resp) {
+                        ptmp.then(function(resp) {
 
-                        if ( resp ) {
+                            var attrs = _.clone(resp.attributes),
+                                formItem = _.findWhere(attrs.forms, {'form': form});
+                            attrs.form = form;
+                            attrs.subform = subForm;
+                            attrs.definition = formItem.definition;
+                            delete attrs.forms;
+                            def.resolve(attrs);
+                        });
 
-                            var attrs = resp.attributes,
-                                forms = _.pluck(attrs.forms, 'form'),
-                                defns = _.pluck(attrs.forms, 'definition');
-                            $hover.find('.def-lemma').text(lemma);
-                            $hover.find('.def-forms').text(forms.join(', '));
-                            $hover.find('.def-definition').text(defns.join(', '));
-
-                            $hover.css({'top': pos.top-30, 'right': 680});
-                            $hover.show();
-                        }
+                        subPromises.push(def.promise());
                     });
-                    pt.fail(function(err) {
+                    pMaster = $.when.apply($, subPromises);
+
+                    pMaster.then(function() {
+
+                        var data = {'word': word, defs: []};
+                        _.each(arguments, function(attrs) {
+
+                            data.defs.push(attrs);
+                        });
+
+                        var tpl = that.hoverTemplate(data);
+                        $('#definition-hover-left').remove();
+                        $('body').append(tpl);
+                        var $hover = $('#definition-hover-left'),
+                            size = $hover.height();
+                        $hover.css({'top': pos.top-size+30, 'right': 680});
+                        $hover.show();
+                    });
+                    pMaster.fail(function(err) {
 
                         alert('fail ' + err[0] + ' ' + err[1]);
                     })

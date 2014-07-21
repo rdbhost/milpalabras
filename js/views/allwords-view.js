@@ -24,7 +24,7 @@
             this.listenTo(this, 'wordHelp', this.wordHelp);
         },
 
-        // Re-render the titles of the thread item.
+        // Re-render the words list
         render: function () {
 
             var that = this;
