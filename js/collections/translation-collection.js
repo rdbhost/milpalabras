@@ -139,6 +139,7 @@
 
     });
 
+
     // The collection of words backed by a remote server.
     app.Translations = Backbone.Model.extend({
 
@@ -220,6 +221,20 @@
 
         getFormsByLemma: function (lemma) {
 
+            function consolidateLemma(rows) {
+
+                var newRows = {};
+
+                _.each(rows, function(row) {
+
+                    if (! newRows.hasOwnProperty(row.part_of_speech))
+                        newRows[row.part_of_speech] = {};
+                    newRows[row.part_of_speech][row.part_of_speech_detail] = row.word;
+                });
+
+                return newRows;
+            }
+
             var wordList = this.formsByLemma[lemma],
                 p = $.Deferred(),
                 that = this;
@@ -231,10 +246,9 @@
             else {
 
                 var q =
-                 "SELECT lemma, array_agg(distinct word) AS words \n" +
+                 "SELECT lemma, word, part_of_speech, part_of_speech_detail \n" +
                  "  FROM wordlist w  \n" +
-                 "WHERE lemma = %s \n" +
-                 "GROUP BY lemma ";
+                 "WHERE lemma = %s; \n";
 
                 var p0 = R.preauthPostData({
                     q: q,
@@ -243,7 +257,7 @@
 
                 p0.then(function(resp) {
 
-                    var tmp = resp.records.rows[0].words;
+                    var tmp = consolidateLemma(resp.records.rows);
                     that.formsByLemma[lemma] = tmp;
                     p.resolve(tmp);
                 });

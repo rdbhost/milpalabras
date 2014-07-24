@@ -198,6 +198,20 @@ ul.oops {
     -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
 }
 
+.wide {
+    width: 550px;
+}
+
+table.hover th {
+    font-size: smaller;
+    text-align: left;
+    padding: 8px;
+}
+table.hover td {
+    width: 18%;
+    padding: 8px;
+}
+
 #def-forms {
     font-size: x-small;
 }
@@ -247,6 +261,7 @@ span.defn {
 
 .hover-tooltip {
     padding: 5px;
+    font-size: larger;
     max-width: 600px;
     background-color: #ffb173;
     border: thin solid #ff7100;

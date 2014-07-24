@@ -8,6 +8,8 @@
         el: '#allwords',
 
         template: _.template($('#allword-word-template').html()),
+        hoverMiscTemplate: _.template($('#allwords-hover-misc-template').html()),
+        hoverVerbTemplate: _.template($('#allwords-hover-verb-template').html()),
 
         // The DOM events specific to an item.
         events: {
@@ -96,20 +98,43 @@
             }
 
             var $tgt = $(ev.target),
-                word = $tgt.text(),
+                $defn = $tgt.closest('div.defn'),
+                $lemma = $defn.prevAll('.lemma').first(),
+                form = $defn.find('span').text(),
+                word = $lemma.text(),
                 that = this;
 
             if (word) {
 
                 var pos = $(ev.target).offset(),
                     $hover = $('#help-hover'),
-                    p = app.translations.getFormsByLemma(word),
-                    wordstr;
+                    p = app.translations.getFormsByLemma(word);
 
-                p.then(function(words) {
+                p.then(function(wordHash) {
 
-                    wordstr = words.join(', ');
-                    $hover.find('.hover-tooltip').html(wordstr.replace(/\s/g, ' '));
+                    var dom, $hover,
+                        wordFormHash = wordHash[form];
+
+                    if (form === 'verb') {
+                        var withDefaults = _.extend({
+                            'infinitive': '', 'present-participle': '', 'past-participle': '',
+                            'present (yo)': '', 'present (tu)': '', 'present (el)': '', 'present (nos)': '', 'present (ellos)': '',
+                            'future (yo)': '', 'future (tu)': '', 'future (el)': '', 'future (nos)': '', 'future (ellos)': '',
+                            'preterit (yo)': '', 'preterit (tu)': '', 'preterit (el)': '', 'preterit (nos)': '', 'preterit (ellos)': '',
+                            'imperfect (yo)': '', 'imperfect (tu)': '', 'imperfect (el)': '', 'imperfect (nos)': '', 'imperfect (ellos)': '',
+                            'imperative (tu)': '', 'imperative (el)': '', 'imperative (nos)': '', 'imperative (ellos)': ''
+                        }, wordFormHash);
+                        dom = that.hoverVerbTemplate({a: withDefaults});
+                    }
+                    else {
+                        var wordstr = _.values(wordFormHash).join(', ');
+                        dom = that.hoverMiscTemplate({'wordstr': wordstr});
+                    }
+
+                    $('#help-hover').remove();
+                    $('body').append(dom);
+                    $hover = $('#help-hover');
+
                     $hover.css({'top': pos.top-20, 'left': pos.left});
                     $hover.show();
 
