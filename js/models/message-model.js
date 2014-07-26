@@ -234,8 +234,12 @@
                     args: [app.userId, app.userKey]
                 });
             p.then(function(resp) {
-                if ( options && options.success )
-                    options.success(rows);
+                if (resp.row_count[0])
+                    if ( options && options.success )
+                        options.success(resp.records.rows);
+                else
+                    if ( options && options.error )
+                        options.error(['-', 'authentication error']);
             });
             p.fail(function(err) {
                 if ( options && options.error )
