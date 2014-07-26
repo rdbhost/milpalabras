@@ -113,7 +113,10 @@
 
             if ( msgModel ) {
 
-                msgModel.deleteMsg({});
+                msgModel.deleteMsg({success: function() {
+                        app.recentPostCt -= 1;
+                    }
+                });
                 // app.thread.remove(msgModel);
                 if ( msgModel.attributes.message_id === msgModel.attributes.thread_id ) {
                     var tmps = app.threads.where({'thread_id': msgModel.attributes.thread_id});

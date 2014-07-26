@@ -25,13 +25,13 @@ h2, h3, dt {
     color: #a64a00; /* #ffb173; */
 }
 
-#topics, #thread, #user, #suspended, #intro, #faq, #allwords, #mpapp > header {
+#topics, #thread, #user, #suspended, #intro, #faq, #allwords, #daily, #mpapp > header {
     margin-left: auto;
     margin-right: auto;
     width: 800px;
 }
 
-#topics, #thread, #user, #suspended, #intro, #faq, #allwords {
+#topics, #thread, #user, #suspended, #intro, #faq, #allwords, #daily {
     font-size: large;
     background: white;
     border: 3px solid #006561 /* #a64a00 */;
@@ -294,7 +294,7 @@ span.defn {
 #allwords ul {
     list-style-type: none;
 }
-#allwords .clear {
+#allwords .clear, #daily .clear {
     clear: both;
 }
 
@@ -316,8 +316,9 @@ footer {
     margin-top: 50px;
     margin-bottom: 24px;
     font-size: large;
-    width: 650px;
+    width: 500px;
     align-content: center;
+    text-align: center;
 }
 footer.centered {
     width: 850px;
@@ -371,5 +372,17 @@ footer.centered span, footer.centered a {
     font-size: 12pt;
 }
 
+span.wod {
+    float: right;
+}
+span.wodlbl {
+    float: left;
+}
 
+div.wodmenu {
+    width: 33%;
+    float: left;
+    text-align: center;
+    font-size: small;
+}
 /* end */

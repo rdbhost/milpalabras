@@ -23,6 +23,8 @@ function clickHandler(evt) {
         .replace('~rightquotes', app.constants.RIGHT_QUOTES)
         .replace('~nonword', app.constants.NONWORD_RE.replace(/'/g, "''"))
         .replace('~wordsplit', app.constants.WORD_SPLIT_RE.replace(/'/g, "''"))
+        .replace('~elim', app.constants.ELIMINATION_TITLE)
+        .replace('~dailypostlimit', app.constants.DAILY_POST_LIMIT)
         .replace(/%/g, '%%');
 
     var p = R.superPostData({
@@ -42,3 +44,5 @@ $('#post_msg_btn').click(clickHandler);
 $('#replace_msg_btn').click(clickHandler);
 
 $('#test_msg_btn').click(clickHandler);
+
+$('#recent_post_ct_btn').click(clickHandler);

@@ -19,6 +19,7 @@
     DECLARE
         tmp VARCHAR;
         uid BIGINT;
+        ct INT;
     BEGIN
 
         SELECT * INTO tmp FROM test_msg(bdy, ~bdyratio);
@@ -35,6 +36,11 @@
             WHERE o.identifier = identr AND o.key = ikey;
         IF NOT FOUND THEN
             RAISE EXCEPTION 'bad login %', identr USING ERRCODE = 'RD003';
+        END IF;
+
+        SELECT recent_post_ct INTO ct FROM recent_post_ct(uid);
+        IF ct >= ~dailypostlimit THEN
+            RAISE EXCEPTION 'post count limit exceeded' USING ERRCODE = 'RD004';
         END IF;
 
         INSERT INTO messages (thread_id, title, body, post_date, author, branch_from)
@@ -149,6 +155,29 @@
     SECURITY DEFINER;
 </script>
 <button id="test_msg_btn" value="update" >Update test_msg</button>
+
+<script type="text/template" id="recent_post_ct">
+    CREATE OR REPLACE FUNCTION "recent_post_ct"
+        (IN usr int8)
+    RETURNS int4
+    AS $$
+    DECLARE
+        sum integer;
+    BEGIN
+
+    SELECT INTO sum count(*) FROM messages
+       WHERE author = usr AND post_date > NOW() - '22.5 hours'::interval
+         AND title != '~elim';
+    RETURN sum;
+
+    END;
+    $$
+    LANGUAGE plpgsql VOLATILE
+    SECURITY DEFINER;
+</script>
+<button id="recent_post_ct_btn" value="update" >Update recent_post_ct</button>
+
+<!-- todo - add section for recent_post_ct -->
 
 
 

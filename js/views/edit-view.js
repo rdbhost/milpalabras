@@ -274,6 +274,7 @@
         el: '#postform .form',
 
         template: _.template($('#postform-template').html()),
+        noGoTemplate: _.template($('#postform-null-template').html()),
 
         // Delegated events for creating new items, and clearing completed ones.
         events: {
@@ -296,7 +297,11 @@
             var data = this.model.toJSON();
             data.makeHtml = app.MessageView.markdown.makeHtml;
 
-            this.$el.html(this.template(data));
+            if (app.recentPostCt < app.constants.DAILY_POST_LIMIT)
+                this.$el.html(this.template(data));
+            else
+                this.$el.html(this.noGoTemplate({}));
+
             this.$el.closest('#postform').show();
             this._manageButtons();
 
@@ -370,6 +375,7 @@
                     else
                         app.thread.fetch({ reset: true });
                     that._cleanup(ev);
+                    app.recentPostCt += 1;
                 }
                 function onError(mdl, err, opt) {
                     alert('fail ' + err[0] + err[1] );
