@@ -27,8 +27,14 @@
 
         execute: function(cb, args) {
 
-            if (prevView)
+            window.console.log('executing ' + cb.constructor.name);
+            if (prevView) {
                 prevView.undelegateEvents();
+                if (prevView.hoverTimer)
+                    window.clearTimeout(prevView.hoverTimer);
+                if (prevView.hoverHideTimer)
+                    window.clearTimeout(prevView.hoverHideTimer);
+            }
             cb.apply(this, args);
         },
 

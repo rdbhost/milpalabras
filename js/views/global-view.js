@@ -48,10 +48,10 @@
             function poll() {
 
                 that.hoverHideTimer = setTimeout(function() {
-                    if ($tgt.is(':visible'))
+                    if ($tgt.is(':visible')) {
 
                         poll();
-
+                    }
                     else {
                         $hover.hide();
                         window.clearTimeout(that.hoverHideTimer);
@@ -68,16 +68,25 @@
 
                 var pos = $(ev.target).offset();
 
-                $('#help-hover').remove();
-                $('body').append(this.hoverTemplate({wordstr: help}));
-                var $hover = $('#help-hover');
+                if (pos.left > 1) {
+                    // really kludgy, but avoids spurious hover popups
 
-                $hover.find('.hover-tooltip').html(help.replace(/\s/g, ' '));
-                $hover.css({'top': pos.top+20, 'left': pos.left});
-                $hover.show();
+                    window.console.log('removing hover tH ' + bTime());
+                    $('#help-hover').remove();
+                    $('body').append(this.hoverTemplate({wordstr: help}));
+                    var $hover = $('#help-hover');
 
-                poll();
+                    $hover.find('.hover-tooltip').html(help.replace(/\s/g, ' '));
+                    $hover.css({'top': pos.top+20, 'left': pos.left});
+                    $hover.show();
+
+                    poll();
+                }
+                else
+                    window.console.log('hover pos bad, not shown');
             }
+            else
+                window.console.log('no data-help found tH');
         }
 
     });
