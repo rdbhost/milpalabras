@@ -3,7 +3,8 @@
 (function () {
 	'use strict';
 
-    var R = window.Rdbhost;
+    var R = window.Rdbhost,
+        prevView = null;
 
     // MilPalabras Router
     // ----------
@@ -17,16 +18,25 @@
             '!/intro':     'showIntro',
             '!/allwords':  'showAllWordsList',
             '!/faq':       'showFaq',
+            '!/daily/:w':  'wordOfTheDay',
             '!/login':     'login',
             '!/logout':    'logout',
             '!':           'showIndex',
             '':            'showIndex'
         },
 
+        execute: function(cb, args) {
+
+            if (prevView)
+                prevView.undelegateEvents();
+            cb.apply(this, args);
+        },
+
         showThread: function (param) {
 
             app.thread = new app.Thread([], {thread_id: param});
             app.threadView = new app.ThreadView({model: app.thread});
+            prevView = app.threadView;
 
             app.thread.fetch({
                 success: function(mdl, resp, opt) {
@@ -60,6 +70,7 @@
 
                 app.thread = new app.Thread([srcModel], {});
                 app.threadView = new app.ThreadView({model: app.thread});
+                prevView = app.threadView;
 
                 app.threadView.render();
 
@@ -80,6 +91,7 @@
 
             app.thread = new app.Suspended();
             app.suspendedView = new app.SuspendedView();
+            prevView = app.suspendedView;
 
             app.thread.fetch({
                 success: function(mdl, resp, opt) {
@@ -97,6 +109,7 @@
 
             app.thread = new app.User({user_id: param});
             app.userView = new app.UserView({model: app.thread});
+            prevView = app.userView;
 
             app.thread.fetch({
                 success: function(mdl, resp, opt) {
@@ -113,6 +126,7 @@
         showIndex: function () {
 
             app.threadsView = new app.ThreadsView();
+            prevView = app.threadsView;
 
             // Suppresses 'add' events with {reset: true} and prevents the app view
             // from being re-rendered for every model. Only renders when the 'reset'
@@ -139,6 +153,7 @@
         showAllWordsList: function() {
 
             var awV = new app.AllWordsView({collection: null});
+            prevView = awV;
             awV.render();
         },
 
@@ -146,6 +161,49 @@
 
             $('.page').hide();
             $('#faq').show();
+        },
+
+        wordOfTheDay: function(day) {
+
+            var that = this;
+            if ( app.dailyWords ) {
+
+                day = _.contains(['today', 'yesterday', 'tomorrow'], day) ? day : 'today';
+                var wd = app.dailyWords[day],
+                    wod = new Backbone.Model({data: wd, day: day}),
+                    dV = new app.DailyView({model: wod});
+                prevView = dV;
+                dV.render();
+            }
+            else {
+
+                var p = R.preauthPostData({
+
+                    q: 'SELECT wd.idx, wd.lemma, wd.definition, wd.form, wl.word, wl.part_of_speech_detail \n' +
+                       '  FROM word_definitions wd \n' +
+                       '      JOIN wordlist wl ON wl.lemma = wd.lemma AND wd.form = wl.part_of_speech \n' +
+                       "WHERE wd.idx >= (now()::date - '2014-05-01'::date) %% 1000 -1 \n" +
+                       "  AND wd.idx <= (now()::date - '2014-05-01'::date) %% 1000 +1 \n" +
+                       'ORDER BY wd.idx; \n'
+                });
+                p.then(function(resp) {
+
+                        var recs = resp.records.rows,
+                            groups = _.groupBy(recs, 'idx'),
+                            firstIdx = parseInt(_.min(_.keys(groups)), 10);
+                        app.dailyWords = {};
+                        app.dailyWords['yesterday'] = groups[firstIdx];
+                        app.dailyWords['tomorrow'] = groups[firstIdx+2];
+                        app.dailyWords['today'] = groups[firstIdx+1];
+
+                        that.wordOfTheDay(day);
+                    },
+                    function(err) {
+                        console.log(err[0] + ' ' + err[1]);
+                        //alert(err);
+                    }
+                )
+            }
         },
 
         login: function() {

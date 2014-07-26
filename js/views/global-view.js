@@ -7,6 +7,8 @@
 
         el: 'body',
 
+        hoverTemplate: _.template($('#allwords-hover-misc-template').html()),
+
         // Delegated events for creating new items, and clearing completed ones.
         events: {
             'mouseenter [data-help]': 'hoverhelpIn',
@@ -64,8 +66,11 @@
 
             if (help) {
 
-                var pos = $(ev.target).offset(),
-                    $hover = $('#help-hover');
+                var pos = $(ev.target).offset();
+
+                $('#help-hover').remove();
+                $('body').append(this.hoverTemplate({wordstr: help}));
+                var $hover = $('#help-hover');
 
                 $hover.find('.hover-tooltip').html(help.replace(/\s/g, ' '));
                 $hover.css({'top': pos.top+20, 'left': pos.left});
