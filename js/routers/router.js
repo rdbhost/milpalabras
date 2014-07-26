@@ -256,5 +256,4 @@
 
     Backbone.history.start();
 
-
 })();

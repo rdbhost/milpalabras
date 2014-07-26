@@ -176,6 +176,38 @@ ul.oops {
     background-color: pink !important;
 }
 
+#luform {
+    position: fixed;
+    font-size: 16px;
+    width: 25em;
+    bottom: 10px;
+    padding: 12px;
+    left: 10px;
+    border: thin solid mediumpurple;
+    background-color: #ff9540;
+    color: black;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+}
+
+#luform input {
+    width: 200px;
+}
+#luform table {
+    background-color: white;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+}
+#luform td.lu-form, #luform td.lu-lemma, #luform td.lu-defn {
+    padding-left: 15px;
+    padding-bottom: 7px;
+    padding-right: 20px;
+}
+#luform td.lu-form { width: 35px; }
+#luform td.lu-lemma { width: 75px; }
+#luform td.lu-defn { width: 185px; }
+#luform td.lu-none { width: 100%; padding-left: 45px; padding-right: 45px;  }
+#luform td.lu-more { width: 100%; padding-left: 45px; padding-right: 45px; font-size: x-large }
+
+
 .row-group-spacer {
     height: 20px;
 }
@@ -191,7 +223,7 @@ ul.oops {
 .hover-body {
     padding: 5px;
     min-height: 45px;
-    width: 450px;
+    width: 500px;
     font-size: larger;
     background-color: #ffb173;
     border: thin solid #ff7100;
@@ -199,7 +231,7 @@ ul.oops {
 }
 
 .wide {
-    width: 550px;
+    width: 650px;
 }
 
 table.hover th {
@@ -208,8 +240,9 @@ table.hover th {
     padding: 8px;
 }
 table.hover td {
-    width: 18%;
+    max-width: 100px;
     padding: 8px;
+    overflow: visible;
 }
 
 #def-forms {

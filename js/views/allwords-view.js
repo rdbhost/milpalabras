@@ -82,6 +82,24 @@
 
         wordHelp: function(ev) {
 
+            var $tgt = $(ev.target),
+                $defn = $tgt.closest('div.defn'),
+                $lemma = $defn.prevAll('.lemma').first(),
+                form = $defn.find('span').text(),
+                word = $lemma.text(),
+                pos = $(ev.target).offset();
+
+                this._wordHelp($tgt, word, form, pos);
+        },
+
+        _setPosition: function($hover, pos, hgt) {
+            $hover.css({'top': pos.top-20, 'left': pos.left});
+        },
+
+        _wordHelp: function($tgt, word, form, pos) {
+
+            var that = this;
+
             function poll() {
 
                 that.hoverHideTimer = setTimeout(function() {
@@ -97,17 +115,9 @@
                 }, 100);
             }
 
-            var $tgt = $(ev.target),
-                $defn = $tgt.closest('div.defn'),
-                $lemma = $defn.prevAll('.lemma').first(),
-                form = $defn.find('span').text(),
-                word = $lemma.text(),
-                that = this;
-
             if (word) {
 
-                var pos = $(ev.target).offset(),
-                    $hover = $('#help-hover'),
+                var $hover = $('#help-hover'),
                     p = app.translations.getFormsByLemma(word);
 
                 p.then(function(wordHash) {
@@ -135,7 +145,7 @@
                     $('body').append(dom);
                     $hover = $('#help-hover');
 
-                    $hover.css({'top': pos.top-20, 'left': pos.left});
+                    that._setPosition($hover, pos, $hover.height());
                     $hover.show();
 
                     poll();

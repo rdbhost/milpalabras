@@ -290,6 +290,7 @@
             return etch.editableInit(ev);
         },
         wordsView: new app.WordListView(),
+        lookupView: new app.DefnListView(),
 
         // Render the edit box
         render: function () {
@@ -437,6 +438,7 @@
             this.$el.empty();
             this.undelegateEvents();
             this.wordsView.render(false);
+            this.lookupView.render(false);
         },
 
         cleanup: function(ev) {

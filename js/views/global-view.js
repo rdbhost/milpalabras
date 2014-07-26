@@ -71,7 +71,6 @@
                 if (pos.left > 1) {
                     // really kludgy, but avoids spurious hover popups
 
-                    window.console.log('removing hover tH ' + bTime());
                     $('#help-hover').remove();
                     $('body').append(this.hoverTemplate({wordstr: help}));
                     var $hover = $('#help-hover');
@@ -82,11 +81,7 @@
 
                     poll();
                 }
-                else
-                    window.console.log('hover pos bad, not shown');
             }
-            else
-                window.console.log('no data-help found tH');
         }
 
     });

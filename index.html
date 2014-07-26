@@ -337,6 +337,10 @@
              -->
 
             <div id="postform" class="page" style="display: none">
+                <div id="luform">
+                    <table><tbody class="luwords"></tbody></table>
+                    <input class="luinput"> <span class="DL" data-help="English Lookup">Búsqueda Inglés</span>
+                </div>
                 <ul class="okwords"></ul>
                 <div class="etch-editor-panel"></div>
                 <div class="form"></div>
@@ -375,6 +379,20 @@
 
             <script type="text/template" id="okword-template">
                 <span class="DL <%= okmulti %>"><%= word %></span>
+            </script>
+
+            <script type="text/template" id="lookup-word-template">
+                <td class="lu-lemma"><span class="DL"><%= lemma %></span></td>
+                <td class="lu-form"><%= form %></td>
+                <td class="lu-defn"><%= definition %></td>
+            </script>
+
+            <script type="text/template" id="lookup-more-template">
+                <td class="lu-more" colspan="3">.....</td>
+            </script>
+
+            <script type="text/template" id="lookup-none-template">
+                <td class="lu-none" colspan="3">no se encontraron palabras para que</td>
             </script>
 
             <script type="text/template" id="edit-menu">
@@ -765,8 +783,9 @@
         <script src="js/views/suspended-view.js"></script>
         <script src="js/views/suspend-view.js"></script>
         <script src="js/views/wordlist-view.js"></script>
-        <script src="js/views/edit-view.js"></script>
         <script src="js/views/allwords-view.js"></script>
+        <script src="js/views/lookup-view.js"></script>
+        <script src="js/views/edit-view.js"></script>
         <script src="js/views/global-view.js"></script>
         <script src="js/routers/router.js"></script>
 
