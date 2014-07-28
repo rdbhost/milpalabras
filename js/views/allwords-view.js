@@ -76,6 +76,7 @@
             else {
 
                 var $hover = $('#help-hover');
+                // window.console.log('hiding hover (hhO)');
                 $hover.hide();
             }
         },
@@ -89,11 +90,11 @@
                 word = $lemma.text(),
                 pos = $(ev.target).offset();
 
-                this._wordHelp($tgt, word, form, pos);
+            this._wordHelp($tgt, word, form, pos);
         },
 
         _setPosition: function($hover, pos, hgt) {
-            $hover.css({'top': pos.top-20, 'left': pos.left});
+            $hover.css({'top': Math.round(pos.top)-20, 'left': Math.round(pos.left)});
         },
 
         _wordHelp: function($tgt, word, form, pos) {
@@ -108,6 +109,7 @@
                         poll();
 
                     else {
+                        // window.console.log('hiding hover (wH) at ' + pos.left + ' ' + pos.top);
                         $hover.hide();
                         window.clearTimeout(that.hoverHideTimer);
                         that.hoverHideTimer = null;
@@ -146,6 +148,7 @@
                     $hover = $('#help-hover');
 
                     that._setPosition($hover, pos, $hover.height());
+                    // window.console.log('showing hover at ' + pos.left + ' ' + pos.top);
                     $hover.show();
 
                     poll();

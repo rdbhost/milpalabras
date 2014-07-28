@@ -148,7 +148,7 @@
 
         _setPosition: function($hover, pos, hgt) {
             var h = Math.round(hgt/2);
-            $hover.css({'top': pos.top-h, 'left': pos.left});
+            $hover.css({'top': Math.round(pos.top)-h, 'left': Math.round(pos.left)+70});
         }
 
     });
