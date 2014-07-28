@@ -105,7 +105,7 @@
 
             if ( wd.length && ! /\s/.test(wd) ) {
 
-                if ( _.contains( [ '"', "'" ], wd.charAt(0) ) ) {
+                if ( wd.charAt(0) === '"' ) {
 
                     err = {'start': accum, 'end': accum + wd.length, 'type': 'quoted'};
                     quotedParts.push(err);
