@@ -92,6 +92,11 @@ a.lft {
 h3.escribe {
     color: #ff9540;
 }
+span.busqueda {
+    color: #be2f33;
+    font-family: Verdana;
+    margin-left: 1em;
+}
 #subject {
     width: 500px;
     height: 1em;

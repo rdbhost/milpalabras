@@ -27,7 +27,6 @@
 
         execute: function(cb, args) {
 
-            window.console.log('executing ' + cb.constructor.name);
             if (prevView) {
                 prevView.undelegateEvents();
                 if (prevView.hoverTimer)

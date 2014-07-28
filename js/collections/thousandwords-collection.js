@@ -337,6 +337,8 @@
 
                 p.then(function(resp) {
 
+                    if (resp.row_count[0] === 0)
+                        resp.records.rows = [{}];
                     collection.reset(resp.records.rows);
                     if ( options && options.success )
                         options.success(resp.records.rows);
@@ -434,6 +436,23 @@
                 posd: fnd.attributes.posd,
                 suffix: fnd.attributes.suffix
             });
+        },
+
+        whenReady: function(f) {
+
+            if (this.models.length) {
+                f();
+            }
+            else {
+                this.fetch({
+                    success: function() {
+                        f();
+                    },
+                    error: function() {
+                        this.whenReady(f);
+                    }
+                })
+            }
         }
     });
 
@@ -456,11 +475,12 @@
 
             if ( ltrList ) {
 
-                tmp = ltrList.filter(function (word) {
-                    return word.startsWith(begin);
-                });
-
-                p.resolve(tmp);
+                ltrList.whenReady(function() {
+                    tmp = ltrList.filter(function (word) {
+                        return word.startsWith(begin);
+                    });
+                    p.resolve(tmp);
+                })
             }
             else {
 
@@ -587,8 +607,11 @@
 
             if ( ltrList ) {
 
-                var one = ltrList.findOne(word);
-                p.resolve(one);
+                ltrList.whenReady(function() {
+
+                    var one = ltrList.findOne(word);
+                    p.resolve(one);
+                })
             }
             else {
 
