@@ -63,6 +63,7 @@
 
                         // check for no results, and put up username form
                         handleForm.render();
+                        app.recentPostCt = 0;
                     }
 
                 },

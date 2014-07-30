@@ -131,6 +131,10 @@
             var eol = eolRe.exec(_dom);
             if (eol)
                 eols.push(eol);
+            else {
+                eols.push({index: _dom.length-1});
+                break;
+            }
         }
         var newCaretPos = eols.pop().index + 1;
 
@@ -144,8 +148,9 @@
             rng = rangy.createRange(),
             container;
 
-        var charRanges = sel.saveCharacterRanges($div.get(0)),
-            caretPos = charRanges[0].characterRange.start;
+        //var charRanges = sel.saveCharacterRanges($div.get(0)),
+        //    caretPos = charRanges[0].characterRange.start;
+        var caretPos = getCaretPos($div);
 
         for ( var i=0; i<errs.length; ++i ) {
 
@@ -178,7 +183,8 @@
             sel.setSingleRange(rng);
         }
 
-        sel.restoreCharacterRanges($div.get(0), charRanges);
+        // sel.restoreCharacterRanges($div.get(0), charRanges);
+        setCaretPos($div, caretPos);
         return errs;
     }
 
@@ -190,8 +196,9 @@
         if ( !$div.get(0) )
             debugger;
 
-        var charRanges = sel.saveCharacterRanges($div.get(0)),
-            caretPos = charRanges[0].characterRange.start;
+        // var charRanges = sel.saveCharacterRanges($div.get(0)),
+        //    caretPos = charRanges[0].characterRange.start;
+        var caretPos = getCaretPos($div);
 
         for ( var i=0; i<replacements.length; ++i ) {
 
@@ -211,7 +218,8 @@
             sel.setSingleRange(rng);
         }
 
-        sel.restoreCharacterRanges($div.get(0), charRanges);
+        // sel.restoreCharacterRanges($div.get(0), charRanges);
+        setCaretPos($div, caretPos);
         return replacements;
     }
 
@@ -297,6 +305,7 @@
 
             var data = this.model.toJSON();
             data.makeHtml = app.MessageView.markdown.makeHtml;
+            app.recentPostCt = app.recentPostCt || 0; // safety
 
             if (app.recentPostCt < app.constants.DAILY_POST_LIMIT)
                 this.$el.html(this.template(data));

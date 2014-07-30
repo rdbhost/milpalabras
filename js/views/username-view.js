@@ -66,6 +66,7 @@
                     function(resp) {
 
                         app.handle = handle;
+                        app.recentPostCt = 0;
                         $('a.loginLink').attr('href', '#!/logout');
                         $('a.loginLink').text('salir');
                         $('a.loginLink').attr('data-help', 'logout');
