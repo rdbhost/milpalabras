@@ -12,7 +12,8 @@
 
         okNonWords = new RegExp(app.constants.NONWORD_RE, ''),
 
-        splitWordsOn = new RegExp('(' + app.constants.WORD_SPLIT_RE + ')', 'g'),
+        splitWordsOnKp = new RegExp('(' + app.constants.WORD_SPLIT_RE + ')', 'g'),
+        splitWordsOn = new RegExp(app.constants.WORD_SPLIT_RE, 'g'),
 
         SUFFIXES = ['me', 'te', 'lo', 'la', 'nos', 'os', 'los', 'las', 'le', 'les',
                     'melo', 'telo', 'selo', 'mela', 'tela', 'sela',
@@ -60,9 +61,9 @@
             return wd.replace(trimmingRegExp, '');
         }
 
-        var textParts = text.split(splitWordsOn),
+        var textParts = text.split(splitWordsOnKp),
             p = $.Deferred(),
-            accum = 0, errs = [], replacements = [], quotedParts = [],
+            accum = 0, errs = [], replacements = [], // quotedParts = [],
             wd, trimmed, trimmedLeadLen, err;
 
         if ( ! /\S/.test(text) ) {
@@ -108,7 +109,7 @@
                 if ( wd.charAt(0) === '"' ) {
 
                     err = {'start': accum, 'end': accum + wd.length, 'type': 'quoted'};
-                    quotedParts.push(err);
+                    // quotedParts.push(err);
 
                     accum += wd.length;
                     if (textParts.length)
@@ -179,15 +180,31 @@
             }
         }
 
+        function quotedRatio(text) {
+
+            var md = toMarkdown(text),
+                wds = md.split(splitWordsOn),
+                wds2, quotedWords, nonQuotedWords, sumQ, sumNQ;
+
+            quotedWords = _.filter(wds, function(wd) { return wd.charAt(0) === '"' });
+            nonQuotedWords = _.filter(wds, function(wd) { return wd.charAt(0) !== '"' });
+            sumQ = _.reduce(quotedWords, function(m, n) { return m+ n.length-2; }, 0);
+            sumNQ = _.reduce(nonQuotedWords, function(m, n) { return m+ n.length; }, 0);
+            return sumQ/(sumQ+sumNQ);
+        }
+
         function finalize() {
 
             function _quoteTot(t, err) {
                 var len = err.end - err.start;
                 return t+len;
             }
-            var quotedTot = _.reduce(quotedParts, _quoteTot, 0);
-            if ( quotedTot / accum > quoteRatio )
-                errs.push.apply(errs, quotedParts);
+            var qRatio = quotedRatio(text);
+            if (qRatio > quoteRatio)
+                errs.push({'start': accum, 'end': accum + wd.length, 'type': 'quoted'});
+            //var quotedTot = _.reduce(quotedParts, _quoteTot, 0);
+            //if ( quotedTot / accum > quoteRatio )
+            //    errs.push.apply(errs, quotedParts);
 
             var flippedParts = getFlippable(text);
             if ( flippedParts.length )
@@ -288,6 +305,39 @@
             return false;
         },
 
+        startsWithExactly: function(begin) {
+
+            var attrs = this.attributes,
+                tAlts, alts;
+
+            if ( attrs.suffix && begin.length > attrs.word.length && ! attrs.pronounsExpanded ) {
+
+                attrs.pronounsExpanded = [];
+                tAlts = attrs.alts.slice(0);
+                if ( ! alts.length )
+                    tAlts = [attrs.word]; // ensure basic word is expanded
+                _.forEach(tAlts, function(alt) {
+                    _.forEach(SUFFIXES, function(suf) {
+
+                        attrs.pronounsExpanded.push([alt+suf, suf]);
+                    })
+                });
+            }
+
+            if ( attrs.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase() )
+                return true;
+
+            if ( attrs.pronounsExpanded && attrs.pronounsExpanded.length ) {
+
+                alts = _.find(attrs.pronounsExpanded, function(m) {
+                    return m[0].substr(0, begin.length).toLowerCase() === begin.toLowerCase();
+                });
+                return alts;
+            }
+
+            return false;
+        },
+
         getPrefix: function(prefixLen) {
 
             return this.attributes.word.substr(0, prefixLen);
@@ -321,6 +371,8 @@
             options = options || {};
 
             var collection = this;
+            var tmp = this.letter;
+
 
             function getRecords(ltr, accented) {
 
@@ -338,7 +390,7 @@
                 p.then(function(resp) {
 
                     if (resp.row_count[0] === 0)
-                        resp.records.rows = [{}];
+                        resp.records.rows = [{word: ''}];
                     collection.reset(resp.records.rows);
                     if ( options && options.success )
                         options.success(resp.records.rows);
@@ -351,7 +403,6 @@
                     console.log(err[0] + ' ' + err[1]);
                 });
             }
-
 
             switch(method) {
 
@@ -372,6 +423,14 @@
 
             return this.filter(function (word) {
                 return word.startsWith(begin);
+            });
+        },
+
+        // Filter down the list of words to those that start with _begin_
+        startsWithExactly: function (begin) {
+
+            return this.filter(function (word) {
+                return word.startsWithExactly(begin);
             });
         },
 
@@ -408,6 +467,7 @@
                 }
 
                 --prefixLen;
+
             }
 
             if ( t.length === 0 && prefixLen < 4 ) {
@@ -508,7 +568,7 @@
 
             function _prefixLimited(list, begin, lim) {
 
-                var prefixLen = 4,
+                var prefixLen = 5,
                     listNew, wordItm;
 
                 listNew = _.filter(list.models, function (wd) {
@@ -518,7 +578,8 @@
                 while (listNew.length > lim) {
 
                     var prevList = listNew.slice(0),
-                        prefix = prevList[0].getPrefix(prefixLen);
+                        prefix = prevList[0].getPrefix(prefixLen),
+                        prevList;
                     listNew.length = 0;
                     listNew.push(prevList[0].clone());
 
@@ -537,6 +598,38 @@
 
                             if (prefix.length < prefixLen && prevList[i].getWordLength() > prefix.length)
                                 prefix = prevList[i].getPrefix(prefixLen)
+                        }
+                    }
+
+                    // if still too long, try limiting to exact matches
+                    if (listNew.length > lim ) {
+
+                        prevList = listNew.slice(0);
+                        listNew.length = 0;
+                        listNew.push(prevList[0].clone());
+
+                        for ( i=1; i<prevList.length; ++i ) {
+
+                            if ( prefix.length < prefixLen || ! prevList[i].startsWithExactly(prefix) ) {
+
+                                wordItm = prevList[i].clone();
+                                listNew.push(wordItm);
+                                prefix = wordItm.getPrefix(prefixLen);
+                            }
+                            else {
+
+                                wordItm = listNew[listNew.length-1];
+                                listNew[listNew.length-1].setOKMulti('okmulti');
+
+                                if ( prefix.length < prefixLen && prevList[i].getWordLength() > prefix.length )
+                                    prefix = prevList[i].getPrefix(prefixLen)
+                            }
+                        }
+
+                        // if exact-match list still too long, revert to fuzzy-match list and reiterate
+                        if (listNew.length > lim) {
+
+                            listNew = prevList.slice(0);
                         }
                     }
 

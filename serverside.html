@@ -108,11 +108,11 @@
         DROP TABLE IF EXISTS tbl CASCADE;
 
         CREATE TEMPORARY TABLE tbl AS
-            SELECT regexp_split_to_table(lower(title), '~wordsplit') AS wd;
+            SELECT regexp_replace(regexp_split_to_table(lower(title), '~wordsplit'), '~trimre', '') AS wd;
 
         CREATE TEMPORARY VIEW words AS
-            SELECT DISTINCT tbl.wd, wordlist.word, tbl.wd ~ '"\S+"' AS quoted, tbl.wd ~ '~nonword' AS nonword
-              FROM tbl LEFT JOIN wordlist ON wordlist.word = tbl.wd
+            SELECT tbl.wd, wordlst.word, tbl.wd ~ '"\S+"' AS quoted, tbl.wd ~ '~nonword' AS nonword
+              FROM tbl LEFT JOIN (SELECT DISTINCT word FROM wordlist_plus) wordlst ON wordlst.word = tbl.wd
              WHERE tbl.wd <> '';
 
         -- test that temp tables are ok
@@ -143,7 +143,7 @@
         --
         ratio := quoted_size / (nonquoted_size + quoted_size)::FLOAT;
         if ratio > ratio_limit THEN
-            RETURN 'bad ratio' || ratio;
+            RETURN 'bad ratio ' || ratio || ' ' || nonquoted_size || ' ' || quoted_size;
         END IF;
 
         -- if not checks failed, return NULL

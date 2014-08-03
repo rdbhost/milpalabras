@@ -136,10 +136,10 @@
                 break;
             }
         }
-        var newCaretPos = eols.pop().index + 1;
+        var newCaretPos = eols.pop().index+1;
 
         setCaretPos($dom, newCaretPos);
-    }
+        }
 
 
     function markErrors($div, errs) {
@@ -481,13 +481,13 @@
 
         _manageButtons: function() {
 
-            var $rawMsg = this.$('#new-message').text(),
-                $rawSubj = this.$('#subject').text(),
+            var rawMsg = this.$('#new-message').text(),
+                rawSubj = this.$('#subject').text(),
                 nmErr = this.errorStats['new-message'],
                 subErr = this.errorStats['subject'];
 
             if ( (! subErr || ! subErr.length) &&  (! nmErr || ! nmErr.length)
-                && $rawMsg.length && $rawSubj.length) {
+                && rawMsg.length && rawSubj.length) {
 
                 this.$el.find('#post-message').removeAttr('disabled');
             }
@@ -497,7 +497,15 @@
 
             var $err = this.$el.find('#edit-error');
 
-            if ( nmErr && nmErr.length ) {
+            if ( ! rawSubj.length ) {
+
+                $err.text('Por favor, dar un título.');
+            }
+            else if ( ! rawMsg.length ) {
+
+                $err.text('Por favor, dar un mensaje.');
+            }
+            else if ( nmErr && nmErr.length ) {
 
                 if ( nmErr[0].type === 'quoted' )
                     $err.text('Hay texto demasiado cotizado.');

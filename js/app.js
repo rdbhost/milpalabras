@@ -40,8 +40,8 @@ app.constants = {
 
 _.extend(app.constants, {
 
-    'TRIMMING_RE': '(^[?!#$%[\\]<&' + app.constants.LEFT_QUOTES + app.constants.FANCY_BEGIN_PUNCTUATION +
-                   '-]+)|([?!#$[\\]>&.,' + app.constants.RIGHT_QUOTES + '-]+$)',
+    'TRIMMING_RE': '(^[?!#$%[\\]<&\'' + app.constants.LEFT_QUOTES + app.constants.FANCY_BEGIN_PUNCTUATION +
+                   '-]+)|([?!#$[\\]>&.,' + app.constants.RIGHT_QUOTES + '\'-]+$)',
 
     'WORD_SPLIT_RE': '[?\\s!#$\\[\\]%&.,' + app.constants.LEFT_QUOTES + app.constants.FANCY_BEGIN_PUNCTUATION +
                     app.constants.RIGHT_QUOTES + '_*:-]+'
