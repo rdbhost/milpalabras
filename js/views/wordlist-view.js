@@ -114,7 +114,7 @@
         dictionaryHelp: function(ev) {
 
             var word = $(ev.target).text(),
-                pos = $(ev.target).offset(),
+                posY = $(ev.target).offset().top - $(document).scrollTop(),
                 that = this;
 
             var pw = app.thousand_words.findingOne(word.toLowerCase());
@@ -162,7 +162,7 @@
                         $('body').append(tpl);
                         var $hover = $('#definition-hover-left'),
                             size = $hover.height();
-                        $hover.css({'top': pos.top-size+30, 'right': 680});
+                        $hover.css({'top': Math.round(posY-size+30), 'right': 680});
                         $hover.show();
                     });
                     pMaster.fail(function(err) {

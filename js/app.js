@@ -25,7 +25,7 @@ app.constants = {
     LEFT_QUOTES: '\u00AB\u2039',
     RIGHT_QUOTES: '\u00BB\u203A',
 
-    NONWORD_RE: '^[1-9.,+-]+$',
+    NONWORD_RE: '^[0-9.,+-]+$',
 
     MAX_THREAD_SIZE: 20,
     ELIMINATION_TITLE: '~ eliminado ~',

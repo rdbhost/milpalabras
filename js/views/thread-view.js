@@ -260,7 +260,8 @@
         dictionaryHelp: function(ev) {
 
             var word = $(ev.target).text(),
-                pos = $(ev.target).position(),
+                posY = $(ev.target).offset().top - $(document).scrollTop(),
+                posX = $(ev.target).offset().left,
                 that = this;
 
             var pw = app.thousand_words.findingOne(word.toLowerCase());
@@ -307,7 +308,7 @@
                         $('#definition-hover').remove();
                         $('body').append(tpl);
                         var $hover = $('#definition-hover');
-                        $hover.css({'top': pos.top+15, 'left': pos.left-40});
+                        $hover.css({'top': posY+15, 'left': posX-40});
                         $hover.show();
                     });
                     pMaster.fail(function(err) {
