@@ -61,9 +61,14 @@
             return wd.replace(trimmingRegExp, '');
         }
 
-        var textParts = text.split(splitWordsOnKp),
+        var qRe = new RegExp(app.constants.QUOTED_RE, 'g'),
+            text2 = text.replace(qRe, function(match) {
+                var s = new Array(match.length-1).join('~'); // creates '~~' of length match-2
+                return '"' + s + '"';
+            });
+        var textParts = text2.split(splitWordsOnKp),
             p = $.Deferred(),
-            accum = 0, errs = [], replacements = [], // quotedParts = [],
+            accum = 0, errs = [], replacements = [],
             wd, trimmed, trimmedLeadLen, err;
 
         if ( ! /\S/.test(text) ) {
@@ -195,18 +200,11 @@
 
         function finalize() {
 
-            function _quoteTot(t, err) {
-                var len = err.end - err.start;
-                return t+len;
-            }
-            var qRatio = quotedRatio(text);
+            var qRatio = quotedRatio(text2);
             if (qRatio > quoteRatio)
                 errs.push({'start': accum, 'end': accum + wd.length, 'type': 'quoted'});
-            //var quotedTot = _.reduce(quotedParts, _quoteTot, 0);
-            //if ( quotedTot / accum > quoteRatio )
-            //    errs.push.apply(errs, quotedParts);
 
-            var flippedParts = getFlippable(text);
+            var flippedParts = getFlippable(text2);
             if ( flippedParts.length )
                 replacements.push.apply(replacements, flippedParts);
 

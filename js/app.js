@@ -26,6 +26,7 @@ app.constants = {
     RIGHT_QUOTES: '\u00BB\u203A',
 
     NONWORD_RE: '^[0-9.,+-]+$',
+    QUOTED_RE: '"\\S+"',
 
     MAX_THREAD_SIZE: 20,
     ELIMINATION_TITLE: '~ eliminado ~',

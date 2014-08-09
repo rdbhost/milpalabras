@@ -104,14 +104,20 @@
         quoted_size INTEGER;
         nonquoted_size INTEGER;
         ratio FLOAT;
+        title_noquotes TEXT;
     BEGIN
+        title_noquotes := regexp_replace(title, '~quoted', '');
+
         DROP TABLE IF EXISTS tbl CASCADE;
 
         CREATE TEMPORARY TABLE tbl AS
-            SELECT regexp_replace(regexp_split_to_table(lower(title), '~wordsplit'), '~trimre', '') AS wd;
+            SELECT regexp_replace(regexp_split_to_table(lower(title_noquotes), '~wordsplit'), '~trimre', '') AS wd;
+
+        INSERT INTO tbl
+            SELECT unnest(regexp_matches(title, '~quoted', 'g')) AS wd;
 
         CREATE TEMPORARY VIEW words AS
-            SELECT tbl.wd, wordlst.word, tbl.wd ~ '"\S+"' AS quoted, tbl.wd ~ '~nonword' AS nonword
+            SELECT tbl.wd, wordlst.word, tbl.wd ~ '~quoted' AS quoted, tbl.wd ~ '~nonword' AS nonword
               FROM tbl LEFT JOIN (SELECT DISTINCT word FROM wordlist_plus) wordlst ON wordlst.word = tbl.wd
              WHERE tbl.wd <> '';
 
