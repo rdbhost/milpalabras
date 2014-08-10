@@ -291,7 +291,9 @@
             'mousedown .editable': 'editableClick',
             'keypress .editable': 'onKeyPress',
             'keyup .editable': 'onKeyUp',
-            'keydown .editable': 'onKeyDown'
+            'keydown .editable': 'onKeyDown',
+
+            'blur .editable' : 'onLoseFocus'
         },
 
         editableClick: function(ev) {
@@ -607,6 +609,22 @@
             console.log('word ' + word);
             console.log('caret pos ' + caretPos);
             ev.preventDefault();
+        },
+
+        onLoseFocus: function() {
+
+            var key = this.model.messageCacheKey(),
+                rawMsg = this.$('#new-message').text(),
+                rawSubj = this.$('#subject').text();
+
+            if (this.attributes && this.attributes.parent) {
+
+                key = 'parent ' + this.attributes.parent.messageCacheKey();
+            }
+
+            this.model.attributes.body = rawMsg;
+            this.model.attributes.title = rawSubj;
+            app.cachedMessages[key] = this.model;
         }
     });
 

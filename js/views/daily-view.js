@@ -67,7 +67,7 @@
 
             var attrs = this.model.attributes;
 
-            if ( attrs.data.length ) {
+            if ( attrs.data && attrs.data.length ) {
 
                 this.$header.empty();
                 this.$tMain.empty();

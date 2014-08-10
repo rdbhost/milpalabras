@@ -33,6 +33,10 @@
                     window.clearTimeout(prevView.hoverTimer);
                 if (prevView.hoverHideTimer)
                     window.clearTimeout(prevView.hoverHideTimer);
+
+                $('#definition-hover-left').hide();
+                $('#definition-hover').hide();
+                $('#help-hover').hide();
             }
             cb.apply(this, args);
         },
@@ -87,7 +91,8 @@
 
                 if (app.editView)
                     app.editView.cleanup();
-                app.editView = new app.EditView({ model: nullMsg, attributes: {parent: srcModel} });
+                var key = 'parent ' + srcModel.messageCacheKey();
+                app.editView = new app.EditView({ model: app.cachedMessages[key] || nullMsg, attributes: {parent: srcModel} });
                 app.editView.render();
             }
         },
@@ -195,7 +200,7 @@
 
                         var recs = resp.records.rows,
                             groups = _.groupBy(recs, 'idx'),
-                            firstIdx = parseInt(_.min(_.keys(groups)), 10);
+                            firstIdx = _.min(_.map(_.keys(groups), function(g){return parseInt(g,10);}));
                         app.dailyWords = {};
                         app.dailyWords['yesterday'] = groups[firstIdx];
                         app.dailyWords['tomorrow'] = groups[firstIdx+2];

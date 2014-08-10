@@ -147,7 +147,7 @@
             });
             if (app.editView)
                 app.editView.cleanup();
-            app.editView = new app.EditView({ model: newMsg });
+            app.editView = new app.EditView({ model: app.cachedMessages[newMsg.messageCacheKey()] || newMsg });
             app.editView.render();
         },
 
@@ -158,7 +158,7 @@
                 msg = app.thread.where({'message_id': msgId})[0];
             if (app.editView)
                 app.editView.cleanup();
-            app.editView = new app.EditView({ model: msg });
+            app.editView = new app.EditView({ model: app.cachedMessages[msg.messageCacheKey()] || msg });
             app.editView.render();
         },
 

@@ -34,9 +34,6 @@
 		// the App already present in the HTML.
 		el: '#topics',
 
-		// Our template for the line of statistics at the bottom of the app.
-		// statsTemplate: _.template($('#stats-template').html()),
-
         // The DOM events specific to an item.
         events: {
             'click .add-topic-button': 'showAddMessageForm'
@@ -61,7 +58,6 @@
 		render: function () {
 
             var threadCount = app.threads.length;
-			// var remaining = app.threads.remaining().length;
 
             $('.page').hide();
             this.$el.show();
@@ -107,7 +103,7 @@
 
             if (app.editView)
                 app.editView.cleanup();
-            app.editView = new app.EditView({ model: nullMsg });
+            app.editView = new app.EditView({ model: app.cachedMessages['t'] || nullMsg });
             app.editView.render();
         },
 
@@ -115,6 +111,13 @@
 		// appending its element to the `<ul>`.
 		addOneThread: function (thread) {
 
+            var gravs = _.uniq(thread.attributes.gravatars);
+            gravs = _.uniq(gravs);
+
+            if (gravs.length > 5) {
+                gravs.splice(1, gravs.length-3);
+            }
+            thread.attributes.gravatars = gravs;
 			var topicView = new app.TopicView({ model: thread });
 			this.$list.append(topicView.render().el);
 		}

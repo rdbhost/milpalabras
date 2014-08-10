@@ -273,13 +273,21 @@
                     options.error(err);
                 console.log('ERROR ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]));
             });
-        }/*,
+        },
 
-        wasDeleted: function () {
+        messageCacheKey: function() {
 
-            return this.attributes.title == app.constants.ELIMINATION_TITLE;
+            var attr = this.attributes;
+            if (attr && attr.message_id) {
+                return 'm ' + attr.message_id;
+            }
+            else if (attr && attr.thread_id) {
+                return 't ' + attr.thread_id;
+            }
+            else {
+                return 't';
+            }
         }
-*/
     });
 
     // Object for each thread in threads list.

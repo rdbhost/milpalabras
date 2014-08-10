@@ -48,10 +48,11 @@ h2, h3, dt {
     background-color: darkgray;
 }
 
-.topic { width: 410px; padding-left: 10px; }
-.inituser { width: 125px; overflow: hidden; padding-left: 10px;}
+.topic { width: 402px; padding-left: 10px; padding-right: 8px;}
+.inituser { width: 125px; overflow: hidden; padding-right: 10px}
 .startdate { text-align: left; padding-right: 10px;}
 .msgct { width: 22px; text-align: right; padding-right: 10px; }
+.user { width: 245px; text-align: right; padding-left: 6px;}
 
 .rgt { text-align: right !important }
 .lft { text-align: left !important; float: left !important }
@@ -61,6 +62,15 @@ h2, h3, dt {
     border: solid 3px #006561;
     -webkit-padding-start: 0px;
     -moz-padding-start: 0px;
+}
+
+.gravatar {
+    float: right;
+    margin: -2px -9px -44px 10px;
+}
+.gravatar-small {
+    float: right;
+    margin: 1px 1px 1px 1px;
 }
 
 table {

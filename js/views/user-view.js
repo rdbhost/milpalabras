@@ -40,6 +40,7 @@
         subHeaderTemplate: _.template($('#user-subheader-template').html()),
 
         nullTemplate: _.template($('#null-message-template').html()),
+        hoverTemplate: _.template($('#hover-template').html()),
 
         // The DOM events specific to an item.
         events: {

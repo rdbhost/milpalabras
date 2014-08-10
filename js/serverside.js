@@ -22,9 +22,9 @@ function clickHandler(evt) {
         .replace('~fancybegin', app.constants.FANCY_BEGIN_PUNCTUATION)
         .replace('~rightquotes', app.constants.RIGHT_QUOTES)
         .replace('~nonword', app.constants.NONWORD_RE.replace(/'/g, "''"))
-        .replace('~quoted', app.constants.QUOTED_RE)
+        .replace(/~quoted/g, app.constants.QUOTED_RE)
         .replace('~wordsplit', app.constants.WORD_SPLIT_RE.replace(/'/g, "''"))
-        .replace('~trimre', app.constants.TRIMMING_RE.replace(/'/g, "''"))
+        .replace(/~trimre/g, app.constants.TRIMMING_RE.replace(/'/g, "''"))
         .replace('~elim', app.constants.ELIMINATION_TITLE)
         .replace('~dailypostlimit', app.constants.DAILY_POST_LIMIT)
         .replace(/%/g, '%%');
