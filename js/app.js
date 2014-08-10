@@ -25,7 +25,7 @@ app.constants = {
     LEFT_QUOTES: '\u00AB\u2039',
     RIGHT_QUOTES: '\u00BB\u203A',
 
-    NONWORD_RE: '^[0-9.,+-]+$',
+    NONWORD_RE: '^[0-9.,+&\\(\\)^%$#@!\\*:;p\\[\\]-]+$',
     QUOTED_RE: '"\\S+"',
 
     MAX_THREAD_SIZE: 20,
@@ -41,8 +41,8 @@ app.constants = {
 
 _.extend(app.constants, {
 
-    'TRIMMING_RE': '(^[?!#$%[\\]<&\'' + app.constants.LEFT_QUOTES + app.constants.FANCY_BEGIN_PUNCTUATION +
-                   '-]+)|([?!#$[\\]>&.,' + app.constants.RIGHT_QUOTES + '\'-]+$)',
+    'TRIMMING_RE': '(^[?!#$%[\\]\\(<&\'' + app.constants.LEFT_QUOTES + app.constants.FANCY_BEGIN_PUNCTUATION +
+                   '-]+)|([?!#$[\\]>\\)&.,' + app.constants.RIGHT_QUOTES + '\'-]+$)',
 
     'WORD_SPLIT_RE': '[?\\s!#$\\[\\]%&.,' + app.constants.LEFT_QUOTES + app.constants.FANCY_BEGIN_PUNCTUATION +
                     app.constants.RIGHT_QUOTES + '_*:-]+'

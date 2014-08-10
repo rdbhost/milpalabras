@@ -450,6 +450,11 @@
             this.undelegateEvents();
             this.wordsView.render(false);
             this.lookupView.render(false);
+
+            var key = this.model.messageCacheKey();
+            if (this.attributes && this.attributes.parent)
+                key = 'parent ' + this.attributes.parent.messageCacheKey();
+            delete app.cachedMessages[key];
         },
 
         cleanup: function(ev) {

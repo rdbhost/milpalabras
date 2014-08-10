@@ -59,14 +59,14 @@
                 %>
                 <td class="topic">
                     <a href="#!/t/<%- thread_id %>"><%= topic_md %></a>
-                    <% gravatars.reverse(); %>
                     <% for (var _g in gravatars) { var gravatar = gravatars[_g]; %>
                     <img src="https://secure.gravatar.com/avatar/<%= gravatar %>?s=17&d=retro" class="gravatar-small">
                     <% } %>
                 </td>
                 <td class="inituser"><%- initiating_user %></td>
                 <td class="startdate rgt"><time class="timeago" datetime="<%- change_date %>z"></time></td>
-                <td class="msgct"><%- message_ct %></td>
+                <% var barWidth = parseInt(Math.sqrt(message_ct)*6, 10);  %>
+                <td class="msgct"><div><%- message_ct %></div><div class="msgct-bar" style="width: <%= barWidth %>px;">&nbsp;</div></td>
             </script>
 
             <script type="text/template" id="null-message-template">

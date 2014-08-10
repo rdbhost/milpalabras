@@ -51,10 +51,11 @@ h2, h3, dt {
 .topic { width: 402px; padding-left: 10px; padding-right: 8px;}
 .inituser { width: 125px; overflow: hidden; padding-right: 10px}
 .startdate { text-align: left; padding-right: 10px;}
-.msgct { width: 22px; text-align: right; padding-right: 10px; }
-.user { width: 245px; text-align: right; padding-left: 6px;}
+.msgct { width: 22px; text-align: right; padding-right: 6px; }
+.user { width: 225px; text-align: right; padding-left: 6px;}
 
-.rgt { text-align: right !important }
+.msgct div:first-child { float: right; min-width: 1em; }
+.rgt { text-align: right !important; float: right !important }
 .lft { text-align: left !important; float: left !important }
 
 .body, .prefix {
@@ -71,6 +72,13 @@ h2, h3, dt {
 .gravatar-small {
     float: right;
     margin: 1px 1px 1px 1px;
+}
+.msgct-bar {
+    height: 12px;
+    background-color: grey;
+    float: right;
+    margin-top: 4px;
+    margin-right: 5px;
 }
 
 table {

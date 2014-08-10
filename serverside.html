@@ -107,12 +107,13 @@
         title_noquotes TEXT;
     BEGIN
         -- make copy of title without quoted-parts
-        title_noquotes := regexp_replace(title, '~quoted', ' ');
+        title_noquotes := regexp_replace(title, '~quoted', ' ', 'g');
 
         DROP TABLE IF EXISTS tbl CASCADE;
 
         CREATE TEMPORARY TABLE tbl AS
-            SELECT regexp_replace(regexp_split_to_table(lower(title_noquotes), '~wordsplit'), '~trimre', '') AS wd;
+            SELECT regexp_replace(regexp_split_to_table(lower(title_noquotes), '~wordsplit'),
+                                  '~trimre', '', 'g') AS wd;
 
         -- we add quoted-parts back in here, so they don't get split by word-split above
         INSERT INTO tbl
@@ -126,7 +127,7 @@
         -- test that temp tables are ok
         SELECT count(*) INTO ct FROM words WHERE words.word IS NOT NULL;
         IF ct < 1 THEN
-            RETURN 'bad words table ' || ct || ' [' || (SELECT wd FROM tbl) || ']';
+            RETURN 'bad words table ' || ct || ' [' || (SELECT wd FROM tbl LIMIT 1) || ']';
         END IF;
 
         -- check that no illegal words provided (without either dict match or quotes) for subject
