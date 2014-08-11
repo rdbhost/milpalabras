@@ -16,6 +16,7 @@
             '!/u/:user':   'showUser',
             '!/suspended': 'showSuspended',
             '!/intro':     'showIntro',
+            '!/video':     'showVideo',
             '!/allwords':  'showAllWordsList',
             '!/faq':       'showFaq',
             '!/daily/:w':  'wordOfTheDay',
@@ -158,6 +159,16 @@
 
             $('.page').hide();
             $('#intro').show();
+
+            prevView = app.threadsView;
+        },
+
+        showVideo: function() {
+
+            $('.page').hide();
+            $('#video').show();
+
+            prevView = app.threadsView;
         },
 
         showAllWordsList: function() {
@@ -171,6 +182,7 @@
 
             $('.page').hide();
             $('#faq').show();
+            prevView = app.threadsView;
         },
 
         wordOfTheDay: function(day) {
