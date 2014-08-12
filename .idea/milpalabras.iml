@@ -9,6 +9,7 @@
     <orderEntry type="library" name="jquery.timeago" level="application" />
     <orderEntry type="library" name="jquery.timeago.es" level="application" />
     <orderEntry type="library" name="es" level="application" />
+    <orderEntry type="library" name="md5" level="application" />
   </component>
 </module>
 

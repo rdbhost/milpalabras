@@ -4,11 +4,17 @@ body {
     background-color: #5ccdc9;
 }
 
-header { display: block; margin-bottom: 22px }
+header { display: block; margin-bottom: 20px }
+
+img.logo {
+    height: 100px;
+    margin-left: -20px;
+    margin-bottom: -10px;
+}
 
 .nav {
     float: right;
-    margin-top: -70px;
+    margin-top: 10px;
 }
 
 #mpapp > header > h1 {
@@ -17,7 +23,7 @@ header { display: block; margin-bottom: 22px }
     font-size: 42pt;
     color: #a64a00; /* #ffb173; */
     margin: 0px 0px 10px -25px;
-    text-shadow: 1px 2px 0 #fff;
+    /* text-shadow: 1px 1px 0 #fff; */
 }
 
 h2, h3, dt {
@@ -385,7 +391,7 @@ footer a, h4 {
     color: #a64a00; /* #ffb173; */
     padding: 8px;
     font-weight: bolder;
-    text-shadow: 1px 0 0 #fff;
+   /* text-shadow: 1px 0 0 #fff; */
 }
 footer.centered span, footer.centered a {
     font-size: 10pt;

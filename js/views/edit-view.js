@@ -5,39 +5,11 @@
 
     var WORD_BREAK_RE = new RegExp('[^a-zA-Z\\[\\]`~' + app.constants.FANCY_WORD_CHARS + ']+', 'g');
 
-    function getCaretPos($div) {
-
-        var locSelection = rangy.getSelection(),
-            charRanges = locSelection.saveCharacterRanges($div.get(0));
-        return charRanges[0].characterRange.start;
-    }
-
-    function setCaretPos($div, pos) {
-
-        var locSelection = rangy.getSelection(),
-            saveCharRanges = locSelection.saveCharacterRanges($div.get(0));
-        saveCharRanges[0].characterRange.start = pos;
-        saveCharRanges[0].characterRange.end = pos;
-
-        locSelection.restoreCharacterRanges($div.get(0), saveCharRanges);
-    }
-
-    function getCaretLine($div) {
-
-        var caretPos = getCaretPos($div),
-            _dom = rangy.innerText($div.get(0)),
-            preCaret = _dom.substr(0, caretPos);
-
-        var lineEnds = preCaret.match(/\n/g);
-
-        return lineEnds ? lineEnds.length : 0;
-    }
-
     function WordFinder(_dom, caretPos) {
 
         // finds sequence of non-whitespace chars around caret
 
-        var dom = rangy.innerText(_dom),
+        var dom = $(_dom).text(),
             theWord, start, end;
 
         function findWord(dom, caretPos) {
@@ -106,40 +78,9 @@
 
     function padBlankLines($dom) {
 
-        var dom = $dom.html(),
-            formerCaretLine = getCaretLine($dom);
+        return; // todo - remove
 
-        if ( ! ~dom.indexOf('<div><br>') )
-            return;
-
-        while ( ~dom.indexOf('<div><br>') ) {
-            dom = dom.replace('<div><br>', '<div>&nbsp;<br>');
-        }
-
-        while ( ~dom.indexOf('<li><br>') ) {
-            dom = dom.replace('<li><br>', '<li>&nbsp;<br>');
-        }
-
-        $dom.html(dom);
-
-        var _dom = rangy.innerText($dom.get(0)),
-            eols = [],
-            eolRe = new RegExp('\n', 'g');
-
-        while (eols.length < formerCaretLine + 1) {
-
-            var eol = eolRe.exec(_dom);
-            if (eol)
-                eols.push(eol);
-            else {
-                eols.push({index: _dom.length-1});
-                break;
-            }
-        }
-        var newCaretPos = eols.pop().index+1;
-
-        setCaretPos($dom, newCaretPos);
-        }
+    }
 
 
     function markErrors($div, errs) {
@@ -148,15 +89,14 @@
             rng = rangy.createRange(),
             container;
 
-        //var charRanges = sel.saveCharacterRanges($div.get(0)),
-        //    caretPos = charRanges[0].characterRange.start;
-        var caretPos = getCaretPos($div);
+        var caretPosObj = monotype($div),
+            caretPos = caretPosObj.s; // getCaretPos($div);
 
         for ( var i=0; i<errs.length; ++i ) {
 
             var err = errs[i];
-            if ( caretPos >= err.begin && caretPos <= err.end )
-                continue;
+            //if ( caretPos >= err.begin && caretPos <= err.end )
+            //    continue;
 
             if ( err.type === 'blank' ) {
 
@@ -183,8 +123,7 @@
             sel.setSingleRange(rng);
         }
 
-        // sel.restoreCharacterRanges($div.get(0), charRanges);
-        setCaretPos($div, caretPos);
+        caretPosObj.restore();
         return errs;
     }
 
@@ -193,12 +132,8 @@
         var sel = rangy.getSelection(),
             rng = rangy.createRange();
 
-        if ( !$div.get(0) )
-            debugger;
-
-        // var charRanges = sel.saveCharacterRanges($div.get(0)),
-        //    caretPos = charRanges[0].characterRange.start;
-        var caretPos = getCaretPos($div);
+        var caretPosObj = monotype($div),
+            caretPos = caretPosObj.s;
 
         for ( var i=0; i<replacements.length; ++i ) {
 
@@ -218,8 +153,7 @@
             sel.setSingleRange(rng);
         }
 
-        // sel.restoreCharacterRanges($div.get(0), charRanges);
-        setCaretPos($div, caretPos);
+        caretPosObj.restore();
         return replacements;
     }
 
@@ -228,7 +162,7 @@
         var sel = rangy.getSelection(),
             rng = rangy.createRange();
 
-        var charRanges = sel.saveCharacterRanges($div.get(0));
+        var curPos = monotype($div);
 
         var container = $div.get(0);
         rng.selectNodeContents(container);
@@ -239,8 +173,7 @@
         rng.collapse();
         sel.setSingleRange(rng);
 
-        //setCaretPos($div, caretPos);
-        sel.restoreCharacterRanges($div.get(0), charRanges);
+        curPos.restore();
     }
 
 
@@ -462,9 +395,10 @@
         },
 
         _queue: [],
-        _needBlankPadding: undefined,
 
         onKeyPress: function(ev) {
+
+            var evSp, evEn;
 
             if ( ev.charCode )
                 this._queue.push(ev.charCode);
@@ -472,16 +406,23 @@
             if ( ev.charCode === app.constants.ENTER_KEY ) {
 
                 var $div = $(ev.target).closest('[contenteditable]');
-                this._needBlankPadding = true;
                 if ($div.attr('id') === 'subject') {
                     ev.preventDefault();
-                    var ev1 = $.Event('keypress', {charCode: app.constants.SPACE_KEY});
+                    evSp = $.Event('keypress', {charCode: app.constants.SPACE_KEY});
                     $div.trigger(ev1);
                 }
+/*
+                else if ( ! ev.fake ) {
+                    ev.preventDefault();
+                    evSp = $.Event('keypress', {charCode: app.constants.SPACE_KEY});
+                    $div.trigger(evSp);
+                    evEn = $.Event('keypress', {charCode: app.constants.ENTER_KEY, fake: true});
+                    $div.trigger(evEn);
+                }
+*/
             }
 
             console.log('keypress ' + ev.charCode);
-            //ev.preventDefault();
         },
 
         errorStats: {},
@@ -564,18 +505,7 @@
             divId = $div.attr('id');
             quoteRatio = divId === 'title' ? app.constants.TITLE_RATIO : app.constants.BODY_RATIO;
 
-            if ( this._needBlankPadding !== undefined ) {
-
-                // use setTimeout here to allow etch.js to do its thing in response to keystroke first
-                this._needBlankPadding = undefined;
-                console.log('blank padding now.');
-                setTimeout(function() {
-
-                    padBlankLines($div);
-                }, 10);
-            }
-            if ( ~this._queue.indexOf(app.constants.SPACE_KEY)
-                     || ~this._queue.indexOf(app.constants.ENTER_KEY)) {
+            if ( ~this._queue.indexOf(app.constants.SPACE_KEY) ) {
 
                 var pS = handleInputErrors($div, quoteRatio);
                 pS.then(function(res) {
@@ -589,7 +519,7 @@
 
             this._queue.length = 0;
 
-            caretPos = getCaretPos($div);
+            caretPos = monotype($div).s;  // getCaretPos($div);
             wf = WordFinder($div.get(0), caretPos);
             word = wf.word();
 
