@@ -19,6 +19,7 @@ app.constants = {
     ESC_KEY: 27,
     SPACE_KEY: 32,
     TAB_KEY: 9,
+    BACKSPACE_KEY: 8,
 
     FANCY_WORD_CHARS: '\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00E1\u00E9\u00ED\u00F3\u00FA\u00F1',  // accented and tilde
     FANCY_BEGIN_PUNCTUATION: '\u00A1\u00BF',   // inverted exclamation mark and question mark

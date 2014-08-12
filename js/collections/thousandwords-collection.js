@@ -576,8 +576,7 @@
                 while (listNew.length > lim) {
 
                     var prevList = listNew.slice(0),
-                        prefix = prevList[0].getPrefix(prefixLen),
-                        prevList;
+                        prefix = prevList[0].getPrefix(prefixLen);
                     listNew.length = 0;
                     listNew.push(prevList[0].clone());
 

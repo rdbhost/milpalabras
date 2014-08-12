@@ -5,11 +5,18 @@
 
     var WORD_BREAK_RE = new RegExp('[^a-zA-Z\\[\\]`~' + app.constants.FANCY_WORD_CHARS + ']+', 'g');
 
+    function getCaretPos($div) {
+
+        var locSelection = rangy.getSelection(),
+            charRanges = locSelection.saveCharacterRanges($div.get(0));
+        return charRanges[0].characterRange.start;
+    }
+
     function WordFinder(_dom, caretPos) {
 
         // finds sequence of non-whitespace chars around caret
 
-        var dom = $(_dom).text(),
+        var dom = rangy.innerText(_dom),
             theWord, start, end;
 
         function findWord(dom, caretPos) {
@@ -76,13 +83,6 @@
     }
 
 
-    function padBlankLines($dom) {
-
-        return; // todo - remove
-
-    }
-
-
     function markErrors($div, errs) {
 
         var sel = rangy.getSelection(),
@@ -90,13 +90,13 @@
             container;
 
         var caretPosObj = monotype($div),
-            caretPos = caretPosObj.s; // getCaretPos($div);
+            caretPos = getCaretPos($div);
 
         for ( var i=0; i<errs.length; ++i ) {
 
             var err = errs[i];
-            //if ( caretPos >= err.begin && caretPos <= err.end )
-            //    continue;
+            if ( caretPos >= err.begin && caretPos <= err.end )
+                continue;
 
             if ( err.type === 'blank' ) {
 
@@ -133,7 +133,7 @@
             rng = rangy.createRange();
 
         var caretPosObj = monotype($div),
-            caretPos = caretPosObj.s;
+            caretPos = getCaretPos($div);
 
         for ( var i=0; i<replacements.length; ++i ) {
 
@@ -398,8 +398,6 @@
 
         onKeyPress: function(ev) {
 
-            var evSp, evEn;
-
             if ( ev.charCode )
                 this._queue.push(ev.charCode);
 
@@ -408,18 +406,7 @@
                 var $div = $(ev.target).closest('[contenteditable]');
                 if ($div.attr('id') === 'subject') {
                     ev.preventDefault();
-                    evSp = $.Event('keypress', {charCode: app.constants.SPACE_KEY});
-                    $div.trigger(ev1);
                 }
-/*
-                else if ( ! ev.fake ) {
-                    ev.preventDefault();
-                    evSp = $.Event('keypress', {charCode: app.constants.SPACE_KEY});
-                    $div.trigger(evSp);
-                    evEn = $.Event('keypress', {charCode: app.constants.ENTER_KEY, fake: true});
-                    $div.trigger(evEn);
-                }
-*/
             }
 
             console.log('keypress ' + ev.charCode);
@@ -493,7 +480,10 @@
 
                 ev.stopImmediatePropagation();
             }
+            else if (ev.keyCode === app.constants.BACKSPACE_KEY) {
 
+                this._queue.push(ev.keyCode);
+            }
         },
 
         onKeyUp: function(ev) {
@@ -505,7 +495,8 @@
             divId = $div.attr('id');
             quoteRatio = divId === 'title' ? app.constants.TITLE_RATIO : app.constants.BODY_RATIO;
 
-            if ( ~this._queue.indexOf(app.constants.SPACE_KEY) ) {
+            if ( ~this._queue.indexOf(app.constants.SPACE_KEY)
+                || ~this._queue.indexOf(app.constants.BACKSPACE_KEY) ) {
 
                 var pS = handleInputErrors($div, quoteRatio);
                 pS.then(function(res) {
@@ -519,7 +510,7 @@
 
             this._queue.length = 0;
 
-            caretPos = monotype($div).s;  // getCaretPos($div);
+            caretPos = getCaretPos($div);
             wf = WordFinder($div.get(0), caretPos);
             word = wf.word();
 
