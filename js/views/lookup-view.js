@@ -140,15 +140,14 @@
             var $tgt = $(ev.target),
                 $defn = $tgt.closest('tr'),
                 word = $defn.find('.lu-lemma span').text(),
-                form = $defn.find('.lu-form').text(),
-                pos = $tgt.offset();
+                form = $defn.find('.lu-form').text();
 
-            this.tmpAllWordsView._wordHelp.call(this, $tgt, word, form, pos);
+            this.tmpAllWordsView._wordHelp.call(this, $tgt, word, form);
         },
 
-        _setPosition: function($hover, pos, hgt) {
+        _setPosition: function($hover, posX, posY, hgt) {
             var h = Math.round(hgt/2);
-            $hover.css({'top': Math.round(pos.top)-h, 'left': Math.round(pos.left)+70});
+            $hover.css({'top': Math.round(posY)-h, 'left': Math.round(posX)+70});
         }
 
     });

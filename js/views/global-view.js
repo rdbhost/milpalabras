@@ -66,9 +66,10 @@
 
             if (help) {
 
-                var pos = $(ev.target).offset();
+                var posY = $(ev.target).offset().top - $(document).scrollTop(),
+                    posX = $(ev.target).offset().left;
 
-                if (pos.left > 1) {
+                if (posX > 1) {
                     // really kludgy, but avoids spurious hover popups
 
                     $('#help-hover').remove();
@@ -76,7 +77,7 @@
                     var $hover = $('#help-hover');
 
                     $hover.find('.hover-tooltip').html(help.replace(/\s/g, ' '));
-                    $hover.css({'top': pos.top+20, 'left': pos.left});
+                    $hover.css({'top': posY+20, 'left': posX});
                     $hover.show();
 
                     poll();

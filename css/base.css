@@ -242,7 +242,7 @@ ul.oops {
 }
 
 #definition-hover {
-    position: absolute;
+    position: fixed;
 }
 
 #definition-hover-left {
@@ -318,7 +318,7 @@ span.defn {
 }
 
 #help-hover {
-    position: absolute;
+    position: fixed;
 }
 
 .hover-tooltip {

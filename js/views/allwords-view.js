@@ -87,19 +87,20 @@
                 $defn = $tgt.closest('div.defn'),
                 $lemma = $defn.prevAll('.lemma').first(),
                 form = $defn.find('span').text(),
-                word = $lemma.text(),
-                pos = $(ev.target).offset();
+                word = $lemma.text();
 
-            this._wordHelp($tgt, word, form, pos);
+            this._wordHelp($tgt, word, form);
         },
 
-        _setPosition: function($hover, pos, hgt) {
-            $hover.css({'top': Math.round(pos.top)-20, 'left': Math.round(pos.left)});
+        _setPosition: function($hover, posX, posY, hgt) {
+            $hover.css({'top': Math.round(posY)-20, 'left': Math.round(posX)});
         },
 
-        _wordHelp: function($tgt, word, form, pos) {
+        _wordHelp: function($tgt, word, form) {
 
-            var that = this;
+            var that = this,
+                posY = $tgt.offset().top - $(document).scrollTop(),
+                posX = $tgt.offset().left;
 
             function poll() {
 
@@ -147,7 +148,7 @@
                     $('body').append(dom);
                     $hover = $('#help-hover');
 
-                    that._setPosition($hover, pos, $hover.height());
+                    that._setPosition($hover, posX, posY, $hover.height());
                     // window.console.log('showing hover at ' + pos.left + ' ' + pos.top);
                     $hover.show();
 
