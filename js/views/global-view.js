@@ -7,7 +7,7 @@
 
         el: 'body',
 
-        hoverTemplate: _.template($('#allwords-hover-misc-template').html()),
+        hoverTemplate: _.template($('#global-hover-misc-template').html()),
 
         // Delegated events for creating new items, and clearing completed ones.
         events: {

@@ -609,7 +609,7 @@
                 <div class="clear"></div>
             </div>
 
-            <script type="text/template" id="allword-word-template">
+            <script type="text/template" id="allwords-word-template">
                 <div class="lemma"><%= lemma %></div>
                 <% for (_f in forms) { var f = forms[_f]; %>
                 <div class="defn"><span class="forms WL"><%= f.form %></span> <%= f.definition %></div>
@@ -657,6 +657,9 @@
                 </form>
             </div>
 
+            <!--
+              hover templates, for various hover help/tooltip things.
+            -->
             <script type="text/template" id="hover-template">
                 <div id="definition-hover" style="display: none">
                     <div class="arrow-up"></div>
@@ -674,7 +677,7 @@
             </script>
 
             <script type="text/template" id="hover-left-template">
-                <div id="definition-hover-left" class="hover" style="display: none">
+                <div id="definition-hover-left" style="display: none">
                     <div class="hover-body">
                         <div class="hover-lft"><%= word %></div>
                         <% for (_d in defs) { var d = defs[_d]; %>
@@ -685,12 +688,20 @@
                         <% }   %>
                         <div style="clear:both"></div>
                     </div>
+                    <div class="arrow-right"></div>
+                </div>
+            </script>
+
+            <script type="text/template" id="global-hover-misc-template">
+                <div id="help-hover" class="hover" style="display: none">
+                    <div class="hover-tooltip"><%= wordstr %></div>
                 </div>
             </script>
 
             <script type="text/template" id="allwords-hover-misc-template">
                 <div id="help-hover" class="hover" style="display: none">
                     <div class="hover-tooltip"><%= wordstr %></div>
+                    <div class="arrow-right"></div>
                 </div>
             </script>
 
@@ -746,6 +757,70 @@
 
                         <div style="clear:both"></div>
                     </div>
+                    <div class="arrow-right-fat"></div>
+                </div>
+            </script>
+
+            <script type="text/template" id="lookup-hover-misc-template">
+                <div id="help-hover" class="hover" style="display: none">
+                    <div class="arrow-left"></div>
+                    <div class="hover-tooltip"><%= wordstr %></div>
+                </div>
+            </script>
+
+            <script type="text/template" id="lookup-hover-verb-template">
+                <div id="help-hover" class="hover" style="display: none">
+                    <div class="hover-body wide">
+                        <div class="hover-lft"><%= a['infinitive'] %></div>
+                        <div style="clear:both"></div>
+                        <table class="hover">
+                            <tbody>
+                            <tr>
+                                <th></th><th>yo</th><th>tu</th><th>el</th><th></th><th>nosotros</th><th>ellos</th>
+                            </tr>
+                            <tr>
+                                <th>Presente</th><td><%= a['present (yo)'] %></td><td><%= a['present (tu)'] %></td><td><%= a['present (el)'] %></td>
+                                <th></th><td><%= a['present (nos)'] %></td><td><%= a['present (ellos)'] %></td>
+                            </tr>
+                            <tr>
+                                <th>Futuro</th><td><%= a['future (yo)'] %></td><td><%= a['future (tu)'] %></td><td><%= a['future (el)'] %></td>
+                                <th></th><td><%= a['future (nos)'] %></td><td><%= a['future (ellos)'] %></td>
+                            </tr>
+                            <tr>
+                                <th>Pretérito</th><td><%= a['preterit (yo)'] %></td><td><%= a['preterit (tu)'] %></td><td><%= a['preterit (el)'] %></td>
+                                <th></th><td><%= a['preterit (nos)'] %></td><td><%= a['preterit (ellos)'] %></td>
+                            </tr>
+                            <tr>
+                                <th>Imperfectivo</th><td><%= a['imperfect (yo)'] %></td><td><%= a['imperfect (tu)'] %></td><td><%= a['imperfect (el)'] %></td>
+                                <th></th><td><%= a['imperfect (nos)'] %></td><td><%= a['imperfect (ellos)'] %></td>
+                            </tr>
+                            </tbody>
+
+                            <tbody>
+                            <tr>
+                                <th>Imperativo</th><td>-</td><td><%= a['imperative (tu)'] %></td><td><%= a['imperative (el)'] %></td>
+                                <th></th><td><%= a['imperative (nos)'] %></td><td><%= a['imperative (ellos)'] %></td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="hover">
+                            <tbody>
+                            <tr>
+                                <th></th><th></th><th></th><th></th><th></th>
+                            </tr>
+                            <tr>
+                                <th>Gerundio</th><td><%= a['present-participle'] %></td><td></td><td></td><td></td>
+                            </tr>
+                            <tr>
+                                <th>Participio Pasado</th><td><%= a['past-participle'] %></td><td></td><td></td><td></td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="clear:both"></div>
+                    </div>
+                    <div class="arrow-left-fat"></div>
                 </div>
             </script>
 

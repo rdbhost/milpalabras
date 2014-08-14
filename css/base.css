@@ -250,9 +250,9 @@ ul.oops {
 }
 
 .hover-body {
-    padding: 5px;
+    padding: 3px;
     min-height: 45px;
-    width: 500px;
+    width: 350px;
     font-size: larger;
     background-color: #ffb173;
     border: thin solid #ff7100;
@@ -272,6 +272,7 @@ table.hover td {
     max-width: 100px;
     padding: 8px;
     overflow: visible;
+    width: 15%;
 }
 
 #def-forms {
@@ -281,8 +282,8 @@ table.hover td {
 .hover-rgt {
     float: right;
     padding: 8px;
-    width: 330px;
     min-height: 45px;
+    width: 250px;
 }
 
 .hover-lft {
@@ -293,12 +294,11 @@ table.hover td {
 span.lemma {
     text-align: right;
     float: right;
-    color: #5ccdc9;
+    color: #1d7471;
 }
 span.defn {
     color: #006561;
 }
-
 
 .arrow-up {
     width: 0;
@@ -308,13 +308,32 @@ span.defn {
     border-right: 15px solid transparent;
     border-bottom: 15px solid #ff7100;
 }
-.arrow-right {
+.arrow-right, .arrow-right-fat {
     width: 0;
     height: 0;
     border-top: 15px solid transparent;
     border-bottom: 15px solid transparent;
     border-left: 15px solid #ff7100;
+    margin-bottom: 30px;
+    margin-top: -32px;
+    margin-right: -15px;
     float: right;
+}
+.arrow-left, .arrow-left-fat {
+    width: 0;
+    height: 0;
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    border-right: 15px solid #ff7100;
+    margin-bottom: -32px;
+    margin-top: 2px;
+    margin-left: -15px;
+}
+.arrow-right-fat {
+    margin-top: -100px;
+}
+.arrow-left-fat {
+    margin-top: -100px;
 }
 
 #help-hover {

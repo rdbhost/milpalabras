@@ -136,13 +136,19 @@
 
                         ptmp.then(function(resp) {
 
-                            var attrs = _.clone(resp.attributes),
-                                formItem = _.findWhere(attrs.forms, {'form': form});
-                            attrs.form = form;
-                            attrs.subform = subForm;
-                            attrs.definition = formItem.definition;
-                            delete attrs.forms;
-                            def.resolve(attrs);
+                            if (resp) {
+
+                                var attrs = _.clone(resp.attributes),
+                                    formItem = _.findWhere(attrs.forms, {'form': form});
+                                attrs.form = form;
+                                attrs.subform = subForm;
+                                attrs.definition = formItem.definition;
+                                delete attrs.forms;
+                                def.resolve(attrs);
+                            }
+                            else {
+                                def.resolve({});
+                            }
                         });
 
                         subPromises.push(def.promise());
@@ -154,7 +160,8 @@
                         var data = {'word': word, defs: []};
                         _.each(arguments, function(attrs) {
 
-                            data.defs.push(attrs);
+                            if (attrs)
+                                data.defs.push(attrs);
                         });
 
                         var tpl = that.hoverTemplate(data);
@@ -162,7 +169,7 @@
                         $('body').append(tpl);
                         var $hover = $('#definition-hover-left'),
                             size = $hover.height();
-                        $hover.css({'top': Math.round(posY-size+30), 'right': 680});
+                        $hover.css({'top': Math.round(posY-size+54), 'right': 683});
                         $hover.show();
                     });
                     pMaster.fail(function(err) {

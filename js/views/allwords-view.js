@@ -7,7 +7,7 @@
 
         el: '#allwords',
 
-        template: _.template($('#allword-word-template').html()),
+        template: _.template($('#allwords-word-template').html()),
         hoverMiscTemplate: _.template($('#allwords-hover-misc-template').html()),
         hoverVerbTemplate: _.template($('#allwords-hover-verb-template').html()),
 
@@ -92,8 +92,9 @@
             this._wordHelp($tgt, word, form);
         },
 
-        _setPosition: function($hover, posX, posY, hgt) {
-            $hover.css({'top': Math.round(posY)-20, 'left': Math.round(posX)});
+        _setPosition: function($hover, posX, posY, size) {
+            var offset = (size > 100) ? 95 : 55;
+            $hover.css({'top': Math.round(posY)-size+offset, 'right': Math.round(posX)});
         },
 
         _wordHelp: function($tgt, word, form) {
@@ -110,7 +111,6 @@
                         poll();
 
                     else {
-                        // window.console.log('hiding hover (wH) at ' + pos.left + ' ' + pos.top);
                         $hover.hide();
                         window.clearTimeout(that.hoverHideTimer);
                         that.hoverHideTimer = null;
@@ -149,7 +149,6 @@
                     $hover = $('#help-hover');
 
                     that._setPosition($hover, posX, posY, $hover.height());
-                    // window.console.log('showing hover at ' + pos.left + ' ' + pos.top);
                     $hover.show();
 
                     poll();

@@ -38,8 +38,8 @@
             'mouseleave .DL':   'hoverhelpOut'
         },
 
-        hoverMiscTemplate: _.template($('#allwords-hover-misc-template').html()),
-        hoverVerbTemplate: _.template($('#allwords-hover-verb-template').html()),
+        hoverMiscTemplate: _.template($('#lookup-hover-misc-template').html()),
+        hoverVerbTemplate: _.template($('#lookup-hover-verb-template').html()),
 
         moreTemplate: _.template($('#lookup-more-template').html()),
         noneTemplate: _.template($('#lookup-none-template').html()),
@@ -146,8 +146,8 @@
         },
 
         _setPosition: function($hover, posX, posY, hgt) {
-            var h = Math.round(hgt/2);
-            $hover.css({'top': Math.round(posY)-h, 'left': Math.round(posX)+70});
+            var offset = (hgt > 100) ? -5 : 25;
+            $hover.css({'top': Math.round(posY)-hgt+offset, 'left': Math.round(posX)+70});
         }
 
     });
