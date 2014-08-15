@@ -44,6 +44,8 @@ h2, h3, dt {
     color: #300;
     padding: 20px;
     -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;
+    position: relative;
+    z-index: 0;
 }
 
 .user-id {
@@ -71,9 +73,12 @@ h2, h3, dt {
     -moz-padding-start: 0px;
 }
 
+
 .gravatar {
     float: right;
     margin: -2px -9px -44px 10px;
+    position: relative;
+    z-index: 1;
 }
 .gravatar-small {
     float: right;
@@ -308,14 +313,14 @@ span.defn {
     border-right: 15px solid transparent;
     border-bottom: 15px solid #ff7100;
 }
-.arrow-right, .arrow-right-fat {
+.arrow-right, .arrow-right-fat, .arrow-right-skinny  {
     width: 0;
     height: 0;
     border-top: 15px solid transparent;
     border-bottom: 15px solid transparent;
     border-left: 15px solid #ff7100;
     margin-bottom: 30px;
-    margin-top: -32px;
+    margin-top: -52px;
     margin-right: -15px;
     float: right;
 }
@@ -334,6 +339,9 @@ span.defn {
 }
 .arrow-left-fat {
     margin-top: -100px;
+}
+.arrow-right-skinny {
+    margin-top: -32px;
 }
 
 #help-hover {
