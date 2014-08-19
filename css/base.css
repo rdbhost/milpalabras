@@ -4,7 +4,7 @@ body {
     background-color: #5ccdc9;
 }
 
-header { display: block; margin-bottom: 20px }
+header { display: block; margin-bottom: 8px }
 
 img.logo {
     height: 100px;
@@ -14,16 +14,15 @@ img.logo {
 
 .nav {
     float: right;
-    margin-top: 10px;
+    margin-top: 0px;
 }
 
-#mpapp > header > h1 {
+#mpapp header h1 {
 
     font-family: Verdana;
-    font-size: 42pt;
+    font-size: 18pt;
     color: #a64a00; /* #ffb173; */
-    margin: 0px 0px 10px -25px;
-    /* text-shadow: 1px 1px 0 #fff; */
+    margin: 0 0 20px 2px;
 }
 
 h2, h3, dt {
@@ -58,8 +57,8 @@ h2, h3, dt {
 
 .topic { width: 402px; padding-left: 10px; padding-right: 8px;}
 .inituser { width: 125px; overflow: hidden; padding-right: 10px}
-.startdate { text-align: left; padding-right: 10px;}
-.msgct { width: 22px; text-align: right; padding-right: 6px; }
+.startdate { text-align: left; width: 145px; padding-right: 10px;}
+.msgct { width: 75px; text-align: right; padding-right: 6px; }
 .user { width: 225px; text-align: right; padding-left: 6px;}
 
 .msgct div:first-child { float: right; min-width: 1em; }
@@ -160,8 +159,8 @@ span.busqueda {
 }
 
 .add-topic-button {
-    margin-bottom: 22px;
-    margin-top: 22px;
+    margin-bottom: 12px;
+    margin-top: 12px;
 }
 
 #postform h3 {
@@ -416,9 +415,9 @@ footer a, h4 {
     font-family: Verdana;
     font-size: 12pt;
     color: #a64a00; /* #ffb173; */
-    padding: 8px;
+    padding: 2px;
     font-weight: bolder;
-   /* text-shadow: 1px 0 0 #fff; */
+    margin-bottom: 4px;
 }
 footer.centered span, footer.centered a {
     font-size: 10pt;
@@ -450,7 +449,7 @@ footer.centered span, footer.centered a {
 #login-to-create-warn {
     margin-top: 20px;
     color: #a64a00;
-    margin-bottom: -15px;
+    margin-bottom: -5px;
 }
 
 .hostname {

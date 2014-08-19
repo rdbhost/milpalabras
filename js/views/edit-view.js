@@ -89,7 +89,7 @@
             rng = rangy.createRange(),
             container;
 
-        var caretPosObj = monotype($div),
+        var caretPosObj = rangy.saveSelection(),
             caretPos = getCaretPos($div);
 
         for ( var i=0; i<errs.length; ++i ) {
@@ -123,7 +123,7 @@
             sel.setSingleRange(rng);
         }
 
-        caretPosObj.restore();
+        rangy.restoreSelection(caretPosObj);
         return errs;
     }
 
@@ -132,7 +132,7 @@
         var sel = rangy.getSelection(),
             rng = rangy.createRange();
 
-        var caretPosObj = monotype($div),
+        var caretPosObj = rangy.saveSelection(window),
             caretPos = getCaretPos($div);
 
         for ( var i=0; i<replacements.length; ++i ) {
@@ -153,7 +153,7 @@
             sel.setSingleRange(rng);
         }
 
-        caretPosObj.restore();
+        rangy.restoreSelection(caretPosObj);
         return replacements;
     }
 
@@ -162,7 +162,7 @@
         var sel = rangy.getSelection(),
             rng = rangy.createRange();
 
-        var curPos = monotype($div);
+        var curPos = rangy.saveSelection(window);
 
         var container = $div.get(0);
         rng.selectNodeContents(container);
@@ -173,7 +173,7 @@
         rng.collapse();
         sel.setSingleRange(rng);
 
-        curPos.restore();
+        rangy.restoreSelection(curPos);
     }
 
 
