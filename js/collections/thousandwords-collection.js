@@ -362,14 +362,20 @@
         // Reference to this collection's model.
         model: app.TWEntry,
 
+        initialize: function() {
+            this.waitingOnFetch = false;
+        },
+
         // Save all of the thread items under the `"threads"` namespace.
         // localStorage: new Backbone.LocalStorage('threads-backbone'),
         sync: function(method, model, options) {
 
             options = options || {};
+            this.waitingOnFetch = true;
 
             var collection = this;
             var tmp = this.letter;
+            // console.log('wordCollection.sync '+tmp);
 
 
             function getRecords(ltr, accented) {
@@ -389,7 +395,9 @@
 
                     if (resp.row_count[0] === 0)
                         resp.records.rows = [{word: ''}];
+                    // console.log('resetting word collection '+tmp);
                     collection.reset(resp.records.rows);
+                    collection.waitingOnFetch = false;
                     if ( options && options.success )
                         options.success(resp.records.rows);
 
@@ -399,6 +407,7 @@
                     if ( options && options.error )
                         options.error(err);
                     console.log(err[0] + ' ' + err[1]);
+                    collection.waitingOnFetch = false;
                 });
             }
 
@@ -406,6 +415,7 @@
 
                 case 'read':
 
+                    console.log('getRecords:read '+this.letter);
                     getRecords(this.letter, ADD_ACCENT[this.letter]);
                     break;
 
@@ -498,16 +508,26 @@
 
         whenReady: function(f) {
 
+            var that = this;
+
             if (this.models.length) {
                 f();
             }
+            else if (this.waitingOnFetch) {
+
+                // window.console.log('whenReady waitingOnFetch ');
+                setTimeout(function() {
+                    that.whenReady(f);
+                }, 75);
+            }
             else {
+                // window.console.log('whenReady fetch ');
                 this.fetch({
                     success: function() {
                         f();
                     },
                     error: function() {
-                        this.whenReady(f);
+                        that.whenReady(f);
                     }
                 })
             }
@@ -533,6 +553,7 @@
 
             if ( ltrList ) {
 
+                // window.console.log('startingWith has ltrList ');
                 ltrList.whenReady(function() {
                     tmp = ltrList.filter(function (word) {
                         return word.startsWith(begin);
@@ -544,6 +565,7 @@
 
                 this.byLetter[letter] = new WordCollection();
                 this.byLetter[letter].letter = letter;
+                // window.console.log('startingWith byLetter[~] fetch '.replace('~', letter));
                 this.byLetter[letter].fetch({
 
                     success: function(col, rsp, opt) {
@@ -667,6 +689,7 @@
                 tmp = new WordCollection();
                 tmp.letter = indexChar;
                 ltrList = true;
+                // window.console.log('prefixLimited WC.fetch ltrList=true');
                 tmp.fetch({
 
                     success: function(col, rsp, opt) {
@@ -707,6 +730,7 @@
 
                 tmp = new WordCollection();
                 tmp.letter = indexChar;
+                // window.console.log('findingOne [~] fetch '.replace('~', tmp.letter));
                 tmp.fetch({
 
                     success: function(list, rsp, opt) {
