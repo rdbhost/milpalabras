@@ -622,28 +622,33 @@
 
                 -->
             <div id="login" class="page modal-body" style="display: none">
-                <form id="openidForm"  action="~" method="post">
-                    <div>
-                        <div id="main-openid">
-
-                            <p data-help="Login with:">Acceder con: </p>
-                            <input type="submit" value="Google Mail" id="google" class="login-btn" />
-                            <input type="submit" value="Yahoo Mail" id="yahoo" class="login-btn" />
-                            <input type="submit" value="Otro" id="other" class="login-btn" />
-                        </div>
-
-
-                        <div id="other-openid">
-                            <!-- p>Proporcione a su identificador de OpenID, con http: <br/>
-                                Ejemplo: <ul><li>http://example.livejournal.com</li>
-                            <li>http://example.myopenid.com</li></ul>
-                            ... or click one of the host buttons below.
-                            </p -->
-                            OpenID Identificader URL<input name="openidurl" size="75"/>  <br/>
-                            <input type="submit" class="btn" title="continuúa" />
-                        </div>
-                    </div>
-                </form>
+                <p data-help="Login with:">Acceder con: </p>
+                <div style="float:left">
+                    <form id="openidForm"  action="~" method="post">
+                        <input name="openidurl" value="" type="hidden" />
+                        <input type="submit" value="Yahoo Mail" id="yahoo" class="login-btn" />
+                    </form>
+                    <form id="oauth-google"  action="/auth/oauth2/one" method="get">
+                        <input name="provider" value="Google" type="hidden" />
+                        <input name="acct" value="1392" type="hidden" />
+                        <input name="path" value="/" type="hidden" />
+                        <input type="submit" value="Google Mail" id="google" class="login-btn" />
+                    </form>
+                </div>
+                <div style="float:left">
+                    <form id="oauth-facebook"  action="/auth/oauth2/one" method="get">
+                        <input name="provider" value="Facebook"  type="hidden" />
+                        <input name="acct" value="1392" type="hidden" />
+                        <input name="path" value="/" type="hidden" />
+                        <input type="submit" value="Facebook" id="facebook" class="login-btn" />
+                    </form>
+                    <form id="oauth-twitter"  action="/auth/oauth1/one" method="get">
+                        <input name="provider" value="Twitter" type="hidden" />
+                        <input name="acct" value="1392"  type="hidden" />
+                        <input name="path" value="/" type="hidden" />
+                        <input type="submit" value="Twitter" id="twitter" class="login-btn" />
+                    </form>
+                </div>
             </div>
 
             <div id="set-username" class="modal-body" style="display: none">
@@ -651,8 +656,9 @@
                     <p data-help="Provide your preferred username.">
                         Proporcione su nombre de usuario preferido.</p>
                     <p id="su-error"></p>
-                    <input name="username" size="75"/>  <br/>
-                    <input type="submit" class="btn" />
+                    <input name="username" size="65"/>  <br/>
+                    <input type="submit" value="ok" class="btn" />
+                    <input type="submit" class="btn" value="cancel" />
                 </form>
             </div>
 
@@ -851,7 +857,7 @@
         <script src="https://www.rdbhost.com/js/jquery.cookie.js"></script>
 		<script src="https://www.rdbhost.com/vendor/underscore/1.5/underscore.js"></script>
 		<script src="https://www.rdbhost.com/vendor/backbone/1.1/backbone.js"></script>
-        <script src="https://www.rdbhost.com/vendor/rdbhost/1.2/jquery.rdbhost.js"></script>
+        <script src="https://www.rdbhost.com/vendor/rdbhost/1.3/jquery.rdbhost.js"></script>
         <script src="https://www.rdbhost.com/vendor/showdown/0.3/src/showdown.js"></script>
 
         <script src="https://www.rdbhost.com/vendor/moment/2.7/moment.min.js"></script>

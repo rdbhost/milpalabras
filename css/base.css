@@ -435,7 +435,7 @@ footer.centered span, footer.centered a {
     left: 150px;
     top: 150px;
     background-color: #42e73a;
-    width: 500px;
+    width: 300px;
     border: thin solid mediumblue;
     -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
 }

@@ -4,7 +4,6 @@
 	'use strict';
 
     var R = window.Rdbhost,
-
         DUPE_KEY = '23505';
 
 
@@ -14,7 +13,8 @@
 
         // Delegated events for creating new items, and clearing completed ones.
         events: {
-            'submit': 'postFunction'
+            'click input[value="cancel"]': 'cancelFunction',
+            'click input[value="ok"]': 'postFunction'
         },
 
         // Re-render the titles of the thread item.
@@ -23,23 +23,20 @@
             var pre;
             this.$el.show();
 
-            if ( ~app.userId.indexOf('@') ) {
-
-                pre = app.userId.split('@')[0];
-                this.$('[name="username"]').val(pre);
-            }
-            else {
-
-                var parts = app.userId.split('/');
-                pre = parts[parts.length-1];
-                if ( ! pre )
-                    pre = parts[2].split('.')[0];
-                this.$('[name="username"]').val(pre);
-            }
-
+            this.$('[name="username"]').val('');
             this.$('#su-error').text('');
 
             return this;
+        },
+
+        cancelFunction: function(ev) {
+            var handleForm = this,
+                errorSpan = this.$('#su-error');
+            app.userId = app.userKey = undefined;
+            handleForm.$el.hide();
+            errorSpan.text('');
+            ev.stopPropagation();
+            return false;
         },
 
         postFunction: function(ev) {
@@ -81,7 +78,7 @@
 
                         if ( err[0] === DUPE_KEY  ) {
 
-                            errorSpan.text('That name is in use.  Please choose another.')
+                            errorSpan.text('That name is in use.  Please choose another.');
                         }
                         else {
 

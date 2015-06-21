@@ -23,7 +23,8 @@
             '!/login':     'login',
             '!/logout':    'logout',
             '!':           'showIndex',
-            '':            'showIndex'
+            '':            'showIndex',
+            '*p':          'showIndex'
         },
 
         execute: function(cb, args) {
@@ -244,6 +245,7 @@
 
             app.userId = app.userKey = app.handle = undefined;
             $.cookie(app.constants.myKeyName, '');
+            $.cookie('FEDAUTH_KEY', '');
 
             $('a.loginLink').attr('href', '#!/login');
             $('a.loginLink').text('acceder');
