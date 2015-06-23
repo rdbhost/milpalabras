@@ -4,5 +4,5 @@ milpalabras
 Spanish Language Education Web App
 
 
-To be a Backbone.js / CodeMirror app.
+A Backbone.js / Etch.js app.
 
