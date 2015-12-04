@@ -27,7 +27,7 @@
                         q: 'SELECT t.thread_id, topic, start_date, change_date, u.handle AS initiating_user, \n' +
                            '       suppressed, message_ct, g.gravatars \n' +
                            ' FROM threads t \n' +
-                           '  JOIN users_plus u ON t.initiating_user = u.idx \n' +
+                           '  JOIN users u ON t.initiating_user = u.idx \n' +
                            '  JOIN gravatars g ON t.thread_id = g.thread_id \n' +
                            ' WHERE (suppressed = false OR suppressed IS NULL) \n' +
                            "   AND message_ct > 0 \n" +
