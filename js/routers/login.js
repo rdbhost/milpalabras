@@ -38,9 +38,10 @@
             app.userKey = key;
 
             var p = R.preauthPostData({
-                q:  'SELECT handle, admin, recent_post_ct(u.idx) AS post_ct \n' +
-                    '  FROM users u JOIN auth.openid_accounts o ON u.idx = o.idx \n' +
-                    'WHERE o.identifier = %s AND o.key = %s; ',
+                q:  'SELECT u.idx, handle, email_address, admin, recent_post_ct(u.idx) AS post_ct, \n' +
+                    "   profile::json->>'email' AS fa_email \n" +
+                    '  FROM users u JOIN auth.fedauth_accounts o ON u.idx = o.idx \n' +
+                    'WHERE o.issuer || o.identifier = %s AND o.key = %s; ',
                 args: [ident, key]
             });
 
@@ -51,6 +52,8 @@
 
                         app.handle = resp.records.rows[0].handle;
                         app.isAdmin = resp.records.rows[0].admin;
+                        app.email = resp.records.rows[0].email_address;
+                        var good_email = resp.records.rows[0].fa_email;
                         app.recentPostCt = resp.records.rows[0].post_ct;
                         $('a.loginLink').attr('href', '#!/logout');
                         $('a.loginLink').text('salir');
@@ -58,6 +61,25 @@
                         // if results, add to display
                         $('span.user-id').text(app.handle);
                         window.console.log('logged in as ' + app.userId);
+
+                        if (!app.email || good_email !== app.email) {
+
+                            var p1 = R.preauthPostData({
+                                q: "UPDATE users u SET email_address = %s  \n" +
+                                   " FROM auth.fedauth_accounts o \n" +
+                                   "WHERE o.issuer || o.identifier = %s AND \n" +
+                                   "      o.key = %s  AND o.idx = u.idx; ",
+                                args: [good_email, ident, key]
+                            });
+
+                            p1.then(function(resp){
+                                // 1==1;
+                              },
+                              function(err) {
+                                  window.console.log(err);
+                              }
+                            );
+                        }
                     }
                     else {
 

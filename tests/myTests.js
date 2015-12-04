@@ -145,8 +145,8 @@ asyncTest('identifier test', 3, function() {
 
     var identQuery =
         "SELECT o.idx AS test_msg \n" +
-        "  FROM auth.openid_accounts o\n" +
-        "WHERE o.identifier = %s AND o.key = %s; \n";
+        "  FROM auth.fedauth_accounts o\n" +
+        "WHERE o.issuer || o.identifier = %s AND o.key = %s; \n";
 
     this.e.postData({
 
@@ -170,11 +170,11 @@ asyncTest('full select', 4, function() {
     var saveQuery =
        // "SELECT %(title), %(body), NOW(), o.idx \n" +
         "SELECT 1 AS test_msg \n" +
-        "  FROM auth.openid_accounts o\n" +
+        "  FROM auth.fedauth_accounts o\n" +
 
         "WHERE test_msg(%(title), 0.15*2) IS NULL AND test_msg(%(body), 0.15) IS NULL \n" +
         "    -- and provided authentication checks ok\n" +
-        "    AND o.identifier = %s AND o.key = %s; \n";
+        "    AND o.issuer || o.identifier = %s AND o.key = %s; \n";
 
 
     this.e.postData({
@@ -200,11 +200,11 @@ asyncTest('full select with message_model', 4, function() {
     var saveQuery =
         "SELECT %(title) AS t, %(body) AS b, NOW(), o.idx \n" +
         //"SELECT 1 AS test_msg \n" +
-        "  FROM auth.openid_accounts o\n" +
+        "  FROM auth.fedauth_accounts o\n" +
 
         "WHERE test_msg(%(title), 0.15*2) IS NULL AND test_msg(%(body), 0.15) IS NULL \n" +
         "    -- and provided authentication checks ok\n" +
-        "    AND o.identifier = %s AND o.key = %s; \n";
+        "    AND o.issuer || o.identifier = %s AND o.key = %s; \n";
 
     var mdl = new app.Message({body: 'amigo de amigos', title: 'de'});
 
@@ -282,11 +282,11 @@ asyncTest('insert with message_model', 4, function() {
 
         "SELECT NULL, %(title), %(body), NOW(), o.idx \n" +
         // "SELECT %(title) AS t, %(body) AS b, NOW(), o.idx \n" +
-        "  FROM auth.openid_accounts o\n" +
+        "  FROM auth.fedauth_accounts o\n" +
 
         "WHERE test_msg(%(title), 0.15*2) IS NULL AND test_msg(%(body), 0.15) IS NULL \n" +
         "    -- and provided authentication checks ok\n" +
-        "    AND o.identifier = %s AND o.key = %s; \n";
+        "    AND o.issuer || o.identifier = %s AND o.key = %s; \n";
 
     var mdl = new app.Message({title: 'amigo de amigos', body: '!! de amigos amigo'}),
         that = this;
@@ -332,11 +332,11 @@ asyncTest('insert n update with message_model', 4, function() {
 
         "SELECT NULL, %(title), %(body), NOW(), o.idx \n" +
         // "SELECT %(title) AS t, %(body) AS b, NOW(), o.idx \n" +
-        "  FROM auth.openid_accounts o\n" +
+        "  FROM auth.fedauth_accounts o\n" +
 
         "WHERE test_msg(%(title), 0.15*2) IS NULL AND test_msg(%(body), 0.15) IS NULL \n" +
         "    -- and provided authentication checks ok\n" +
-        "    AND o.identifier = %s AND o.key = %s; \n" +
+        "    AND o.issuer || o.identifier = %s AND o.key = %s; \n" +
 
         " -- and lastly, make thread_id match message_id for new threads \n" +
         "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n";

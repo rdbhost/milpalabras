@@ -23,8 +23,8 @@
         "SELECT NULL, m.title, m.author, m.post_date, %(message_id), \n" +
         "'Este mensaje se antes en [' || (SELECT title FROM messages m1 WHERE m1.message_id = m.thread_id) || \n" +
         "     ']\n\n--------------------\n\n' || m.body \n" +
-        "FROM messages m, auth.openid_accounts o WHERE m.message_id = %(message_id) \n" +
-        "  AND o.identifier = %s AND o.key = %s; \n" +
+        "FROM messages m, auth.fedauth_accounts o WHERE m.message_id = %(message_id) \n" +
+        "  AND o.issuer || o.identifier = %s AND o.key = %s; \n" +
         "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n" +
         "SELECT currval('messages_message_id_seq'::regclass) AS message_id; \n";
 
@@ -168,10 +168,10 @@
                 p = R.preauthPostData({
 
                     q: 'UPDATE messages m SET suppressed = false \n' +
-                       ' FROM auth.openid_accounts o, users u  \n' +
+                       ' FROM auth.fedauth_accounts o, users u  \n' +
                        ' WHERE m.message_id = %(message_id) \n' +
                        '  AND o.idx = u.idx AND u.admin \n' +
-                       '  AND o.identifier = %s AND o.key = %s',
+                       '  AND o.issuer || o.identifier = %s AND o.key = %s',
 
                     namedParams: this_.attributes,
                     args: [app.userId, app.userKey]
@@ -218,13 +218,13 @@
             var sql =
                 "UPDATE messages m SET body = '~1', \n" +
                 "       title = '~2', suppressed = false, branch_from = NULL \n" +
-                " FROM auth.openid_accounts o  \n" +
+                " FROM auth.fedauth_accounts o  \n" +
                 "  JOIN users u ON u.idx = o.idx \n" +
                 " WHERE m.message_id = %(message_id) \n" +
                 "   AND (u.admin OR \n" +
                 "       (m.post_date > now() - '10 minutes'::interval \n" +
                 "          AND o.idx = m.author) ) \n" +
-                "   AND o.identifier = %s AND o.key = %s";
+                "   AND o.issuer || o.identifier = %s AND o.key = %s";
             sql = sql.replace('~2', attrs.title).replace('~1', attrs.body);
 
             var this_ = this,
@@ -254,10 +254,10 @@
                 p = R.preauthPostData({
 
                     q: 'DELETE FROM messages m  \n' +
-                       ' USING auth.openid_accounts o, users u  \n' +
+                       ' USING auth.fedauth_accounts o, users u  \n' +
                        ' WHERE m.message_id = %(message_id) \n' +
                        '   AND o.idx = u.idx AND u.admin \n' +
-                       '   AND o.identifier = %s AND o.key = %s',
+                       '   AND o.issuer || o.identifier = %s AND o.key = %s',
 
                     namedParams: this_.attributes,
                     args: [app.userId, app.userKey]

@@ -8,8 +8,8 @@
     var saveQuery =
         'INSERT INTO suspend_reason (message_id, reason, post_date, suspender) \n' +
         'SELECT %(message_id), %(reason), NOW(), o.idx \n' +
-        '  FROM auth.openid_accounts o \n' +
-        ' WHERE o.identifier = %s AND o.key = %s';
+        '  FROM auth.fedauth_accounts o \n' +
+        ' WHERE o.issuer || o.identifier = %s AND o.key = %s';
 
 
     // Our basic Message model.

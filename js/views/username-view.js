@@ -54,8 +54,8 @@
                 var p = R.preauthPostData({
 
                     q:  'INSERT INTO users (idx, email_address, handle) \n' +
-                        'SELECT o.idx, NULL, %s FROM auth.openid_accounts o \n' +
-                        ' WHERE o.identifier = %s AND o.key = %s; ',
+                        'SELECT o.idx, NULL, %s FROM auth.fedauth_accounts o \n' +
+                        ' WHERE o.issuer || o.identifier = %s AND o.key = %s; ',
                     args: [handle, app.userId, app.userKey]
                 });
 
