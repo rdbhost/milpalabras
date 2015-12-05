@@ -265,7 +265,7 @@
             return null;
         },
 
-        startsWith: function(begin) {
+        startsWith: function(begin, exact) {
 
             var attrs = this.attributes,
                 alts;
@@ -290,7 +290,7 @@
             alts = _.some(attrs.alts, function(m) {
                 return m.substr(0, begin.length).toLowerCase() === begin.toLowerCase();
             });
-            if ( alts ) return true;
+            if ( alts && !exact ) return true;
 
             if ( attrs.pronounsExpanded && attrs.pronounsExpanded.length ) {
 
@@ -303,38 +303,38 @@
             return false;
         },
 
-        startsWithExactly: function(begin) {
-
-            var attrs = this.attributes,
-                tAlts, alts;
-
-            if ( attrs.suffix && begin.length > attrs.word.length && ! attrs.pronounsExpanded ) {
-
-                attrs.pronounsExpanded = [];
-                tAlts = attrs.alts.slice(0);
-                if ( ! alts.length )
-                    tAlts = [attrs.word]; // ensure basic word is expanded
-                _.forEach(tAlts, function(alt) {
-                    _.forEach(SUFFIXES, function(suf) {
-
-                        attrs.pronounsExpanded.push([alt+suf, suf]);
-                    })
-                });
-            }
-
-            if ( attrs.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase() )
-                return true;
-
-            if ( attrs.pronounsExpanded && attrs.pronounsExpanded.length ) {
-
-                alts = _.find(attrs.pronounsExpanded, function(m) {
-                    return m[0].substr(0, begin.length).toLowerCase() === begin.toLowerCase();
-                });
-                return alts;
-            }
-
-            return false;
-        },
+        //startsWithExactly: function(begin) {
+        //
+        //    var attrs = this.attributes,
+        //        tAlts, alts;
+        //
+        //    if ( attrs.suffix && begin.length > attrs.word.length && ! attrs.pronounsExpanded ) {
+        //
+        //        attrs.pronounsExpanded = [];
+        //        tAlts = attrs.alts.slice(0);
+        //        if ( ! alts.length )
+        //            tAlts = [attrs.word]; // ensure basic word is expanded
+        //        _.forEach(tAlts, function(alt) {
+        //            _.forEach(SUFFIXES, function(suf) {
+        //
+        //                attrs.pronounsExpanded.push([alt+suf, suf]);
+        //            })
+        //        });
+        //    }
+        //
+        //    if ( attrs.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase() )
+        //        return true;
+        //
+        //    if ( attrs.pronounsExpanded && attrs.pronounsExpanded.length ) {
+        //
+        //        alts = _.find(attrs.pronounsExpanded, function(m) {
+        //            return m[0].substr(0, begin.length).toLowerCase() === begin.toLowerCase();
+        //        });
+        //        return alts;
+        //    }
+        //
+        //    return false;
+        //},
 
         getPrefix: function(prefixLen) {
 
@@ -364,21 +364,20 @@
 
         initialize: function() {
             this.waitingOnFetch = false;
+            this.lead = undefined;
         },
 
-        // Save all of the thread items under the `"threads"` namespace.
-        // localStorage: new Backbone.LocalStorage('threads-backbone'),
+        // gets words
         sync: function(method, model, options) {
 
             options = options || {};
             this.waitingOnFetch = true;
 
             var collection = this;
-            var tmp = this.letter;
-            // console.log('wordCollection.sync '+tmp);
+            var tmp = this.lead;
 
 
-            function getRecords(ltr, accented) {
+            function getInitialRecords(ltr, accented) {
 
                 var p = R.preauthPostData({
                     q: 'SELECT distinct word, array_agg(lemma) AS lemmas, bool_or(pronoun_suffix) AS suffix, \n' +
@@ -415,8 +414,8 @@
 
                 case 'read':
 
-                    console.log('getRecords:read '+this.letter);
-                    getRecords(this.letter, ADD_ACCENT[this.letter]);
+                    console.log('getInitialRecords:read '+this.lead);
+                    getInitialRecords(this.lead, ADD_ACCENT[this.lead]);
                     break;
 
                 default:
@@ -438,7 +437,7 @@
         startsWithExactly: function (begin) {
 
             return this.filter(function (word) {
-                return word.startsWithExactly(begin);
+                return word.startsWith(begin, 'exact');
             });
         },
 
@@ -564,7 +563,7 @@
             else {
 
                 this.byLetter[letter] = new WordCollection();
-                this.byLetter[letter].letter = letter;
+                this.byLetter[letter].lead = letter;
                 // window.console.log('startingWith byLetter[~] fetch '.replace('~', letter));
                 this.byLetter[letter].fetch({
 
@@ -629,7 +628,7 @@
 
                         for ( i=1; i<prevList.length; ++i ) {
 
-                            if ( prefix.length < prefixLen || ! prevList[i].startsWithExactly(prefix) ) {
+                            if ( prefix.length < prefixLen || ! prevList[i].startsWith(prefix, 'exact') ) {
 
                                 wordItm = prevList[i].clone();
                                 listNew.push(wordItm);
@@ -687,7 +686,7 @@
             else {
 
                 tmp = new WordCollection();
-                tmp.letter = indexChar;
+                tmp.lead = indexChar;
                 ltrList = true;
                 // window.console.log('prefixLimited WC.fetch ltrList=true');
                 tmp.fetch({
@@ -729,13 +728,13 @@
             else {
 
                 tmp = new WordCollection();
-                tmp.letter = indexChar;
-                // window.console.log('findingOne [~] fetch '.replace('~', tmp.letter));
+                tmp.lead = indexChar;
+                // window.console.log('findingOne [~] fetch '.replace('~', tmp.lead));
                 tmp.fetch({
 
                     success: function(list, rsp, opt) {
 
-                        that.byLetter[tmp.letter] = tmp;
+                        that.byLetter[tmp.lead] = tmp;
                         var one = tmp.findOne(word);
 
                         p.resolve(one);

@@ -82,7 +82,7 @@
 			return this;
 		},
 
-        // Add a single thread item to the list by creating a view for it, and
+        // Add a single word item to the list by creating a view for it, and
         // appending its element to the `<ul>`.
         addOneWordToDisplay: function (word) {
             var wordView = new app.WordView({ model: word });

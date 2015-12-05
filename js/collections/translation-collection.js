@@ -111,7 +111,7 @@
 
                 case 'read':
 
-                    getRecords(this.letter);
+                    getRecords(this.lead);
                     break;
 
                 default:
@@ -165,12 +165,12 @@
             else {
 
                 tmp = new DefinitionCollection();
-                tmp.letter = word.charAt(0);
+                tmp.lead = word.charAt(0);
                 tmp.fetch({
 
                     success: function(list, rsp, opt) {
 
-                        that.byLetter[tmp.letter] = tmp;
+                        that.byLetter[tmp.lead] = tmp;
                         var one = tmp.findOne(word);
 
                         p.resolve(one);
@@ -200,12 +200,12 @@
             else {
 
                 tmp = new DefinitionCollection();
-                tmp.letter = ltr.charAt(0);
+                tmp.lead = ltr.charAt(0);
                 tmp.fetch({
 
                     success: function(list, rsp, opt) {
 
-                        that.byLetter[tmp.letter] = tmp;
+                        that.byLetter[tmp.lead] = tmp;
                         p.resolve(tmp);
                     },
 

@@ -32,7 +32,7 @@
                            ' FROM messages m \n' +
                            '  LEFT JOIN messages mt ON mt.branch_from = m.message_id \n' +
                            '  LEFT JOIN messages mf ON mf.message_id = m.branch_from \n' +
-                           '  JOIN users_pub u ON m.author = u.idx \n' +
+                           '  JOIN user_gravatars u ON m.author = u.idx \n' +
                            ' WHERE m.thread_id = %s AND (m.suppressed = false OR m.suppressed IS NULL) \n' +
 
                            'UNION ALL \n' +
@@ -41,7 +41,7 @@
                            "       '' AS body, m.branch_from, u.handle AS author, u.gravatar, m.suppressed, \n" +
                            '       NULL AS branch_to, NULL AS branched_from, NULL AS title_from \n' +
                            ' FROM messages m \n' +
-                           '  JOIN users_pub u ON m.author = u.idx \n' +
+                           '  JOIN user_gravatars u ON m.author = u.idx \n' +
                            ' WHERE m.thread_id = %s AND m.suppressed) AS foo\n' +
 
                            'ORDER BY foo.post_date ASC LIMIT 100; ',
