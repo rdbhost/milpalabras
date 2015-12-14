@@ -186,6 +186,25 @@
 </script>
 <button id="recent_post_ct_btn" value="update" >Update recent_post_ct</button>
 
+
+<script type="text/template" id="authcheck">
+    CREATE OR REPLACE FUNCTION "auth"."check_authentication"
+        (IN _identifier varchar, IN _key varchar)
+    RETURNS void
+    AS $$
+    BEGIN
+        PERFORM identifier FROM auth.fedauth_accounts
+          WHERE issuer || identifier = _identifier AND key = _key;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION USING ERRCODE = 'P0000', MESSAGE = 'rdb77';
+        END IF;
+    END;
+    $$
+    LANGUAGE plpgsql STABLE
+    SECURITY DEFINER;
+</script>
+<button id="authcheck_btn" value="update" >Update authcheck</button>
+
 <!-- todo - add section for recent_post_ct -->
 
 

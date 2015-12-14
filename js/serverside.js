@@ -48,3 +48,5 @@ $('#replace_msg_btn').click(clickHandler);
 $('#test_msg_btn').click(clickHandler);
 
 $('#recent_post_ct_btn').click(clickHandler);
+
+$('#authcheck_btn').click(clickHandler);
