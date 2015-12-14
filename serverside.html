@@ -33,7 +33,7 @@
         END IF;
 
         SELECT o.idx INTO uid FROM auth.fedauth_accounts o
-            WHERE o.identifier = identr AND o.key = ikey;
+            WHERE o.issuer || o.identifier = identr AND o.key = ikey;
         IF NOT FOUND THEN
             RAISE EXCEPTION 'bad login %', identr USING ERRCODE = 'RD003';
         END IF;
@@ -75,7 +75,7 @@
     END IF;
 
     SELECT o.idx INTO uid FROM auth.fedauth_accounts o
-        WHERE o.identifier = identr AND o.key = ikey;
+        WHERE o.issuer || o.identifier = identr AND o.key = ikey;
     IF NOT FOUND THEN
         RAISE EXCEPTION 'bad login %', identr USING ERRCODE = 'RD003';
     END IF;
