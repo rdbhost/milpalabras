@@ -45,7 +45,7 @@
         // Re-render the words in the wordlist
 		render: function (partialWord) {
 
-            var that = this;
+            var this_ = this;
 
             if ( partialWord ) {
 
@@ -59,24 +59,24 @@
 
                     if ( wordList.length ) {
 
-                        that.$el.removeClass('oops');
+                        this_.$el.removeClass('oops');
                         _.forEach(wordList.models, function(m) {
-                            that.addOneWordToDisplay(m);
+                            this_.addOneWordToDisplay(m);
                         });
                     }
                     else if ( partialWord.length > 1 ) {
 
                         var shorterPartial = partialWord.substr(0, partialWord.length-1);
 
-                        var _r = that.render(shorterPartial);
-                        that.$el.addClass('oops');
+                        var _r = this_.render(shorterPartial);
+                        this_.$el.addClass('oops');
                         return _r;
                     }
                 })
             }
             else {
 
-                that.$el.closest('ul').hide();
+                this_.$el.closest('ul').hide();
             }
 
 			return this;
