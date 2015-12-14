@@ -247,9 +247,10 @@
             $.cookie(app.constants.myKeyName, '');
             $.cookie('FEDAUTH_KEY', '');
 
-            $('a.loginLink').attr('href', '#!/login');
-            $('a.loginLink').text('acceder');
-            $('a.loginLink').attr('data-help', 'login');
+            var $aLoginLink = $('a.loginLink');
+            $aLoginLink.attr('href', '#!/login');
+            $aLoginLink.text('acceder');
+            $aLoginLink.attr('data-help', 'login');
             $('span.user-id').text('');
 
             app.milPalabrasRouter.navigate('', {trigger: true});
