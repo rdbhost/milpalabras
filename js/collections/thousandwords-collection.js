@@ -251,6 +251,7 @@
 
         defaults: {
             okmulti: '',
+            next2k: '',
             pronounsExpanded: false
         },
 
@@ -315,39 +316,6 @@
             return false;
         },
 
-        //startsWithExactly: function(begin) {
-        //
-        //    var attrs = this.attributes,
-        //        tAlts, alts;
-        //
-        //    if ( attrs.suffix && begin.length > attrs.word.length && ! attrs.pronounsExpanded ) {
-        //
-        //        attrs.pronounsExpanded = [];
-        //        tAlts = attrs.alts.slice(0);
-        //        if ( ! alts.length )
-        //            tAlts = [attrs.word]; // ensure basic word is expanded
-        //        _.forEach(tAlts, function(alt) {
-        //            _.forEach(SUFFIXES, function(suf) {
-        //
-        //                attrs.pronounsExpanded.push([alt+suf, suf]);
-        //            })
-        //        });
-        //    }
-        //
-        //    if ( attrs.word.substr(0, begin.length).toLowerCase() === begin.toLowerCase() )
-        //        return true;
-        //
-        //    if ( attrs.pronounsExpanded && attrs.pronounsExpanded.length ) {
-        //
-        //        alts = _.find(attrs.pronounsExpanded, function(m) {
-        //            return m[0].substr(0, begin.length).toLowerCase() === begin.toLowerCase();
-        //        });
-        //        return alts;
-        //    }
-        //
-        //    return false;
-        //},
-
         getPrefix: function(prefixLen) {
 
             return this.attributes.word.substr(0, prefixLen);
@@ -356,6 +324,11 @@
         setOKMulti: function(val) {
 
             this.attributes.okmulti = val;
+        },
+
+        setNext2K: function(val) {
+
+            this.attributes.next2k = val;
         },
 
         getWordLength: function() {
@@ -451,16 +424,6 @@
                 return word.startsWith(begin);
             });
         },
-
-/*
-        // Filter down the list of words to those that start with _begin_
-        startsWithExactly: function (begin) {
-
-            return this.filter(function (word) {
-                return word.startsWith(begin, 'exact');
-            });
-        },
-*/
 
         prefixLimited: function(begin, lim) {
 
@@ -874,13 +837,25 @@
                     --prefixLen;
                 }
 
+                function mark2K(items) {
+
+                    _.forEach(items, function(wordItm) {
+
+                        if ( wordItm.attributes.idx > 1000 )
+                            wordItm.setNext2K('next2k');
+                    });
+                }
+
                 if (listNew.length === 0 && prefixLen < 4) {
 
                     prevList = _.first(prevList, listCtLimit);
+                    mark2K(prevList);
                     return new WordColl(prevList);
                 }
-                else
+                else {
+                    mark2K(listNew);
                     return new WordColl(listNew);
+                }
             }
 
             var lead = createLead(begin),

@@ -196,6 +196,9 @@ span.okmulti {
     border-bottom-width: 1px;
     border-bottom-color: green;
 }
+span.next2k {
+    color: darkblue;
+}
 
 li.wordlist {
     list-style-type: none;
