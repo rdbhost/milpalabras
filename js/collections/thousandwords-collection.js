@@ -251,7 +251,6 @@
 
         defaults: {
             okmulti: '',
-            next2k: '',
             pronounsExpanded: false
         },
 
@@ -324,11 +323,6 @@
         setOKMulti: function(val) {
 
             this.attributes.okmulti = val;
-        },
-
-        setNext2K: function(val) {
-
-            this.attributes.next2k = val;
         },
 
         getWordLength: function() {
@@ -485,7 +479,8 @@
                 lemmas: fnd.attributes.lemmas,
                 pos: fnd.attributes.pos,
                 posd: fnd.attributes.posd,
-                suffix: fnd.attributes.suffix
+                suffix: fnd.attributes.suffix,
+                idx: fnd.attributes.idx
             });
         },
 
@@ -837,23 +832,14 @@
                     --prefixLen;
                 }
 
-                function mark2K(items) {
-
-                    _.forEach(items, function(wordItm) {
-
-                        if ( wordItm.attributes.idx > 1000 )
-                            wordItm.setNext2K('next2k');
-                    });
-                }
-
                 if (listNew.length === 0 && prefixLen < 4) {
 
                     prevList = _.first(prevList, listCtLimit);
-                    mark2K(prevList);
+                    // mark2K(prevList);
                     return new WordColl(prevList);
                 }
                 else {
-                    mark2K(listNew);
+                    // mark2K(listNew);
                     return new WordColl(listNew);
                 }
             }
