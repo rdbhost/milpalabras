@@ -215,6 +215,18 @@
         return p.promise();
     };
 
+    function createLead(begin) {
+
+        var letter = REMOVE_ACCENT[begin.charAt(0)] || begin.charAt(0);
+        if (begin.length > 1) {
+
+            var letter1 = REMOVE_ACCENT[begin.charAt(1)] || begin.charAt(1);
+            return letter + letter1;
+        }
+
+        return letter;
+    }
+
 
     function normalizeWord(typed, fromWL) {
 
@@ -357,7 +369,9 @@
     // ---------------
 
     // The collection of words backed by a remote server.
-    var WordCollection = Backbone.Collection.extend({
+    //   this collection grabs a quick list, possibly not complete
+    //
+    var WordCollectionQuick = Backbone.Collection.extend({
 
         // Reference to this collection's model.
         model: app.TWEntry,
@@ -381,12 +395,17 @@
 
                 var p = R.preauthPostData({
                     q: 'SELECT distinct word, array_agg(lemma) AS lemmas, bool_or(pronoun_suffix) AS suffix, \n' +
-                        '   array_agg(part_of_speech) AS pos, array_agg(part_of_speech_detail) as posd, \n' +
-                        ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts \n' +
-                        "FROM wordlist w  WHERE substring(word from 1 for 1) = %s \n" +
-                        "                    OR substring(word from 1 for 1) = %s \n" +
-                        'GROUP BY word \n' +
-                        'ORDER BY word ASC LIMIT 1000;\n',
+                       '       array_agg(part_of_speech) AS pos, array_agg(part_of_speech_detail) AS posd, \n' +
+                       '       ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts, min(lemma_idx) AS idx \n' +
+                       '  FROM wordlist w WHERE word IN \n' +
+                       '   ( \n' +
+                       '   SELECT min(word) \n' +
+                        "    FROM wordlist w  WHERE (substring(word from 1 for 1) = %s \n" +
+                        "                            OR substring(word from 1 for 1) = %s) \n" +
+                       '    GROUP BY substring(word from 1 for 3) \n' +
+                       '   ) \n' +
+                       ' GROUP BY word \n' +
+                       ' ORDER BY word ASC LIMIT 1000; \n',
                     args: [ltr, accented || '']
                 });
 
@@ -420,7 +439,7 @@
 
                 default:
 
-                    throw new Error('bad method in WordCollection.sync ' + method);
+                    throw new Error('bad method in WordCollectionQuick.sync ' + method);
                     break;
             }
         },
@@ -433,6 +452,7 @@
             });
         },
 
+/*
         // Filter down the list of words to those that start with _begin_
         startsWithExactly: function (begin) {
 
@@ -440,6 +460,7 @@
                 return word.startsWith(begin, 'exact');
             });
         },
+*/
 
         prefixLimited: function(begin, lim) {
 
@@ -480,10 +501,10 @@
             if ( t.length === 0 && prefixLen < 4 ) {
 
                 t1 = _.first(t1, lim);
-                return new WordCollection(t1);
+                return new WordCollectionQuick(t1);
             }
             else
-                return new WordCollection(t);
+                return new WordCollectionQuick(t);
         },
 
         findOne: function (word) {
@@ -534,56 +555,219 @@
     });
 
     // The collection of words backed by a remote server.
+    //   this collection grabs the complete list of records for words starting with lead
+    //   lead should be two letters
+    //
+    var WordCollectionComplete = WordCollectionQuick.extend({
+
+        // gets words
+        sync: function(method, model, options) {
+
+            options = options || {};
+            this.waitingOnFetch = true;
+
+            var collection = this;
+            var tmp = this.lead;
+
+
+            function getCompleteRecords(lead, accentedLead) {
+
+                var p = R.preauthPostData({
+
+                     q: 'SELECT distinct word, array_agg(lemma) AS lemmas, bool_or(pronoun_suffix) AS suffix, \n' +
+                     '   array_agg(part_of_speech) AS pos, array_agg(part_of_speech_detail) as posd, \n' +
+                     ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts, min(lemma_idx) as idx \n' +
+                     "FROM wordlist w  WHERE (substring(word from 1 for 2) = %s \n" +
+                     "                        OR substring(word from 1 for 2) = %s) \n" +
+                     'GROUP BY word \n' +
+                     'ORDER BY word ASC LIMIT 1000;\n',
+                    args: [lead, accentedLead || '']
+                });
+
+                p.then(function(resp) {
+
+                    function _useAllRows(rows) {
+
+                        if (rows.length === 0)
+                            rows = [{word: ''}];
+                        // console.log('resetting word collection '+tmp);
+                        collection.reset(rows);
+                        collection.waitingOnFetch = false;
+                        if ( options && options.success )
+                            options.success(rows);
+                    }
+
+                    var rows = resp.records.rows || [];
+                    if (rows.length < 1000) {
+
+                        return _useAllRows(rows);
+                    }
+                    else {
+                        var p1 = R.preauthPostData({
+
+                            q: 'SELECT distinct word, array_agg(lemma) AS lemmas, bool_or(pronoun_suffix) AS suffix, \n' +
+                            '   array_agg(part_of_speech) AS pos, array_agg(part_of_speech_detail) as posd, \n' +
+                            ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts, min(lemma_idx) as idx \n' +
+                            "FROM wordlist w  WHERE (substring(word from 1 for 2) = %s \n" +
+                            "                        OR substring(word from 1 for 2) = %s) \n" +
+                            'GROUP BY word \n' +
+                            'ORDER BY word ASC OFFSET 1000 LIMIT 1000;\n',
+                            args: [lead, accentedLead || '']
+                        });
+
+                        p1.then(function(resp) {
+                            var moreRows = resp.records.rows || [];
+                            rows = rows.concat(moreRows);
+
+                            return _useAllRows(rows);
+                        });
+
+                        p1.fail(function(err) {
+                            if ( options && options.error )
+                                options.error(err);
+                            console.log(err[0] + ' ' + err[1]);
+                            collection.waitingOnFetch = false;
+                        });
+
+                        return p1;
+                    }
+
+                });
+
+                p.fail(function(err) {
+                    if ( options && options.error )
+                        options.error(err);
+                    console.log(err[0] + ' ' + err[1]);
+                    collection.waitingOnFetch = false;
+                });
+            }
+
+            switch(method) {
+
+                case 'read':
+
+                    console.log('getCompleteRecords:read '+this.lead);
+                    getCompleteRecords(this.lead, ADD_ACCENT[this.lead]);
+                    break;
+
+                default:
+
+                    throw new Error('bad method in WordCollectionComplete.sync ' + method);
+                    break;
+            }
+        }
+    });
+
+
+    // The collection of words backed by a remote server.
     app.ThousandWords = Backbone.Model.extend({
 
         initialize: function() {
 
-            var that = this;
-            that.byLetter = {};
+            this.byLetter = {};
+            this.byTwoLetters = {}
         },
 
         // Filter down the list of all words to those starting with begin
+        //  returns a promise to be fulfilled with list of words starting with begin
+        //   list is not necessarily complete
+        //
         startingWith: function (begin) {
 
-            var letter = REMOVE_ACCENT[begin.charAt(0)] || begin.charAt(0),
-                ltrList = this.byLetter[letter],
-                p = $.Deferred(),
-                tmp;
+            var this_ = this;
 
-            if ( ltrList ) {
+            function oneLetter(beginLetter) {
 
-                // window.console.log('startingWith has ltrList ');
-                ltrList.whenReady(function() {
-                    tmp = ltrList.filter(function (word) {
-                        return word.startsWith(begin);
-                    });
-                    p.resolve(tmp);
-                })
-            }
-            else {
+                var letter = REMOVE_ACCENT[beginLetter] || beginLetter,
+                    ltrList = this_.byLetter[letter],
+                    p = $.Deferred(),
+                    tmp;
 
-                this.byLetter[letter] = new WordCollection();
-                this.byLetter[letter].lead = letter;
-                // window.console.log('startingWith byLetter[~] fetch '.replace('~', letter));
-                this.byLetter[letter].fetch({
+                if ( ltrList ) {
 
-                    success: function(col, rsp, opt) {
-                        tmp = col.filter(function (word) {
+                    // window.console.log('startingWith has ltrList ');
+                    ltrList.whenReady(function() {
+                        tmp = ltrList.filter(function (word) {
                             return word.startsWith(begin);
                         });
                         p.resolve(tmp);
-                    },
+                    })
+                }
+                else {
 
-                    error: function(col, rsp, opt) {
-                        p.reject(rsp);
-                    }
-                })
+                    this_.byLetter[letter] = new WordCollectionQuick();
+                    this_.byLetter[letter].lead = letter;
+                    // window.console.log('startingWith byLetter[~] fetch '.replace('~', letter));
+                    this_.byLetter[letter].fetch({
+
+                        success: function(col, rsp, opt) {
+                            tmp = col.filter(function (word) {
+                                return word.startsWith(begin);
+                            });
+                            p.resolve(tmp);
+                        },
+
+                        error: function(col, rsp, opt) {
+                            p.reject(rsp);
+                        }
+                    })
+                }
+
+                return p.promise();
             }
 
-            return p.promise();
+            function twoLetters(begin) {
+
+                var lead = createLead(begin),
+                    ltrList = this_.byTwoLetters[lead],
+                    p = $.Deferred(),
+                    tmp;
+
+                if ( ltrList ) {
+
+                    // window.console.log('startingWith has ltrList ');
+                    ltrList.whenReady(function() {
+                        tmp = ltrList.filter(function (word) {
+                            return word.startsWith(begin);
+                        });
+                        p.resolve(tmp);
+                    })
+                }
+                else {
+
+                    this_.byTwoLetters[lead] = new WordCollectionComplete();
+                    this_.byTwoLetters[lead].lead = lead;
+                    this_.byTwoLetters[lead].fetch({
+
+                        success: function(col, rsp, opt) {
+                            tmp = col.filter(function (word) {
+                                return word.startsWith(begin);
+                            });
+                            p.resolve(tmp);
+                        },
+
+                        error: function(col, rsp, opt) {
+                            p.reject(rsp);
+                        }
+                    })
+                }
+
+                return p.promise();
+            }
+
+            if (begin.length > 1) {
+                return twoLetters(begin);
+            }
+            else {
+                return oneLetter(begin.charAt(0));
+            }
         },
 
         prefixLimited: function(begin, lim) {
+
+            var this_ = this,
+                WordColl = begin.length > 1 ? WordCollectionComplete : WordCollectionQuick,
+                wordLookup = begin.length > 1 ? this_.byTwoLetters : this_.byLetter;
 
             function _prefixLimited(list, begin, lim) {
 
@@ -657,14 +841,14 @@
                 if (listNew.length === 0 && prefixLen < 4) {
 
                     prevList = _.first(prevList, lim);
-                    return new WordCollection(prevList);
+                    return new WordColl(prevList);
                 }
                 else
-                    return new WordCollection(listNew);
+                    return new WordColl(listNew);
             }
 
-            var indexChar = REMOVE_ACCENT[begin.charAt(0)] || begin.charAt(0),
-                ltrList = this.byLetter[indexChar],
+            var lead = createLead(begin),
+                ltrList = wordLookup[lead],
                 p = $.Deferred(),
                 wc, tmp, that;
 
@@ -685,15 +869,15 @@
             }
             else {
 
-                tmp = new WordCollection();
-                tmp.lead = indexChar;
+                tmp = new WordColl();
+                tmp.lead = lead;
                 ltrList = true;
                 // window.console.log('prefixLimited WC.fetch ltrList=true');
                 tmp.fetch({
 
                     success: function(col, rsp, opt) {
                         ltrList = tmp;
-                        that.byLetter[indexChar] = tmp;
+                        that.byLetter[lead] = tmp;
                         wc = _prefixLimited(col, begin, lim);
                         p.resolve(wc);
                     },
@@ -701,7 +885,7 @@
                     error: function(col, rsp, opt) {
 
                         p.reject(rsp);
-                        delete that.byLetter[indexChar];
+                        delete that.byLetter[lead];
                     }
                 })
             }
@@ -711,10 +895,10 @@
 
         findingOne: function (word) {
 
-            var indexChar = REMOVE_ACCENT[word.charAt(0)] || word.charAt(0),
-                ltrList = this.byLetter[indexChar],
+            var lead = createLead(word),
+                ltrList = this.byTwoLetters[lead],
                 p = $.Deferred(),
-                that = this,
+                this_ = this,
                 tmp, wc;
 
             if ( ltrList ) {
@@ -727,14 +911,14 @@
             }
             else {
 
-                tmp = new WordCollection();
-                tmp.lead = indexChar;
+                tmp = new WordCollectionComplete();
+                tmp.lead = lead;
                 // window.console.log('findingOne [~] fetch '.replace('~', tmp.lead));
                 tmp.fetch({
 
                     success: function(list, rsp, opt) {
 
-                        that.byLetter[tmp.lead] = tmp;
+                        this_.byTwoLetters[tmp.lead] = tmp;
                         var one = tmp.findOne(word);
 
                         p.resolve(one);
