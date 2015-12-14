@@ -769,7 +769,7 @@
                 WordColl = begin.length > 1 ? WordCollectionComplete : WordCollectionQuick,
                 wordLookup = begin.length > 1 ? this_.byTwoLetters : this_.byLetter;
 
-            function _prefixLimited(list, begin, lim) {
+            function _prefixLimited(list, begin, listCtLimit) {
 
                 var prefixLen = 5,
                     listNew, wordItm;
@@ -778,7 +778,7 @@
                     return  wd.startsWith(begin);
                 });
 
-                while (listNew.length > lim) {
+                while (listNew.length > listCtLimit) {
 
                     var prevList = listNew.slice(0),
                         prefix = prevList[0].getPrefix(prefixLen);
@@ -804,7 +804,7 @@
                     }
 
                     // if still too long, try limiting to exact matches
-                    if (listNew.length > lim ) {
+                    if (listNew.length > listCtLimit ) {
 
                         prevList = listNew.slice(0);
                         listNew.length = 0;
@@ -829,7 +829,43 @@
                         }
 
                         // if exact-match list still too long, revert to fuzzy-match list and reiterate
-                        if (listNew.length > lim) {
+                        if (listNew.length > listCtLimit) {
+
+                            listNew = prevList.slice(0);
+                        }
+                    }
+
+                    // if still too long, try limiting to first-1000
+                    if (listNew.length > listCtLimit ) {
+
+                        prevList = listNew.slice(0);
+                        listNew.length = 0;
+                        listNew.push(prevList[0].clone());
+
+                        prevList = _.filter(prevList, function(itm) {
+                           return itm.attributes.idx <= 1000;
+                        });
+
+                        for ( i=1; i<prevList.length; ++i ) {
+
+                            if ( prefix.length < prefixLen || ! prevList[i].startsWith(prefix, 'exact') ) {
+
+                                wordItm = prevList[i].clone();
+                                listNew.push(wordItm);
+                                prefix = wordItm.getPrefix(prefixLen);
+                            }
+                            else {
+
+                                wordItm = listNew[listNew.length-1];
+                                listNew[listNew.length-1].setOKMulti('okmulti');
+
+                                if ( prefix.length < prefixLen && prevList[i].getWordLength() > prefix.length )
+                                    prefix = prevList[i].getPrefix(prefixLen)
+                            }
+                        }
+
+                        // if exact-match list still too long, revert to fuzzy-match list and reiterate
+                        if (listNew.length > listCtLimit) {
 
                             listNew = prevList.slice(0);
                         }
@@ -840,7 +876,7 @@
 
                 if (listNew.length === 0 && prefixLen < 4) {
 
-                    prevList = _.first(prevList, lim);
+                    prevList = _.first(prevList, listCtLimit);
                     return new WordColl(prevList);
                 }
                 else
@@ -850,7 +886,7 @@
             var lead = createLead(begin),
                 ltrList = wordLookup[lead],
                 p = $.Deferred(),
-                wc, tmp, that;
+                wc, tmp;
 
             function _ltrList() {
 
@@ -877,7 +913,7 @@
 
                     success: function(col, rsp, opt) {
                         ltrList = tmp;
-                        that.byLetter[lead] = tmp;
+                        this_.byLetter[lead] = tmp;
                         wc = _prefixLimited(col, begin, lim);
                         p.resolve(wc);
                     },
@@ -885,7 +921,7 @@
                     error: function(col, rsp, opt) {
 
                         p.reject(rsp);
-                        delete that.byLetter[lead];
+                        delete this_.byLetter[lead];
                     }
                 })
             }
