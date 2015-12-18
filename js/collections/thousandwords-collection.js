@@ -19,7 +19,7 @@
                     'melo', 'telo', 'selo', 'mela', 'tela', 'sela',
                     'melos', 'telos', 'selos', 'melas', 'telas', 'selas' ],
 
-        ADD_ACCENT = {
+        _ADD_ACCENT = {
             'a': '\u00e1',
             'e': '\u00e9',
             'i': '\u00ed',
@@ -47,6 +47,15 @@
 
         x;
 
+    function add_accent(lead) {
+
+        function replace(c) {
+            return _ADD_ACCENT[c];
+        }
+        var newLead = lead.replace(/[aeiouAEIOU]/g, replace);
+        return newLead;
+    }
+
 
     /*
      *  audit text takes body of text from editor and validates it.
@@ -68,7 +77,7 @@
             });
         var textParts = text2.split(splitWordsOnKp),
             p = $.Deferred(),
-            accum = 0, errs = [], replacements = [],
+            accum = 0, errs = [], replacements = [], next2kwords = [],
             wd, trimmed, trimmedLeadLen, err;
 
         if ( ! /\S/.test(text) ) {
@@ -150,9 +159,26 @@
                                        newVal: normRefWord,
                                        type: 'replace'};
                                 replacements.push(err);
+
+                                // handle next2k words
+                                if (refWd.attributes.idx > 1000) {
+                                    err = {begin: accum + trimmedLeadLen,
+                                           end: accum + trimmedLeadLen + normRefWord.length,
+                                           type: 'next2k'};
+                                    next2kwords.push(err);
+                                }
                             }
-                            else
-                                ; // if word is good, do nothing special
+                            else {
+                                // if word is good, do nothing special
+
+                                // handle next2k words
+                                if (refWd.attributes.idx > 1000) {
+                                    err = {begin: accum + trimmedLeadLen,
+                                           end: accum + trimmedLeadLen + trimmed.length,
+                                           type: 'next2k'};
+                                    next2kwords.push(err);
+                                }
+                            }
 
                             accum += wd.length;
                             if (textParts.length)
@@ -208,7 +234,7 @@
             if ( flippedParts.length )
                 replacements.push.apply(replacements, flippedParts);
 
-            p.resolve([errs, replacements]);
+            p.resolve([errs, replacements, next2kwords]);
         }
 
         handleOneWord();
@@ -401,7 +427,7 @@
                 case 'read':
 
                     console.log('getInitialRecords:read '+this.lead);
-                    getInitialRecords(this.lead, ADD_ACCENT[this.lead]);
+                    getInitialRecords(this.lead, add_accent(this.lead));
                     break;
 
                 default:
@@ -605,7 +631,7 @@
                 case 'read':
 
                     console.log('getCompleteRecords:read '+this.lead);
-                    getCompleteRecords(this.lead, ADD_ACCENT[this.lead]);
+                    getCompleteRecords(this.lead, add_accent(this.lead));
                     break;
 
                 default:

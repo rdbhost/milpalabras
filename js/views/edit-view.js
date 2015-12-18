@@ -177,6 +177,38 @@
     }
 
 
+    function doBlueMarking($div, next2kwords) {
+
+        var sel = rangy.getSelection(),
+            rng = rangy.createRange(),
+            container;
+
+        var caretPosObj = rangy.saveSelection(),
+            caretPos = getCaretPos($div);
+
+        for ( var i=0; i<next2kwords.length; ++i ) {
+
+            var bWord = next2kwords[i];
+            // if ( caretPos >= bWord.begin && caretPos <= bWord.end )
+            //    continue;
+
+            if ( bWord.type === 'next2k' ) {
+
+                container = $div.get(0);
+
+                rng.selectCharacters(container, bWord.begin, bWord.end);
+                sel.setSingleRange(rng);
+                document.execCommand('forecolor', false, '#00008b');
+            }
+
+            rng.collapse();
+            sel.setSingleRange(rng);
+        }
+
+        rangy.restoreSelection(caretPosObj);
+        return next2kwords;
+    }
+
     function handleInputErrors($rawDiv, ratio) {
 
         var auditPromise = app.audit_text(app.thousand_words, rangy.innerText($rawDiv.get(0)), ratio),
@@ -185,12 +217,14 @@
         auditPromise.then(function(divEval) {
 
             unMarkErrors($rawDiv);
-            if ( divEval && divEval.length && divEval[0].length ) {
+            if ( divEval && divEval.length && divEval[0].length )
                 markErrors($rawDiv, divEval[0]);
-            }
 
             if ( divEval.length > 1 && divEval[1].length )
                 doReplacements($rawDiv, divEval[1]);
+
+            if ( divEval.length > 2 && divEval[2].length )
+                doBlueMarking($rawDiv, divEval[2]);
 
             p.resolve(divEval[0] || null);
         });

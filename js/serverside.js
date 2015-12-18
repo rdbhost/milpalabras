@@ -17,7 +17,9 @@ function clickHandler(evt) {
         sql = $('#'+sqlId).text();
 
     sql = sql.replace('~bdyratio', app.constants.BODY_RATIO)
+        .replace('~2kratio', app.constants.TWOK_RATIO)
         .replace('~ttlratio', app.constants.TITLE_RATIO)
+        .replace('~t2kratio', app.constants.TITLE2K_RATIO)
         .replace('~leftquotes', app.constants.LEFT_QUOTES)
         .replace('~fancybegin', app.constants.FANCY_BEGIN_PUNCTUATION)
         .replace('~rightquotes', app.constants.RIGHT_QUOTES)

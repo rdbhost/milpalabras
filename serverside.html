@@ -22,12 +22,12 @@
         ct INT;
     BEGIN
 
-        SELECT * INTO tmp FROM test_msg(bdy, ~bdyratio);
+        SELECT * INTO tmp FROM test_msg(bdy, ~bdyratio, ~2kratio);
         IF FOUND AND tmp IS NOT NULL THEN
             RAISE EXCEPTION 'invalid body %', tmp USING ERRCODE = 'RD001';
         END IF;
 
-        SELECT * INTO tmp FROM test_msg(ttl, ~ttlratio);
+        SELECT * INTO tmp FROM test_msg(ttl, ~ttlratio, ~t2kratio);
         IF FOUND AND tmp IS NOT NULL THEN
             RAISE EXCEPTION 'invalid title %', tmp USING ERRCODE = 'RD002';
         END IF;
@@ -64,12 +64,12 @@
         uid BIGINT;
     BEGIN
 
-    SELECT * INTO tmp FROM test_msg(bdy, ~bdyratio);
+    SELECT * INTO tmp FROM test_msg(bdy, ~bdyratio, ~2kratio);
     IF FOUND AND tmp IS NOT NULL THEN
         RAISE EXCEPTION 'invalid body %', tmp USING ERRCODE = 'RD001';
     END IF;
 
-    SELECT * INTO tmp FROM test_msg(ttl, ~ttlratio);
+    SELECT * INTO tmp FROM test_msg(ttl, ~ttlratio, ~t2kratio);
     IF FOUND AND tmp IS NOT NULL THEN
         RAISE EXCEPTION 'invalid title %', tmp USING ERRCODE = 'RD002';
     END IF;
@@ -95,7 +95,7 @@
 
 <script type="text/template" id="test_msg">
     CREATE OR REPLACE FUNCTION "test_msg"
-       (IN title text, IN ratio_limit float4)
+       (IN txt text, IN ratio_limit float4, IN next2k_limit float4)
     RETURNS varchar
     AS $$
     DECLARE
@@ -103,34 +103,38 @@
         ct INTEGER;
         quoted_size INTEGER;
         nonquoted_size INTEGER;
-        ratio FLOAT;
-        title_noquotes TEXT;
+        next2k_size INTEGER;
+        quote_ratio FLOAT;
+        next2k_ratio FLOAT;
+        txt_noquotes TEXT;
     BEGIN
-        -- make copy of title without quoted-parts
-        title_noquotes := regexp_replace(title, '~quoted', ' ', 'g');
+        -- make copy of text without quoted-parts
+        txt_noquotes := regexp_replace(txt, '~quoted', ' ', 'g');
 
-        DROP TABLE IF EXISTS tbl CASCADE;
+        DROP TABLE IF EXISTS txt_words CASCADE;
 
-        CREATE TEMPORARY TABLE tbl AS
-            SELECT regexp_replace(regexp_split_to_table(lower(title_noquotes), '~wordsplit'),
-                                  '~trimre', '', 'g') AS wd;
+        CREATE TEMPORARY TABLE txt_words AS
+           SELECT wd FROM (SELECT regexp_replace(regexp_split_to_table(lower(txt_noquotes), '~wordsplit'),
+                    '~trimre', '', 'g') AS wd) AS w WHERE w.wd > '';
 
         -- we add quoted-parts back in here, so they don't get split by word-split above
-        INSERT INTO tbl
-            SELECT unnest(regexp_matches(title, '~quoted', 'g')) AS wd;
+        INSERT INTO txt_words
+            SELECT unnest(regexp_matches(txt, '~quoted', 'g')) AS wd;
 
         CREATE TEMPORARY VIEW words AS
-            SELECT tbl.wd, wordlst.word, tbl.wd ~ '~quoted' AS quoted, tbl.wd ~ '~nonword' AS nonword
-              FROM tbl LEFT JOIN (SELECT DISTINCT word FROM wordlist_plus) wordlst ON wordlst.word = tbl.wd
+            SELECT tbl.wd, wordlst.word, tbl.wd ~ '~quoted' AS quoted, tbl.wd ~ '~nonword' AS nonword,
+                     wordlst.first1000 AS first1000
+              FROM txt_words tbl
+                   LEFT JOIN (SELECT DISTINCT word, first1000 FROM wordlist_plus) wordlst ON wordlst.word = tbl.wd
              WHERE tbl.wd <> '';
 
         -- test that temp tables are ok
         SELECT count(*) INTO ct FROM words WHERE words.word IS NOT NULL;
         IF ct < 1 THEN
-            RETURN 'bad words table ' || ct || ' [' || (SELECT wd FROM tbl LIMIT 1) || ']';
+            RETURN 'bad words table ' || ct || ' [' || (SELECT wd FROM txt_words LIMIT 1) || ']';
         END IF;
 
-        -- check that no illegal words provided (without either dict match or quotes) for subject
+        -- check that no illegal words provided (without either dict match or quotes) for txt
         --
         SELECT words.wd INTO tmp FROM words WHERE words.word IS NULL
             AND NOT quoted AND NOT nonword AND words.wd <> '';
@@ -148,14 +152,27 @@
         SELECT coalesce(sum(char_length(wd)), 0) INTO nonquoted_size
         FROM words WHERE word IS NOT NULL;
 
+        -- store size of next2k
+        --
+        SELECT coalesce(sum(char_length(wd)), 0) INTO next2k_size
+        FROM words
+        WHERE word IS NOT NULL AND NOT first1000;
+
         -- check that ratio of quoted words not too high
         --
-        ratio := quoted_size / (nonquoted_size + quoted_size)::FLOAT;
-        if ratio > ratio_limit THEN
-            RETURN 'bad ratio ' || ratio || ' ' || nonquoted_size || ' ' || quoted_size;
+        quote_ratio := quoted_size / (nonquoted_size + quoted_size)::FLOAT;
+        if quote_ratio > ratio_limit THEN
+            RETURN 'bad quote ratio ' || quote_ratio || ' ' || nonquoted_size || ' ' || quoted_size;
         END IF;
 
-        -- if not checks failed, return NULL
+        -- check that ratio of next 2k words not too high
+        --
+        next2k_ratio := next2k_size / (nonquoted_size + quoted_size)::FLOAT;
+        if next2k_ratio > next2k_limit THEN
+        RETURN 'bad next2k ratio ' || next2k_ratio || ' ' || next2k_size || ' ' || nonquoted_size;
+        END IF;
+
+        -- if no checks failed, return NULL
         RETURN NULL;
 
     END;

@@ -34,8 +34,10 @@ app.constants = {
 
     myKeyName: 'OPENID_KEY',
 
-    BODY_RATIO: '0.15',
+    BODY_RATIO: '0.10',
     TITLE_RATIO: '0.5',
+    TWOK_RATIO: '0.15',
+    TITLE2K_RATIO: '0.5',
 
     DAILY_POST_LIMIT: '5'
 };
