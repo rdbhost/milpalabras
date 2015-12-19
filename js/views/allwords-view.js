@@ -45,7 +45,7 @@
         showByLetter: function(ev) {
 
             var ltr = ev.target.innerText;
-            var p = app.translations.getDefCollection(ltr),
+            var p = app.translations.getFirst1KDefCollection(ltr),
                 that = this;
 
             p.then(function(defCol) {
@@ -127,6 +127,8 @@
 
                     var dom, $hover,
                         wordFormHash = wordHash[form];
+
+                    // todo - complete this table
 
                     if (form === 'verb') {
                         var withDefaults = _.extend({

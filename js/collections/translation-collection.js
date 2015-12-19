@@ -51,8 +51,24 @@
     // Dictionary Words Collection
     // ---------------
 
+    function consolidateTranslateRows(rows) {
+
+        var newRows = {},
+            tmpForm;
+        _.each(rows, function(row) {
+
+            if (! newRows.hasOwnProperty(row.lemma))
+                newRows[row.lemma] = {lemma: row.lemma, forms: []};
+            tmpForm = {form: row.form, definition: row.definition};
+            newRows[row.lemma].forms.push(tmpForm);
+        });
+
+        return _.values(newRows);
+    }
+
+
     // The collection of words backed by a remote server.
-    var DefinitionCollection = Backbone.Collection.extend({
+    var DefinitionCollectionFirst1K = Backbone.Collection.extend({
 
         // Reference to this collection's model.
         model: app.TranslateEntry,
@@ -65,26 +81,12 @@
 
             var collection = this;
 
-            function consolidateTranslateRows(rows) {
-
-                var newRows = {},
-                    tmpForm;
-                _.each(rows, function(row) {
-
-                    if (! newRows.hasOwnProperty(row.lemma))
-                        newRows[row.lemma] = {lemma: row.lemma, forms: []};
-                    tmpForm = {form: row.form, definition: row.definition};
-                    newRows[row.lemma].forms.push(tmpForm);
-                });
-
-                return _.values(newRows);
-            }
-
             function getRecords(ltr) {
 
                 var p = R.preauthPostData({
                     q: 'SELECT lemma, definition, form \n' +
                        "  FROM word_definitions w  WHERE substring(lemma from 1 for 1) = %s \n" +
+                       "                             AND idx <= 1000 \n" +
                        'ORDER BY lemma ASC LIMIT 500;\n',
                     args: [ltr]
                 });
@@ -116,7 +118,7 @@
 
                 default:
 
-                    throw new Error('bad method in DefinitionCollection.sync ' + method);
+                    throw new Error('bad method in DefinitionCollectionFirst1K.sync ' + method);
                     break;
             }
         },
@@ -126,18 +128,94 @@
             return this.find(function (wd) {
                 return wd.match(word);
             });
-/*
-        },
-
-        findOneByForm: function(word, form) {
-
-            return this.find(function(wd) {
-                return wd.matchWithForm(word, form);
-            });
-*/
         }
 
     });
+
+    // The collection of words backed by a remote server.
+    var DefinitionCollectionAll = DefinitionCollectionFirst1K.extend({
+
+        // Save all of the thread items under the `"threads"` namespace.
+        // localStorage: new Backbone.LocalStorage('threads-backbone'),
+        sync: function(method, model, options) {
+
+            options = options || {};
+
+            var collection = this;
+
+            function getRecords(ltr) {
+
+                var p = R.preauthPostData({
+                    q: 'SELECT lemma, definition, form \n' +
+                    "  FROM word_definitions w  WHERE substring(lemma from 1 for 3) = %s \n" +
+                    'ORDER BY lemma ASC LIMIT 500;\n',
+                    args: [ltr]
+                });
+
+                p.then(function(resp) {
+
+                    var rows = consolidateTranslateRows(resp.records.rows);
+
+                    collection.reset(rows);
+                    if ( options && options.success )
+                        options.success(rows);
+
+                });
+
+                p.fail(function(err) {
+                    if ( options && options.error )
+                        options.error(err);
+                    console.log(err[0] + ' ' + err[1]);
+                });
+            }
+
+
+            switch(method) {
+
+                case 'read':
+
+                    getRecords(this.lead);
+                    break;
+
+                default:
+
+                    throw new Error('bad method in DefinitionCollectionAll.sync ' + method);
+                    break;
+            }
+        }
+
+    });
+
+    var REMOVE_ACCENT = {
+        '\u00e1': 'a',
+        '\u00e9': 'e',
+        '\u00ed': 'i',
+        '\u00f3': 'o',
+        '\u00fa': 'u',
+        '\u00c1': 'A',
+        '\u00c9': 'E',
+        '\u00cd': 'I',
+        '\u00d3': 'O',
+        '\u00da': 'U'
+    };
+
+
+    function createLead(begin) {
+
+        var lead = REMOVE_ACCENT[begin.charAt(0)] || begin.charAt(0);
+        if (begin.length === 1)
+            return lead;
+
+        var letter = REMOVE_ACCENT[begin.charAt(1)] || begin.charAt(1);
+        lead = lead + letter;
+        if (begin.length === 2)
+            return lead;
+
+        letter = REMOVE_ACCENT[begin.charAt(2)] || begin.charAt(2);
+        lead = lead + letter;
+
+        return lead;
+    }
 
 
     // The collection of words backed by a remote server.
@@ -145,32 +223,33 @@
 
         initialize: function() {
 
-            var that = this;
-            that.byLetter = {};
-            that.formsByLemma = {};
+            this.byLetter = {};
+            this.byThreeLetters = {};
+            this.formsByLemma = {};
         },
 
         findingOne: function (word) {
 
-            var ltrList = this.byLetter[word.charAt(0)],
+            var lead = createLead(word),
+                leadList = this.byThreeLetters[lead],
                 p = $.Deferred(),
-                that = this,
+                this_ = this,
                 tmp, wc;
 
-            if ( ltrList ) {
+            if ( leadList ) {
 
-                var one = ltrList.findOne(word);
+                var one = leadList.findOne(word);
                 p.resolve(one);
             }
             else {
 
-                tmp = new DefinitionCollection();
-                tmp.lead = word.charAt(0);
+                tmp = new DefinitionCollectionAll();
+                tmp.lead = createLead(word);
                 tmp.fetch({
 
                     success: function(list, rsp, opt) {
 
-                        that.byLetter[tmp.lead] = tmp;
+                        this_.byThreeLetters[tmp.lead] = tmp;
                         var one = tmp.findOne(word);
 
                         p.resolve(one);
@@ -186,7 +265,7 @@
             return p;
         },
 
-        getDefCollection: function (ltr) {
+        getFirst1KDefCollection: function (ltr) {
 
             var ltrList = this.byLetter[ltr.charAt(0)],
                 p = $.Deferred(),
@@ -199,7 +278,7 @@
             }
             else {
 
-                tmp = new DefinitionCollection();
+                tmp = new DefinitionCollectionFirst1K();
                 tmp.lead = ltr.charAt(0);
                 tmp.fetch({
 
