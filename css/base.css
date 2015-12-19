@@ -37,7 +37,7 @@ h2, h3, dt {
 }
 
 #topics, #thread, #user, #suspended, #intro, #faq, #allwords, #daily {
-    font-size: large;
+    font-size: 14pt;
     background: white;
     border: 3px solid #006561 /* #a64a00 */;
     color: #300;
@@ -182,13 +182,13 @@ span.busqueda {
 
 .okwords {
     position: fixed;
-    font-size: 16px;
+    font-size: 12px;
     width: 7em;
     bottom: -6px;
     right: 537px;
-    background-color: white;
     color: black;
-    border: thin solid mediumpurple;
+    border: thick solid mediumpurple;
+    background-color: rgb(149, 162, 164);
     -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
 }
 span.okmulti {
@@ -203,7 +203,7 @@ span.next2k {
 li.wordlist {
     list-style-type: none;
     padding-left: 2px;
-    font-size: 14pt;
+    font-size: 12pt;
     width: 25em;
     margin-left: -15px;
 }
@@ -214,7 +214,7 @@ ul.oops {
 
 #luform {
     position: fixed;
-    font-size: 16px;
+    font-size: 14px;
     width: 25em;
     bottom: 10px;
     padding: 12px;
@@ -260,7 +260,7 @@ ul.oops {
     padding: 3px;
     min-height: 45px;
     width: 350px;
-    font-size: larger;
+    font-size: 14pt;
     background-color: #ffb173;
     border: thin solid #ff7100;
     -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
@@ -271,7 +271,7 @@ ul.oops {
 }
 
 table.hover th {
-    font-size: smaller;
+    font-size: 10pt;
     text-align: left;
     padding: 8px;
 }
@@ -283,7 +283,7 @@ table.hover td {
 }
 
 #def-forms {
-    font-size: x-small;
+    font-size: 10pt;
 }
 
 .hover-rgt {
@@ -352,7 +352,7 @@ span.defn {
 
 .hover-tooltip {
     padding: 5px;
-    font-size: larger;
+    font-size: 12pt;
     max-width: 600px;
     background-color: #ffb173;
     border: thin solid #ff7100;
@@ -379,7 +379,7 @@ span.defn {
 }
 #allwords div.right-col .lemma { float: left; width: 35%; }
 #allwords div.right-col .defn { float: right; width: 65% }
-#allwords div.right-col .forms { float: left; padding-right: 8px; padding-top: 4px; font-size: x-small;  }
+#allwords div.right-col .forms { float: left; padding-right: 8px; padding-top: 4px; font-size: 10pt;  }
 #allwords div.right-col .seperator { clear: both; margin-bottom: 12px; }
 
 #allwords ul {
@@ -406,7 +406,7 @@ footer {
     margin-right: auto;
     margin-top: 50px;
     margin-bottom: 24px;
-    font-size: large;
+    font-size: 14pt;
     width: 530px;
     align-content: center;
     text-align: center;
@@ -474,6 +474,6 @@ div.wodmenu {
     width: 33%;
     float: left;
     text-align: center;
-    font-size: small;
+    font-size: 10pt;
 }
 /* end */
