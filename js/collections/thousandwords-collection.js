@@ -63,7 +63,7 @@
      *      elements.
      *   If there is a quoted-ratio error, all quoted portions will be included in error list
      */
-    app.audit_text = function (dict, text, quoteRatio) {
+    app.audit_text = function (dict, text, quoteRatio, next2KRatio) {
 
         function trim(wd) {
 
@@ -82,7 +82,7 @@
 
         if ( ! /\S/.test(text) ) {
             err = {start: 0, end: 0, type: 'blank'};
-            p.resolve([err]);
+            p.resolve([err, [], [], [0,0]]);
         }
 
         function getFlippable(text) {
@@ -203,7 +203,7 @@
             }
             else {
 
-                accum += wd.length;
+                accum += wd.length; // only for calculating offsets, not for text size
                 if (textParts.length)
                     setTimeout(handleOneWord, 0);
                 else
@@ -211,30 +211,33 @@
             }
         }
 
-        function quotedRatio(text) {
+        function quotedRatio(text, next2kwords) {
 
             var md = toMarkdown(text),
                 wds = md.split(splitWordsOn),
-                wds2, quotedWords, nonQuotedWords, sumQ, sumNQ;
+                quotedWords, nonQuotedWords, next2KWords, sumQ, sumNQ, sumN2K;
 
             quotedWords = _.filter(wds, function(wd) { return wd.charAt(0) === '"' });
             nonQuotedWords = _.filter(wds, function(wd) { return wd.charAt(0) !== '"' });
             sumQ = _.reduce(quotedWords, function(m, n) { return m+ n.length-2; }, 0);
             sumNQ = _.reduce(nonQuotedWords, function(m, n) { return m+ n.length; }, 0);
-            return sumQ/(sumQ+sumNQ);
+            sumN2K = _.reduce(next2kwords, function(m, n) { return m+ (n.end - n.begin); }, 0);
+            return [sumQ/(sumQ+sumNQ), sumN2K/(sumQ+sumNQ)];
         }
 
         function finalize() {
 
-            var qRatio = quotedRatio(text2);
-            if (qRatio > quoteRatio)
-                errs.push({'start': accum, 'end': accum + wd.length, 'type': 'quoted'});
+            var qRatios = quotedRatio(text2, next2kwords);
+            if (qRatios[0] > quoteRatio)
+                errs.push({'type': 'quoted'});
+            if (qRatios[1] > next2KRatio)
+                errs.push({'type': 'next2k'});
 
             var flippedParts = getFlippable(text2);
             if ( flippedParts.length )
                 replacements.push.apply(replacements, flippedParts);
 
-            p.resolve([errs, replacements, next2kwords]);
+            p.resolve([errs, replacements, next2kwords, qRatios]);
         }
 
         handleOneWord();

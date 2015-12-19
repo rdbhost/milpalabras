@@ -3,6 +3,7 @@
 (function ($) {
 	'use strict';
 
+    var STATUS_BAR_WIDTH = 300;
     var WORD_BREAK_RE = new RegExp('[^a-zA-Z\\[\\]`~' + app.constants.FANCY_WORD_CHARS + ']+', 'g');
 
     function getCaretPos($div) {
@@ -209,24 +210,19 @@
         return next2kwords;
     }
 
-    function handleInputErrors($rawDiv, ratio) {
+    function handleInputErrors($rawDiv, ratioUq, ratioN2K) {
 
-        var auditPromise = app.audit_text(app.thousand_words, rangy.innerText($rawDiv.get(0)), ratio),
+        var auditPromise = app.audit_text(app.thousand_words, rangy.innerText($rawDiv.get(0)), ratioUq, ratioN2K),
             p = $.Deferred();
 
         auditPromise.then(function(divEval) {
 
             unMarkErrors($rawDiv);
-            if ( divEval && divEval.length && divEval[0].length )
-                markErrors($rawDiv, divEval[0]);
+            markErrors($rawDiv, divEval[0]);
+            doReplacements($rawDiv, divEval[1]);
+            doBlueMarking($rawDiv, divEval[2]);
 
-            if ( divEval.length > 1 && divEval[1].length )
-                doReplacements($rawDiv, divEval[1]);
-
-            if ( divEval.length > 2 && divEval[2].length )
-                doBlueMarking($rawDiv, divEval[2]);
-
-            p.resolve(divEval[0] || null);
+            p.resolve([divEval[0] || null, divEval[3]]);
         });
 
         auditPromise.fail(function(err) {
@@ -301,18 +297,20 @@
                 that = this,
                 pM, pS, pM1, pS1, quoteRatio;
 
-            pM = handleInputErrors($rawMsg, app.constants.BODY_RATIO);
-            pM1 = pM.then(function(res) {
-                that.errorStats['new-message'] = res;
+            pM = handleInputErrors($rawMsg, app.constants.BODY_RATIO, app.constants.TWOK_RATIO);
+            pM1 = pM.then(function(resp) {
+                that.errorStats['new-message'] = resp[0];
+                return resp[1]; // return stats
             });
 
-            pS = handleInputErrors($rawSubj, app.constants.TITLE_RATIO);
-            pS1 = pS.then(function(res) {
-                that.errorStats['subject'] = res;
+            pS = handleInputErrors($rawSubj, app.constants.TITLE_RATIO, app.constants.TITLE2K_RATIO);
+            pS1 = pS.then(function(resp) {
+                that.errorStats['subject'] = resp[0];
+                return resp[1]; // return stats
             });
 
             var pAll = $.when(pS1, pM1);
-            pAll.then(function (resp) {
+            pAll.then(function (respS1, respM1) {
 
                 that._manageButtons();
                 saveMessage();
@@ -448,6 +446,21 @@
 
         errorStats: {},
 
+        _updateStatusBar: function(stats) {
+
+            var quotedRatio = stats[0],
+                next2kRatio = stats[1],
+                goodRatio = 1 - quotedRatio - next2kRatio,
+
+                quotedBarSize = STATUS_BAR_WIDTH * quotedRatio,
+                next2KBarSize = STATUS_BAR_WIDTH * next2kRatio,
+                goodBarSize = STATUS_BAR_WIDTH - quotedBarSize - next2KBarSize;
+
+            $('#bar-quoted').css('width', Math.round(quotedBarSize));
+            $('#bar-good').css('width', Math.round(goodBarSize));
+            $('#bar-next-2K').css('width', Math.round(next2KBarSize));
+        },
+
         _manageButtons: function() {
 
             var rawMsg = this.$('#new-message').text(),
@@ -532,10 +545,12 @@
             if ( ~this._queue.indexOf(app.constants.SPACE_KEY)
                 || ~this._queue.indexOf(app.constants.BACKSPACE_KEY) ) {
 
-                var pS = handleInputErrors($div, quoteRatio);
-                pS.then(function(res) {
-                    that.errorStats[divId] = res;
+                var pS = handleInputErrors($div, quoteRatio, 1);
+                pS.then(function(resp) {
+                    var stats = resp[1];
+                    that.errorStats[divId] = resp[0];
                     that._manageButtons();
+                    that._updateStatusBar(stats);
                 });
                 pS.fail(function(res) {
                    var _nada = true;
