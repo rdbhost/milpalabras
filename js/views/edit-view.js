@@ -3,8 +3,12 @@
 (function ($) {
 	'use strict';
 
-    var STATUS_BAR_WIDTH = 300;
-    var WORD_BREAK_RE = new RegExp('[^a-zA-Z\\[\\]`~' + app.constants.FANCY_WORD_CHARS + ']+', 'g');
+    var STATUS_BAR_WIDTH = 300,
+        WORD_BREAK_RE = new RegExp('[^a-zA-Z\\[\\]`~' + app.constants.FANCY_WORD_CHARS + ']+', 'g'),
+        BAR_GOOD_COLOR = 'green',
+        BAR_QUOTED_COLOR = 'yellow',
+        BAR_NEXT2K_COLOR = 'darkblue',
+        BAR_ERROR_COLOR = 'red';
 
     function getCaretPos($div) {
 
@@ -119,6 +123,14 @@
 
                 document.execCommand('forecolor', false, 'red');
             }
+            else  if ( err.type === 'next2k' ) {
+
+                container = $div.get(0);
+                rng.selectCharacters(container, err.begin, err.end);
+                sel.setSingleRange(rng);
+
+                document.execCommand('forecolor', false, 'red');
+            }
 
             rng.collapse();
             sel.setSingleRange(rng);
@@ -210,19 +222,22 @@
         return next2kwords;
     }
 
-    function handleInputErrors($rawDiv, ratioUq, ratioN2K) {
+    function handleInputErrors($rawDiv, ratioQuotedLimit, ratioN2KLimit) {
 
-        var auditPromise = app.audit_text(app.thousand_words, rangy.innerText($rawDiv.get(0)), ratioUq, ratioN2K),
+        var auditPromise = app.audit_text(app.thousand_words, rangy.innerText($rawDiv.get(0)),
+                                          ratioQuotedLimit, ratioN2KLimit),
             p = $.Deferred();
 
         auditPromise.then(function(divEval) {
 
-            unMarkErrors($rawDiv);
-            markErrors($rawDiv, divEval[0]);
-            doReplacements($rawDiv, divEval[1]);
-            doBlueMarking($rawDiv, divEval[2]);
+            var stats = divEval[3], errors = divEval[0];
 
-            p.resolve([divEval[0] || null, divEval[3]]);
+            unMarkErrors($rawDiv);
+            doBlueMarking($rawDiv, divEval[2]);
+            markErrors($rawDiv, errors);
+            doReplacements($rawDiv, divEval[1]);
+
+            p.resolve([errors, stats]);
         });
 
         auditPromise.fail(function(err) {
@@ -450,15 +465,26 @@
 
             var quotedRatio = stats[0],
                 next2kRatio = stats[1],
-                goodRatio = 1 - quotedRatio - next2kRatio,
 
-                quotedBarSize = STATUS_BAR_WIDTH * quotedRatio,
-                next2KBarSize = STATUS_BAR_WIDTH * next2kRatio,
-                goodBarSize = STATUS_BAR_WIDTH - quotedBarSize - next2KBarSize;
+                quotedBarSize = Math.round(STATUS_BAR_WIDTH * quotedRatio),
+                next2KBarSize = Math.round(STATUS_BAR_WIDTH * next2kRatio),
+                goodBarSize = STATUS_BAR_WIDTH - quotedBarSize - next2KBarSize,
 
-            $('#bar-quoted').css('width', Math.round(quotedBarSize));
-            $('#bar-good').css('width', Math.round(goodBarSize));
-            $('#bar-next-2K').css('width', Math.round(next2KBarSize));
+                quoteLimit = app.constants.BODY_RATIO,
+                next2kLimit = app.constants.TWOK_RATIO;
+
+            $('#bar-quoted').css({
+                'width': Math.round(quotedBarSize),
+                'background-color': quotedRatio > quoteLimit ? BAR_ERROR_COLOR : BAR_QUOTED_COLOR
+            });
+            $('#bar-good').css({
+                'width': goodBarSize,
+                'background-color': BAR_GOOD_COLOR
+            });
+            $('#bar-next-2K').css({
+                'width': next2KBarSize,
+                'background-color': next2kRatio > next2kLimit ? BAR_ERROR_COLOR : BAR_NEXT2K_COLOR
+            });
         },
 
         _manageButtons: function() {
@@ -491,6 +517,8 @@
 
                 if ( nmErr[0].type === 'quoted' )
                     $err.text('Hay texto demasiado cotizado.');
+                else if ( nmErr[0].type === 'next2k' )
+                    $err.text('Hay demasiadas palabras menos comunes. Escribe mas comunes palabras.');
                 else
                     $err.text('Mensaje tiene errores. Por favor corrija antes de enviarla.');
             }
@@ -535,22 +563,24 @@
 
         onKeyUp: function(ev) {
 
-            var $div, divId, caretPos, wf, word, p, quoteRatio,
-                that = this;
+            var $div, divId, caretPos, wf, word, p, quoteRatioLimit, n2kRatioLimit,
+                this_ = this;
 
             $div = $(ev.target).closest('[contenteditable]');
             divId = $div.attr('id');
-            quoteRatio = divId === 'title' ? app.constants.TITLE_RATIO : app.constants.BODY_RATIO;
+            quoteRatioLimit = divId === 'title' ? app.constants.TITLE_RATIO : app.constants.BODY_RATIO;
+            n2kRatioLimit = divId === 'title' ? app.constants.TITLE2K_RATIO : app.constants.TWOK_RATIO;
 
             if ( ~this._queue.indexOf(app.constants.SPACE_KEY)
                 || ~this._queue.indexOf(app.constants.BACKSPACE_KEY) ) {
 
-                var pS = handleInputErrors($div, quoteRatio, 1);
+                var pS = handleInputErrors($div, quoteRatioLimit, n2kRatioLimit);
                 pS.then(function(resp) {
                     var stats = resp[1];
-                    that.errorStats[divId] = resp[0];
-                    that._manageButtons();
-                    that._updateStatusBar(stats);
+                    this_.errorStats[divId] = resp[0];
+                    this_._manageButtons();
+                    if ( divId !== 'title' )
+                        this_._updateStatusBar(stats);
                 });
                 pS.fail(function(res) {
                    var _nada = true;
@@ -568,7 +598,7 @@
                 p = app.thousand_words.startingWith(word.toLowerCase());
                 p.then(function(wordCandidates) {
 
-                    that.wordsView.render(word.toLowerCase());
+                    this_.wordsView.render(word.toLowerCase());
                 });
                 p.fail(function(err) {
 
@@ -578,7 +608,7 @@
             else {
 
                 console.log('clearing word list');
-                that.wordsView.render(false);
+                this_.wordsView.render(false);
             }
 
             console.log('word ' + word);
@@ -586,11 +616,13 @@
             ev.preventDefault();
         },
 
-        onLoseFocus: function() {
+        onLoseFocus: function(ev) {
 
             var key = this.model.messageCacheKey(),
                 rawMsg = this.$('#new-message').text(),
-                rawSubj = this.$('#subject').text();
+                rawSubj = this.$('#subject').text(),
+                this_ = this,
+                $div, divId, quoteRatioLimit, n2kRatioLimit;
 
             if (this.attributes && this.attributes.parent) {
 
@@ -600,6 +632,24 @@
             this.model.attributes.body = rawMsg;
             this.model.attributes.title = rawSubj;
             app.cachedMessages[key] = this.model;
+
+            $div = $(ev.target).closest('[contenteditable]');
+            divId = $div.attr('id');
+            quoteRatioLimit = divId === 'title' ? app.constants.TITLE_RATIO : app.constants.BODY_RATIO;
+            n2kRatioLimit = divId === 'title' ? app.constants.TITLE2K_RATIO : app.constants.TWOK_RATIO;
+
+            var pS = handleInputErrors($div, quoteRatioLimit, n2kRatioLimit);
+            pS.then(function(resp) {
+                var stats = resp[1];
+                this_.errorStats[divId] = resp[0];
+                this_._manageButtons();
+                if ( divId !== 'title' )
+                    this_._updateStatusBar(stats);
+            });
+            pS.fail(function(res) {
+                var _nada = true;
+            });
+
         }
     });
 

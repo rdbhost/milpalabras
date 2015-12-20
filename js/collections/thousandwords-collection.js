@@ -63,7 +63,7 @@
      *      elements.
      *   If there is a quoted-ratio error, all quoted portions will be included in error list
      */
-    app.audit_text = function (dict, text, quoteRatio, next2KRatio) {
+    app.audit_text = function (dict, text, quoteRatioLimit, next2KRatioLimit) {
 
         function trim(wd) {
 
@@ -215,7 +215,7 @@
 
             var md = toMarkdown(text),
                 wds = md.split(splitWordsOn),
-                quotedWords, nonQuotedWords, next2KWords, sumQ, sumNQ, sumN2K;
+                quotedWords, nonQuotedWords, sumQ, sumNQ, sumN2K;
 
             quotedWords = _.filter(wds, function(wd) { return wd.charAt(0) === '"' });
             nonQuotedWords = _.filter(wds, function(wd) { return wd.charAt(0) !== '"' });
@@ -228,10 +228,11 @@
         function finalize() {
 
             var qRatios = quotedRatio(text2, next2kwords);
-            if (qRatios[0] > quoteRatio)
+            if (qRatios[0] > quoteRatioLimit)
                 errs.push({'type': 'quoted'});
-            if (qRatios[1] > next2KRatio)
-                errs.push({'type': 'next2k'});
+            if (qRatios[1] > next2KRatioLimit)
+                // errs.push({'type': 'next2k'});
+                errs = errs.concat(next2kwords);
 
             var flippedParts = getFlippable(text2);
             if ( flippedParts.length )

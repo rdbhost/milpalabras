@@ -157,9 +157,9 @@ span.busqueda {
 #edit-error {
     margin-left: 8px;
 }
-#markLeft { position: absolute; left: 30px; top: -5px; font-size: 1.5em;}
-#markRight { position: absolute; right: 45px; top: -5px; font-size: 1.5em; }
-#status-bar { width: 300px; padding: 0; position: fixed; bottom: 20px; right: 20px; border: thin black;}
+#markLeft { position: absolute; left: 30px; top: -13px; font-size: 2em; color: black; }
+#markRight { position: absolute; right: 45px; top: -13px; font-size: 2em; color: black; }
+#status-bar { width: 300px; padding: 0; position: fixed; bottom: 20px; right: 30px;}
 #bar-next-2K { height: 0.7em; width: 0; background-color: darkblue; float: left;}
 #bar-quoted { height: 0.7em; width: 0; background-color: yellow; float: left; }
 #bar-good { height: 0.7em; width: 300px; background-color: green; float: left;}
