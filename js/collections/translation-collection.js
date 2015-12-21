@@ -38,7 +38,7 @@
                     return new app.TranslateFormEntry({
                         lemma: attr.lemma,
                         form: fnd.attributes.form,
-                        definition: fnd.attributes.definition
+                        definitions: fnd.attributes.definitions
                     });
                 }
             }
@@ -59,7 +59,7 @@
 
             if (! newRows.hasOwnProperty(row.lemma))
                 newRows[row.lemma] = {lemma: row.lemma, forms: []};
-            tmpForm = {form: row.form, definition: row.definition};
+            tmpForm = {form: row.form, definitions: row.definitions};
             newRows[row.lemma].forms.push(tmpForm);
         });
 
@@ -84,7 +84,7 @@
             function getRecords(ltr) {
 
                 var p = R.preauthPostData({
-                    q: 'SELECT lemma, definition, form \n' +
+                    q: 'SELECT lemma, definitions, form \n' +
                        "  FROM word_definitions w  WHERE substring(lemma from 1 for 1) = %s \n" +
                        "                             AND idx <= 1000 \n" +
                        'ORDER BY lemma ASC LIMIT 500;\n',
@@ -146,7 +146,7 @@
             function getRecords(ltr) {
 
                 var p = R.preauthPostData({
-                    q: 'SELECT lemma, definition, form \n' +
+                    q: 'SELECT lemma, definitions, form \n' +
                     "  FROM word_definitions w  WHERE substring(lemma from 1 for 3) = %s \n" +
                     'ORDER BY lemma ASC LIMIT 500;\n',
                     args: [ltr]

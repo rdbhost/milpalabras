@@ -134,16 +134,16 @@
                         var withDefaults = _.extend({
                             'infinitive': '', 'present participle': '',
                             'past participle (m)': '', 'past participle (m pl)': '', 'past participle (f)': '', 'past participle (f pl)': '',
-                            'indicative present (yo)': '', 'indicative present (tú)': '', 'indicative present (el)': '', 'indicative present (nos)': '', 'indicative present (ellos)': '',
-                            'indicative future (yo)': '', 'indicative future (tú)': '', 'indicative future (el)': '', 'indicative future (nos)': '', 'indicative future (ellos)': '',
-                            'indicative preterit (yo)': '', 'indicative preterit (tú)': '', 'indicative preterit (el)': '', 'indicative preterit (nos)': '', 'indicative preterit (ellos)': '',
-                            'conditional (yo)': '', 'conditional (tú)': '', 'conditional (el)': '', 'conditional (nos)': '', 'conditional (ellos)': '',
-                            'indicative imperfect (yo)': '', 'indicative imperfect (tú)': '', 'indicative imperfect (el)': '', 'indicative imperfect (nos)': '', 'indicative imperfect (ellos)': '',
-                            'imperative affirmative (tú)': '', 'imperative affirmative (el)': '', 'imperative affirmative (nos)': '', 'imperative affirmative (ellos)': '',
+                            'indicative present (yo)': '', 'indicative present (tú)': '', 'indicative present (él)': '', 'indicative present (nosotros)': '', 'indicative present (ellos)': '',
+                            'indicative future (yo)': '', 'indicative future (tú)': '', 'indicative future (él)': '', 'indicative future (nosotros)': '', 'indicative future (ellos)': '',
+                            'indicative preterite (yo)': '', 'indicative preterite (tú)': '', 'indicative preterite (él)': '', 'indicative preterite (nosotros)': '', 'indicative preterite (ellos)': '',
+                            'indicative conditional (yo)': '', 'indicative conditional (tú)': '', 'indicative conditional (él)': '', 'indicative conditional (nosotros)': '', 'indicative conditional (ellos)': '',
+                            'indicative imperfect (yo)': '', 'indicative imperfect (tú)': '', 'indicative imperfect (él)': '', 'indicative imperfect (nosotros)': '', 'indicative imperfect (ellos)': '',
+                            'imperative affirmative (tú)': '', 'imperative affirmative (usted)': '', 'imperative affirmative (nosotros)': '', 'imperative affirmative (ustedes)': '',
 
-                            'subjunctive present (yo)': '', 'subjunctive present (tú)': '', 'subjunctive present (el)': '', 'subjunctive present (nos)': '', 'subjunctive present (ellos)': '',
-                            'subjunctive future (yo)': '', 'subjunctive future (tú)': '', 'subjunctive future (el)': '', 'subjunctive future (nos)': '', 'subjunctive future (ellos)': '',
-                            'subjunctive imperfect (yo)': '', 'subjunctive imperfect (tú)': '', 'subjunctive imperfect (el)': '', 'subjunctive imperfect (nos)': '', 'subjunctive imperfect (ellos)': ''
+                            'subjunctive present (yo)': '', 'subjunctive present (tú)': '', 'subjunctive present (él)': '', 'subjunctive present (nosotros)': '', 'subjunctive present (ellos)': '',
+                            'subjunctive future (yo)': '', 'subjunctive future (tú)': '', 'subjunctive future (él)': '', 'subjunctive future (nosotros)': '', 'subjunctive future (ellos)': '',
+                            'subjunctive imperfect (yo)': '', 'subjunctive imperfect (tú)': '', 'subjunctive imperfect (él)': '', 'subjunctive imperfect (nosotros)': '', 'subjunctive imperfect (ellos)': ''
                         }, wordFormHash);
                         dom = that.hoverVerbTemplate({a: withDefaults});
                     }

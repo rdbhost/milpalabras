@@ -67,7 +67,7 @@
                 this.$list.empty();
 
                 var p = R.preauthPostData({
-                    q: 'SELECT lemma, definition, form, idx FROM word_definitions \n' +
+                    q: 'SELECT lemma, definitions, form, idx FROM word_definitions \n' +
                        ' WHERE definition LIKE %s LIMIT 21;',
                     args: ['%'+inp+'%']
                 });

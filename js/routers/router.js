@@ -202,7 +202,7 @@
 
                 var p = R.preauthPostData({
 
-                    q: 'SELECT wd.idx, wd.lemma, wd.definition, wd.form, wl.word, wl.part_of_speech_detail \n' +
+                    q: 'SELECT wd.idx, wd.lemma, wd.definitions, wd.form, wl.word, wl.part_of_speech_detail \n' +
                        '  FROM word_definitions wd \n' +
                        '      JOIN wordlist wl ON wl.lemma = wd.lemma AND wd.form = wl.part_of_speech \n' +
                        "WHERE wd.idx >= (now()::date - '2014-05-01'::date) %% 1000 -1 \n" +
