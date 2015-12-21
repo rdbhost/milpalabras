@@ -233,9 +233,9 @@
             var stats = divEval[3], errors = divEval[0];
 
             unMarkErrors($rawDiv);
+            doReplacements($rawDiv, divEval[1]);
             doBlueMarking($rawDiv, divEval[2]);
             markErrors($rawDiv, errors);
-            doReplacements($rawDiv, divEval[1]);
 
             p.resolve([errors, stats]);
         });
@@ -525,7 +525,7 @@
             else if ( subErr && subErr.length ) {
 
                 if ( subErr[0].type === 'quoted' )
-                    $err.text('Hay texto demasiado cotizado.');
+                    $err.text('Hay texto demasiado cotizado en sujecto.');
                 else
                     $err.text('Sujeto tiene errores. Por favor corrija antes de enviarla.');
             }
@@ -620,9 +620,9 @@
 
             var key = this.model.messageCacheKey(),
                 rawMsg = this.$('#new-message').text(),
-                rawSubj = this.$('#subject').text(),
-                this_ = this,
-                $div, divId, quoteRatioLimit, n2kRatioLimit;
+                rawSubj = this.$('#subject').text();
+                //this_ = this,
+                //$div, divId, quoteRatioLimit, n2kRatioLimit;
 
             if (this.attributes && this.attributes.parent) {
 
@@ -633,6 +633,9 @@
             this.model.attributes.title = rawSubj;
             app.cachedMessages[key] = this.model;
 
+
+            // todo - reenable this after finding a way to deal with handleInputErrors reclaiming of focus
+/*
             $div = $(ev.target).closest('[contenteditable]');
             divId = $div.attr('id');
             quoteRatioLimit = divId === 'title' ? app.constants.TITLE_RATIO : app.constants.BODY_RATIO;
@@ -649,6 +652,7 @@
             pS.fail(function(res) {
                 var _nada = true;
             });
+*/
 
         }
     });

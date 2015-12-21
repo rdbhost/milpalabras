@@ -169,7 +169,7 @@
                         $('body').append(tpl);
                         var $hover = $('#definition-hover-left'),
                             size = $hover.height();
-                        $hover.css({'top': Math.round(posY-size+54), 'right': 683});
+                        $hover.css({'top': Math.round(posY-size+44), 'right': 683});
                         $hover.show();
                     });
                     pMaster.fail(function(err) {

@@ -157,8 +157,8 @@ span.busqueda {
 #edit-error {
     margin-left: 8px;
 }
-#markLeft { position: absolute; left: 30px; top: -13px; font-size: 2em; color: black; }
-#markRight { position: absolute; right: 45px; top: -13px; font-size: 2em; color: black; }
+#markLeft { position: absolute; left: 26px; top: -13px; font-size: 2em; color: black; }
+#markRight { position: absolute; right: 41px; top: -13px; font-size: 2em; color: black; }
 #status-bar { width: 300px; padding: 0; position: fixed; bottom: 20px; right: 30px;}
 #bar-next-2K { height: 0.7em; width: 0; background-color: darkblue; float: left;}
 #bar-quoted { height: 0.7em; width: 0; background-color: yellow; float: left; }
@@ -208,10 +208,10 @@ span.next2k {
 
 li.wordlist {
     list-style-type: none;
-    padding-left: 2px;
-    font-size: 12pt;
+    padding-left: 0;
+    font-size: 14pt;
     width: 25em;
-    margin-left: -15px;
+    margin-left: -25px;
 }
 
 ul.oops {
@@ -266,7 +266,7 @@ ul.oops {
     padding: 3px;
     min-height: 45px;
     width: 350px;
-    font-size: 14pt;
+    font-size: 12pt;
     background-color: #ffb173;
     border: thin solid #ff7100;
     -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
@@ -297,6 +297,7 @@ table.hover td {
     padding: 8px;
     min-height: 45px;
     width: 250px;
+    bottom: 8px;
 }
 
 .hover-lft {
@@ -327,8 +328,8 @@ span.defn {
     border-top: 15px solid transparent;
     border-bottom: 15px solid transparent;
     border-left: 15px solid #ff7100;
-    margin-bottom: 30px;
-    margin-top: -52px;
+    margin-bottom: 20px;
+    margin-top: -42px;
     margin-right: -15px;
     float: right;
 }

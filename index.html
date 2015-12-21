@@ -284,27 +284,27 @@
                         <th></th><th>yo</th><th>tu</th><th>el</th><th></th><th>nosotros</th><th>ellos</th>
                     </tr>
                     <tr>
-                        <th>Presente</th><td><%= a['present (yo)'] %></td><td><%= a['present (tu)'] %></td><td><%= a['present (el)'] %></td>
-                        <th></th><td><%= a['present (nos)'] %></td><td><%= a['present (ellos)'] %></td>
+                        <th>Presente</th><td><%= a['present (yo)'] %></td><td><%= a['present (tu)'] %></td><td><%= a['present (él/ella/usted)'] %></td>
+                        <th></th><td><%= a['present (nos)'] %></td><td><%= a['present (ellos/ellas/ustedes)'] %></td>
                     </tr>
                     <tr>
-                        <th>Futuro</th><td><%= a['future (yo)'] %></td><td><%= a['future (tu)'] %></td><td><%= a['future (el)'] %></td>
-                        <th></th><td><%= a['future (nos)'] %></td><td><%= a['future (ellos)'] %></td>
+                        <th>Futuro</th><td><%= a['future (yo)'] %></td><td><%= a['future (tu)'] %></td><td><%= a['future (él/ella/usted)'] %></td>
+                        <th></th><td><%= a['future (nos)'] %></td><td><%= a['future (ellos/ellas/ustedes)'] %></td>
                     </tr>
                     <tr>
-                        <th>Pretérito</th><td><%= a['preterit (yo)'] %></td><td><%= a['preterit (tu)'] %></td><td><%= a['preterit (el)'] %></td>
-                        <th></th><td><%= a['preterit (nos)'] %></td><td><%= a['preterit (ellos)'] %></td>
+                        <th>Pretérito</th><td><%= a['preterite (yo)'] %></td><td><%= a['preterite (tu)'] %></td><td><%= a['preterite (él/ella/usted)'] %></td>
+                        <th></th><td><%= a['preterite (nos)'] %></td><td><%= a['preterite (ellos/ellas/ustedes)'] %></td>
                     </tr>
                     <tr>
-                        <th>Imperfectivo</th><td><%= a['imperfect (yo)'] %></td><td><%= a['imperfect (tu)'] %></td><td><%= a['imperfect (el)'] %></td>
-                        <th></th><td><%= a['imperfect (nos)'] %></td><td><%= a['imperfect (ellos)'] %></td>
+                        <th>Imperfectivo</th><td><%= a['imperfect (yo)'] %></td><td><%= a['imperfect (tu)'] %></td><td><%= a['imperfect (él/ella/usted)'] %></td>
+                        <th></th><td><%= a['imperfect (nos)'] %></td><td><%= a['imperfect (ellos/ellas/ustedes)'] %></td>
                     </tr>
                     </tbody>
 
                     <tbody>
                     <tr>
-                        <th>Imperativo</th><td>-</td><td><%= a['imperative (tu)'] %></td><td><%= a['imperative (el)'] %></td>
-                        <th></th><td><%= a['imperative (nos)'] %></td><td><%= a['imperative (ellos)'] %></td>
+                        <th>Imperativo</th><td>-</td><td><%= a['imperative (tu)'] %></td><td><%= a['imperative (él/ella/usted)'] %></td>
+                        <th></th><td><%= a['imperative (nos)'] %></td><td><%= a['imperative (ellos/ellas/ustedes)'] %></td>
                     </tr>
                     </tbody>
                 </table>
@@ -414,7 +414,8 @@
             </script>
 
             <script type="text/template" id="lookup-word-template">
-                <td class="lu-lemma"><span class="DL"><%= lemma %></span></td>
+                <% var next2k = (idx > 1000) ? 'next2k' : '' %>
+                <td class="lu-lemma"><span class="DL <%= next2k %>"><%= lemma %></span></td>
                 <td class="lu-form"><%= form %></td>
                 <td class="lu-defn"><%= definition %></td>
             </script>
@@ -729,27 +730,27 @@
                                 <th></th><th>yo</th><th>tu</th><th>el</th><th></th><th>nosotros</th><th>ellos</th>
                             </tr>
                             <tr>
-                                <th>Presente</th><td><%= a['present (yo)'] %></td><td><%= a['present (tu)'] %></td><td><%= a['present (el)'] %></td>
-                                <th></th><td><%= a['present (nos)'] %></td><td><%= a['present (ellos)'] %></td>
+                                <th>Presente</th><td><%= a['present (yo)'] %></td><td><%= a['present (tu)'] %></td><td><%= a['present (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['present (nos)'] %></td><td><%= a['present (ellos/ellas/ustedes)'] %></td>
                             </tr>
                             <tr>
-                                <th>Futuro</th><td><%= a['future (yo)'] %></td><td><%= a['future (tu)'] %></td><td><%= a['future (el)'] %></td>
-                                <th></th><td><%= a['future (nos)'] %></td><td><%= a['future (ellos)'] %></td>
+                                <th>Futuro</th><td><%= a['future (yo)'] %></td><td><%= a['future (tu)'] %></td><td><%= a['future (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['future (nos)'] %></td><td><%= a['future (ellos/ellas/ustedes)'] %></td>
                             </tr>
                             <tr>
-                                <th>Pretérito</th><td><%= a['preterit (yo)'] %></td><td><%= a['preterit (tu)'] %></td><td><%= a['preterit (el)'] %></td>
-                                <th></th><td><%= a['preterit (nos)'] %></td><td><%= a['preterit (ellos)'] %></td>
+                                <th>Pretérito</th><td><%= a['preterite (yo)'] %></td><td><%= a['preterite (tu)'] %></td><td><%= a['preterite (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['preterite (nos)'] %></td><td><%= a['preterite (ellos/ellas/ustedes)'] %></td>
                             </tr>
                             <tr>
-                                <th>Imperfectivo</th><td><%= a['imperfect (yo)'] %></td><td><%= a['imperfect (tu)'] %></td><td><%= a['imperfect (el)'] %></td>
-                                <th></th><td><%= a['imperfect (nos)'] %></td><td><%= a['imperfect (ellos)'] %></td>
+                                <th>Imperfectivo</th><td><%= a['imperfect (yo)'] %></td><td><%= a['imperfect (tu)'] %></td><td><%= a['imperfect (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['imperfect (nos)'] %></td><td><%= a['imperfect (ellos/ellas/ustedes)'] %></td>
                             </tr>
                             </tbody>
 
                             <tbody>
                             <tr>
-                                <th>Imperativo</th><td>-</td><td><%= a['imperative (tu)'] %></td><td><%= a['imperative (el)'] %></td>
-                                <th></th><td><%= a['imperative (nos)'] %></td><td><%= a['imperative (ellos)'] %></td>
+                                <th>Imperativo</th><td>-</td><td><%= a['imperative (tu)'] %></td><td><%= a['imperative (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['imperative (nos)'] %></td><td><%= a['imperative (ellos/ellas/ustedes)'] %></td>
                             </tr>
                             </tbody>
                         </table>
@@ -789,30 +790,48 @@
                         <table class="hover">
                             <tbody>
                             <tr>
-                                <th></th><th>yo</th><th>tu</th><th>el</th><th></th><th>nosotros</th><th>ellos</th>
+                                <th>Indicative</th><th>yo</th><th>tu</th><th>el</th><th></th><th>nosotros</th><th>ellos</th>
                             </tr>
                             <tr>
-                                <th>Presente</th><td><%= a['present (yo)'] %></td><td><%= a['present (tu)'] %></td><td><%= a['present (el)'] %></td>
-                                <th></th><td><%= a['present (nos)'] %></td><td><%= a['present (ellos)'] %></td>
+                                <th>Presente</th><td><%= a['indicative present (yo)'] %></td><td><%= a['indicative present (tú)'] %></td><td><%= a['indicative present (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['indicative present (nos)'] %></td><td><%= a['indicative present (ellos/ellas/ustedes)'] %></td>
                             </tr>
                             <tr>
-                                <th>Futuro</th><td><%= a['future (yo)'] %></td><td><%= a['future (tu)'] %></td><td><%= a['future (el)'] %></td>
-                                <th></th><td><%= a['future (nos)'] %></td><td><%= a['future (ellos)'] %></td>
+                                <th>Futuro</th><td><%= a['indicative future (yo)'] %></td><td><%= a['indicative future (tú)'] %></td><td><%= a['indicative future (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['indicative future (nos)'] %></td><td><%= a['indicative future (ellos/ellas/ustedes)'] %></td>
                             </tr>
                             <tr>
-                                <th>Pretérito</th><td><%= a['preterit (yo)'] %></td><td><%= a['preterit (tu)'] %></td><td><%= a['preterit (el)'] %></td>
-                                <th></th><td><%= a['preterit (nos)'] %></td><td><%= a['preterit (ellos)'] %></td>
+                                <th>Pretérito</th><td><%= a['indicative preterite (yo)'] %></td><td><%= a['indicative preterite (tú)'] %></td><td><%= a['indicative preterite (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['indicative preterite (nos)'] %></td><td><%= a['indicative preterite (ellos/ellas/ustedes)'] %></td>
                             </tr>
                             <tr>
-                                <th>Imperfectivo</th><td><%= a['imperfect (yo)'] %></td><td><%= a['imperfect (tu)'] %></td><td><%= a['imperfect (el)'] %></td>
-                                <th></th><td><%= a['imperfect (nos)'] %></td><td><%= a['imperfect (ellos)'] %></td>
+                                <th>Imperfectivo</th><td><%= a['indicative imperfect (yo)'] %></td><td><%= a['indicative imperfect (tú)'] %></td><td><%= a['indicative imperfect (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['indicative imperfect (nos)'] %></td><td><%= a['indicative imperfect (ellos/ellas/ustedes)'] %></td>
                             </tr>
                             </tbody>
 
                             <tbody>
                             <tr>
-                                <th>Imperativo</th><td>-</td><td><%= a['imperative (tu)'] %></td><td><%= a['imperative (el)'] %></td>
-                                <th></th><td><%= a['imperative (nos)'] %></td><td><%= a['imperative (ellos)'] %></td>
+                                <th>Subjunctive</th><th>yo</th><th>tu</th><th>el</th><th></th><th>nosotros</th><th>ellos</th>
+                            </tr>
+                            <tr>
+                                <th>Presente</th><td><%= a['subjunctive present (yo)'] %></td><td><%= a['subjunctive present (tú)'] %></td><td><%= a['subjunctive present (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['subjunctive present (nos)'] %></td><td><%= a['subjunctive present (ellos/ellas/ustedes)'] %></td>
+                            </tr>
+                            <tr>
+                                <th>Futuro</th><td><%= a['subjunctive future (yo)'] %></td><td><%= a['subjunctive future (tú)'] %></td><td><%= a['subjunctive future (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['subjunctive future (nos)'] %></td><td><%= a['subjunctive future (ellos/ellas/ustedes)'] %></td>
+                            </tr>
+                            <tr>
+                                <th>Imperfectivo</th><td><%= a['subjunctive imperfect (yo)'] %></td><td><%= a['subjunctive imperfect (tú)'] %></td><td><%= a['subjunctive imperfect (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['subjunctive imperfect (nos)'] %></td><td><%= a['subjunctive imperfect (ellos/ellas/ustedes)'] %></td>
+                            </tr>
+                            </tbody>
+
+                            <tbody>
+                            <tr>
+                                <th>Imperativo</th><td>-</td><td><%= a['indicative imperative (tú)'] %></td><td><%= a['indicative imperative (él/ella/usted)'] %></td>
+                                <th></th><td><%= a['indicative imperative (nos)'] %></td><td><%= a['indicative imperative (ellos/ellas/ustedes)'] %></td>
                             </tr>
                             </tbody>
                         </table>
@@ -826,7 +845,7 @@
                                 <th>Gerundio</th><td><%= a['present-participle'] %></td><td></td><td></td><td></td>
                             </tr>
                             <tr>
-                                <th>Participio Pasado</th><td><%= a['past-participle'] %></td><td></td><td></td><td></td>
+                                <th>Participio Pasado</th><td><%= a['past-participle (yo)'] %></td><td><%= a['past-participle (yo)'] %></td><td><%= a['past-participle (yo)'] %></td><td><%= a['past-participle (yo)'] %></td>
                             </tr>
                             </tbody>
                         </table>
