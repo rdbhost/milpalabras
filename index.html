@@ -619,10 +619,19 @@
 
             <script type="text/template" id="allwords-word-template">
                 <div class="lemma"><%= lemma %></div>
-                <% for (_f in forms) { var f = forms[_f]; %>
-                <div class="defn"><span class="forms WL"><%= f.form %></span> <%= f.definitions %></div>
-                <!-- div class="forms"><%= f.form %></div -->
-                <% } %>
+                <div class="defcontainer">
+                    <% for (_f in forms) { var f = forms[_f]; %>
+                    <span class="forms WL"><%= f.form %></span>
+                    <div class="defn">
+                        <ol>
+                        <% for (_d in f.definitions) { var d = f.definitions[_d]; %>
+                            <li><p><%= d %></p></li>
+                        <% } %>
+                        </ol>
+                    </div>
+                    <div class="clear"></div>
+                    <% } %>
+                </div>
                 <div class="seperator"></div>
             </script>
 

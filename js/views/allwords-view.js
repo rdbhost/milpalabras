@@ -84,17 +84,17 @@
         wordHelp: function(ev) {
 
             var $tgt = $(ev.target),
-                $defn = $tgt.closest('div.defn'),
-                $lemma = $defn.prevAll('.lemma').first(),
-                form = $defn.find('span').text(),
+                $defcont = $tgt.closest('div.defcontainer'),
+                $lemma = $defcont.prevAll('.lemma').first(),
+                form = $defcont.find('span').text(),
                 word = $lemma.text();
 
             this._wordHelp($tgt, word, form);
         },
 
-        _setPosition: function($hover, posX, posY, size) {
-            var offset = (size > 100) ? 95 : 55;
-            $hover.css({'top': Math.round(posY)-size+offset, 'right': Math.round(posX)});
+        _setPosition: function($hover, posX, posY, sizeH, sizeW) {
+            var offset = (sizeH > 100) ? 95 : 55;
+            $hover.css({'top': Math.round(posY)-sizeH+offset, 'left': Math.round(posX-sizeW)});
         },
 
         _wordHelp: function($tgt, word, form) {
@@ -141,7 +141,7 @@
                     $('body').append(dom);
                     $hover = $('#help-hover');
 
-                    that._setPosition($hover, posX, posY, $hover.height());
+                    that._setPosition($hover, posX, posY, $hover.height(), $hover.width());
                     $hover.show();
 
                     poll();
