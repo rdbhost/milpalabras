@@ -85,16 +85,7 @@
 
                         var hash = consolidateLemma(f);
 
-                        // todo - replace with function factored from other similar code
-
-                        var withDefaults = _.extend({
-                            'infinitive': '', 'present-participle': '', 'past-participle': '',
-                            'present (yo)': '', 'present (tu)': '', 'present (el)': '', 'present (nos)': '', 'present (ellos)': '',
-                            'future (yo)': '', 'future (tu)': '', 'future (el)': '', 'future (nos)': '', 'future (ellos)': '',
-                            'preterit (yo)': '', 'preterit (tu)': '', 'preterit (el)': '', 'preterit (nos)': '', 'preterit (ellos)': '',
-                            'imperfect (yo)': '', 'imperfect (tu)': '', 'imperfect (el)': '', 'imperfect (nos)': '', 'imperfect (ellos)': '',
-                            'imperative (tu)': '', 'imperative (el)': '', 'imperative (nos)': '', 'imperative affirmative (ustedes)': ''
-                        }, hash.verb);
+                        var withDefaults = app.complete_verb_table(hash.verb);
 
                         var f0 = f[0];
                         f0['form_esp'] = SPANISH_WORD_FORMS[f0['form']] || f0['form'];

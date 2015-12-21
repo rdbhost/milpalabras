@@ -70,4 +70,23 @@ _.extend(app.constants, {
     });
 
     moment.lang('es');
+
+    app.complete_verb_table = function(tableData) {
+
+        return _.extend({
+            'infinitive': '', 'present participle': '',
+            'past participle (m)': '', 'past participle (m pl)': '', 'past participle (f)': '', 'past participle (f pl)': '',
+            'indicative present (yo)': '', 'indicative present (tú)': '', 'indicative present (él)': '', 'indicative present (nosotros)': '', 'indicative present (ellos)': '',
+            'indicative future (yo)': '', 'indicative future (tú)': '', 'indicative future (él)': '', 'indicative future (nosotros)': '', 'indicative future (ellos)': '',
+            'indicative preterite (yo)': '', 'indicative preterite (tú)': '', 'indicative preterite (él)': '', 'indicative preterite (nosotros)': '', 'indicative preterite (ellos)': '',
+            'indicative conditional (yo)': '', 'indicative conditional (tú)': '', 'indicative conditional (él)': '', 'indicative conditional (nosotros)': '', 'indicative conditional (ellos)': '',
+            'indicative imperfect (yo)': '', 'indicative imperfect (tú)': '', 'indicative imperfect (él)': '', 'indicative imperfect (nosotros)': '', 'indicative imperfect (ellos)': '',
+            'imperative affirmative (tú)': '', 'imperative affirmative (usted)': '', 'imperative affirmative (nosotros)': '', 'imperative affirmative (ustedes)': '',
+
+            'subjunctive present (yo)': '', 'subjunctive present (tú)': '', 'subjunctive present (él)': '', 'subjunctive present (nosotros)': '', 'subjunctive present (ellos)': '',
+            'subjunctive future (yo)': '', 'subjunctive future (tú)': '', 'subjunctive future (él)': '', 'subjunctive future (nosotros)': '', 'subjunctive future (ellos)': '',
+            'subjunctive imperfect (yo)': '', 'subjunctive imperfect (tú)': '', 'subjunctive imperfect (él)': '', 'subjunctive imperfect (nosotros)': '', 'subjunctive imperfect (ellos)': ''
+        }, tableData);
+    }
+
 })();
