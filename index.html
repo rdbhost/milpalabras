@@ -59,8 +59,8 @@
                 %>
                 <td class="topic">
                     <a href="#!/t/<%- thread_id %>"><%= topic_md %></a>
-                    <% for (var _g in gravatars) { var gravatar = gravatars[_g]; %>
-                    <img src="https://secure.gravatar.com/avatar/<%= gravatar %>?s=17&d=retro" class="gravatar-small">
+                    <% for (var _g in avatars) { var avatar = avatars[_g]; %>
+                    <img src="<%= avatar %>" class="avatar-small">
                     <% } %>
                 </td>
                 <td class="inituser"><%- initiating_user %></td>
@@ -107,8 +107,7 @@
                     deletable = (!deleted) && ((author === app.handle && pDate > now10) || app.isAdmin),
                     editable = (!deleted) && ((author === app.handle && pDate > now5) || app.isAdmin),
                     branch_ok = (!deleted) && (!branch_to) && not_first,
-                    reply_ok = (!deleted) && (app.thread.length <= app.constants.MAX_THREAD_SIZE),
-                    gravatar = gravatar || '205e460b479e2e5b48aec07710c08d50';
+                    reply_ok = (!deleted) && (app.thread.length <= app.constants.MAX_THREAD_SIZE);
                 %>
                 <tr>
                     <td class="topic"><a name="<%= message_id %>"></a><%= title_md %></td>
@@ -116,8 +115,8 @@
                     <td class="user">
                         <a href="#!/u/<%= encodeURIComponent(author) %>"
                            style="display: <%= !(suppressed || deleted) ? 'inline': 'none' %>"><%- author %></a>
-                        <img src="https://secure.gravatar.com/avatar/<%= gravatar %>?s=60&d=retro"
-                             style="display: <%= !(suppressed || deleted) ? 'inline': 'none' %>;" class="gravatar">
+                        <img src="<%= avatar %>"
+                             style="display: <%= !(suppressed || deleted) ? 'inline': 'none' %>;" class="avatar">
                     </td>
                 </tr>
                 <tr style="display: <%= title_from ? 'table-row': 'none' %>">
@@ -703,12 +702,14 @@
                 <div id="definition-hover-left" style="display: none">
                     <div class="hover-body">
                         <div class="hover-lft"><%= word %></div>
-                        <% for (_d in defs) { var d = defs[_d]; %>
-                        <div class="hover-rgt">
+                        <% var d = defs[0]; %>
+                        <ol class="hover-rgt">
                             <div><%= d.form %><%= d.subform ? ':' : '' %> <%= d.subform %> <span class="lemma"><%= d.lemma %></span></div>
-                            <div >defn: <span class="defn"><%= d.definition %></span></div>
+                            <!-- div >defn:<ol>
+                                <% for (_d in d.definitions) { var di = d.definitions[_d]; %>
+                                    <li class="defn-line"><%= di %></li>
+                                <% }   %></div --></ol>
                         </div>
-                        <% }   %>
                         <div style="clear:both"></div>
                     </div>
                     <div class="arrow-right"></div>

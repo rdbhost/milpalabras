@@ -25,10 +25,10 @@
                 case 'read':
                     var p = R.preauthPostData({
                         q: 'SELECT t.thread_id, topic, start_date, change_date, u.handle AS initiating_user, \n' +
-                           '       suppressed, message_ct, g.gravatars \n' +
+                           '       suppressed, message_ct, g.avatars \n' +
                            ' FROM threads t \n' +
                            '  JOIN users u ON t.initiating_user = u.idx \n' +
-                           '  JOIN gravatars g ON t.thread_id = g.thread_id \n' +
+                           '  JOIN avatars g ON t.thread_id = g.thread_id \n' +
                            ' WHERE (suppressed = false OR suppressed IS NULL) \n' +
                            "   AND message_ct > 0 \n" +
                            'ORDER BY change_date DESC LIMIT 50; '

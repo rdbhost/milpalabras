@@ -225,6 +225,54 @@
 <!-- todo - add section for recent_post_ct -->
 
 
+<script type="text/template" id="authcheck">
+CREATE OR REPLACE FUNCTION auth.user_pic
+    (IN _row auth.fedauth_accounts)
+    RETURNS VARCHAR
+AS $func$
+DECLARE
+    t VARCHAR;
+BEGIN
+
+    CASE _row.issuer
+        WHEN 'OpenID2' THEN
+            t := md5(lower((_row.profile)::json->>'email'));
+            RETURN 'https://secure.gravatar.com/avatar/' || t || '?s=60&d=retro';
+        WHEN 'Google' THEN
+            RETURN (_row.profile)::json->>'picture';
+        WHEN 'Facebook' THEN
+            t := (_row.profile)::json->>'id';
+            RETURN 'https://graph.facebook.com/' || t || '/picture';
+        WHEN 'Twitter' THEN
+            RETURN (_row.profile)::json->>'profile_image_url';
+        ELSE
+            RETURN '';
+    END CASE;
+END;
+$func$
+LANGUAGE 'plpgsql' VOLATILE;
+
+
+CREATE OR REPLACE FUNCTION auth.user_email
+    (IN _row auth.fedauth_accounts)
+    RETURNS VARCHAR
+AS $func$
+DECLARE
+    t VARCHAR;
+BEGIN
+
+    CASE _row.issuer
+        WHEN 'OpenID2', 'Google', 'Facebook' THEN
+            RETURN (_row.profile)::json->>'email';
+        ELSE
+            RETURN '';
+    END CASE;
+
+END;
+$func$
+LANGUAGE 'plpgsql' VOLATILE;
+</script>
+<button id="profile_read_btn" value="update" >Update profile readers</button>
 
 <script src="js/serverside.js"></script>
 

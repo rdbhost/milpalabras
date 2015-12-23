@@ -142,7 +142,7 @@
                                     formItem = _.findWhere(attrs.forms, {'form': form});
                                 attrs.form = form;
                                 attrs.subform = subForm;
-                                attrs.definition = formItem.definition;
+                                attrs.definitions = formItem.definitions;
                                 delete attrs.forms;
                                 def.resolve(attrs);
                             }

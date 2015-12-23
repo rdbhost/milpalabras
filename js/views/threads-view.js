@@ -111,13 +111,13 @@
 		// appending its element to the `<ul>`.
 		addOneThread: function (thread) {
 
-            var gravs = _.uniq(thread.attributes.gravatars);
+            var gravs = _.uniq(thread.attributes.avatars);
             gravs = _.uniq(gravs);
 
             if (gravs.length > 5) {
                 gravs.splice(1, gravs.length-3);
             }
-            thread.attributes.gravatars = gravs;
+            thread.attributes.avatars = gravs;
 			var topicView = new app.TopicView({ model: thread });
 			this.$list.append(topicView.render().el);
 		}

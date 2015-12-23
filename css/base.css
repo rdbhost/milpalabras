@@ -73,15 +73,19 @@ h2, h3, dt {
 }
 
 
-.gravatar {
+.avatar {
     float: right;
     margin: -2px -9px -44px 10px;
     position: relative;
+    height: 60px;
+    width: 60px;
     z-index: 1;
 }
-.gravatar-small {
+.avatar-small {
     float: right;
     margin: 1px 1px 1px 1px;
+    height: 15px;
+    width: 15px;
 }
 .msgct-bar {
     height: 12px;
