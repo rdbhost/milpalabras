@@ -68,7 +68,9 @@
 
                 var p = R.preauthPostData({
                     q: 'SELECT lemma, definitions, form, idx FROM word_definitions \n' +
-                       ' WHERE definition LIKE %s LIMIT 21;',
+                       ' WHERE idx = ANY(SELECT DISTINCT idx FROM (SELECT idx, unnest(definitions)) AS und \n' +
+                       '                  WHERE unnest LIKE %s)\n' +
+                       ' LIMIT 21; ',
                     args: ['%'+inp+'%']
                 });
 

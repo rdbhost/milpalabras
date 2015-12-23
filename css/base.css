@@ -243,9 +243,9 @@ ul.oops {
     -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
 }
 #luform td.lu-form, #luform td.lu-lemma, #luform td.lu-defn {
-    padding-left: 15px;
+    padding-left: 5px;
     padding-bottom: 7px;
-    padding-right: 20px;
+    padding-right: 5px;
 }
 #luform td.lu-form { width: 35px; }
 #luform td.lu-lemma { width: 75px; }
