@@ -115,7 +115,7 @@
                     <td class="user">
                         <a href="#!/u/<%= encodeURIComponent(author) %>"
                            style="display: <%= !(suppressed || deleted) ? 'inline': 'none' %>"><%- author %></a>
-                        <img src="<%= avatar %>"
+                        <img src="<%= user_pic %>"
                              style="display: <%= !(suppressed || deleted) ? 'inline': 'none' %>;" class="avatar">
                     </td>
                 </tr>
@@ -274,7 +274,7 @@
                 <div>
                     <span class="wodlbl DL" data-help="<%= form %>"><%= form_esp %></span> <span class="wod"><%= lemma %></span>
                     <div class="clear"></div>
-                    <p>definición: <span class="defn" style="font-size: larger"><%= definition %></span></p>
+                    <p>definición: <span class="defn" style="font-size: larger"><%= definitions %></span></p>
                 </div>
 
                 <table class="hover">
@@ -330,7 +330,7 @@
                     <hr>
                     <span class="wodlbl DL" data-help="<%= form %>"><%= form_esp %></span> <span class="wod"><%= lemma %></span>
                     <div class="clear"></div>
-                    <p>definición: <span class="defn" style="font-size: larger"><%= definition %></span></p>
+                    <p>definición: <span class="defn" style="font-size: larger"><%= definitions %></span></p>
                 </div>
             </script>
 
@@ -416,7 +416,7 @@
                 <% var next2k = (idx > 1000) ? 'next2k' : '' %>
                 <td class="lu-lemma"><span class="DL <%= next2k %>"><%= lemma %></span></td>
                 <td class="lu-form"><%= form %></td>
-                <td class="lu-defn"><%= definition %></td>
+                <td class="lu-defn"><%= definitions %></td>
             </script>
 
             <script type="text/template" id="lookup-more-template">
@@ -690,7 +690,7 @@
                         <% for (_d in defs) { var d = defs[_d]; %>
                         <div class="hover-rgt">
                             <div><%= d.form %><%= d.subform ? ':' : '' %> <%= d.subform %> <span class="lemma"><%= d.lemma %></span></div>
-                            <div >defn: <span class="defn"><%= d.definition %></span></div>
+                            <div >defn: <span class="defn"><%= d.definitions %></span></div>
                         </div>
                         <% }   %>
                         <div style="clear:both"></div>

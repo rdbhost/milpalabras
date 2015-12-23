@@ -231,7 +231,6 @@
             if (qRatios[0] > quoteRatioLimit)
                 errs.push({'type': 'quoted'});
             if (qRatios[1] > next2KRatioLimit)
-                // errs.push({'type': 'next2k'});
                 errs = errs.concat(next2kwords);
 
             var flippedParts = getFlippable(text2);
@@ -245,16 +244,18 @@
         return p.promise();
     };
 
+    //  lead is  a two-tuple, with both accented and unaccented parts
     function createLead(begin) {
 
-        var letter = REMOVE_ACCENT[begin.charAt(0)] || begin.charAt(0);
+        var letter = REMOVE_ACCENT[begin.charAt(0)] || begin.charAt(0),
+            letter_true = begin.charAt(0);
         if (begin.length > 1) {
 
-            var letter1 = REMOVE_ACCENT[begin.charAt(1)] || begin.charAt(1);
-            return letter + letter1;
+            letter = letter + (REMOVE_ACCENT[begin.charAt(1)] || begin.charAt(1));
+            letter_true = letter_true + begin.charAt(1);
         }
 
-        return letter;
+        return [letter_true, letter];
     }
 
 
@@ -385,10 +386,11 @@
             this.waitingOnFetch = true;
 
             var collection = this;
-            var tmp = this.lead;
 
+            function getInitialRecords(leads) {
 
-            function getInitialRecords(ltr, accented) {
+                var ltr = leads[0],
+                    accented = leads[1];
 
                 var p = R.preauthPostData({
                     q: 'SELECT distinct word, array_agg(lemma) AS lemmas, bool_or(pronoun_suffix) AS suffix, \n' +
@@ -431,7 +433,7 @@
                 case 'read':
 
                     console.log('getInitialRecords:read '+this.lead);
-                    getInitialRecords(this.lead, add_accent(this.lead));
+                    getInitialRecords(this.lead);
                     break;
 
                 default:
@@ -558,7 +560,10 @@
             var tmp = this.lead;
 
 
-            function getCompleteRecords(lead, accentedLead) {
+            function getCompleteRecords(leads) {
+
+                var lead = leads[0],
+                    accentedLead = leads[1];
 
                 var p = R.preauthPostData({
 
@@ -635,7 +640,7 @@
                 case 'read':
 
                     console.log('getCompleteRecords:read '+this.lead);
-                    getCompleteRecords(this.lead, add_accent(this.lead));
+                    getCompleteRecords(this.lead);
                     break;
 
                 default:
@@ -666,8 +671,8 @@
 
             function oneLetter(beginLetter) {
 
-                var letter = REMOVE_ACCENT[beginLetter] || beginLetter,
-                    ltrList = this_.byLetter[letter],
+                var lead = [beginLetter, REMOVE_ACCENT[beginLetter] || beginLetter],
+                    ltrList = this_.byLetter[lead[0]],
                     p = $.Deferred(),
                     tmp;
 
@@ -683,10 +688,10 @@
                 }
                 else {
 
-                    this_.byLetter[letter] = new WordCollectionQuick();
-                    this_.byLetter[letter].lead = letter;
-                    // window.console.log('startingWith byLetter[~] fetch '.replace('~', letter));
-                    this_.byLetter[letter].fetch({
+                    this_.byLetter[lead[0]] = new WordCollectionQuick();
+                    this_.byLetter[lead[0]].lead = lead;
+                    // window.console.log('startingWith byLetter[~] fetch '.replace('~', lead));
+                    this_.byLetter[lead[0]].fetch({
 
                         success: function(col, rsp, opt) {
                             tmp = col.filter(function (word) {
@@ -707,7 +712,7 @@
             function twoLetters(begin) {
 
                 var lead = createLead(begin),
-                    ltrList = this_.byTwoLetters[lead],
+                    ltrList = this_.byTwoLetters[lead[0]],
                     p = $.Deferred(),
                     tmp;
 
@@ -723,9 +728,9 @@
                 }
                 else {
 
-                    this_.byTwoLetters[lead] = new WordCollectionComplete();
-                    this_.byTwoLetters[lead].lead = lead;
-                    this_.byTwoLetters[lead].fetch({
+                    this_.byTwoLetters[lead[0]] = new WordCollectionComplete();
+                    this_.byTwoLetters[lead[0]].lead = lead;
+                    this_.byTwoLetters[lead[0]].fetch({
 
                         success: function(col, rsp, opt) {
                             tmp = col.filter(function (word) {
@@ -875,7 +880,7 @@
             }
 
             var lead = createLead(begin),
-                ltrList = wordLookup[lead],
+                ltrList = wordLookup[lead[0]],
                 p = $.Deferred(),
                 wc, tmp;
 
@@ -904,7 +909,7 @@
 
                     success: function(col, rsp, opt) {
                         ltrList = tmp;
-                        this_.byLetter[lead] = tmp;
+                        this_.byLetter[lead[0]] = tmp;
                         wc = _prefixLimited(col, begin, lim);
                         p.resolve(wc);
                     },
@@ -912,7 +917,7 @@
                     error: function(col, rsp, opt) {
 
                         p.reject(rsp);
-                        delete this_.byLetter[lead];
+                        delete this_.byLetter[lead[0]];
                     }
                 })
             }
@@ -923,7 +928,7 @@
         findingOne: function (word) {
 
             var lead = createLead(word),
-                ltrList = this.byTwoLetters[lead],
+                ltrList = this.byTwoLetters[lead[0]],
                 p = $.Deferred(),
                 this_ = this,
                 tmp, wc;
@@ -945,7 +950,7 @@
 
                     success: function(list, rsp, opt) {
 
-                        this_.byTwoLetters[tmp.lead] = tmp;
+                        this_.byTwoLetters[tmp.lead[0]] = tmp;
                         var one = tmp.findOne(word);
 
                         p.resolve(one);
