@@ -53,10 +53,11 @@
 
                 var p = R.preauthPostData({
 
-                    q:  'INSERT INTO users (idx, email_address, handle) \n' +
+                    q:  'SELECT auth.check_authentication(%(ident)s, %(key)s); \n' +
+                        'INSERT INTO users (idx, email_address, handle) \n' +
                         'SELECT o.idx, NULL, %s FROM auth.fedauth_accounts o \n' +
                         ' WHERE o.issuer || o.identifier = %s AND o.key = %s; ',
-                    args: [handle, app.userId, app.userKey]
+                    namedParams: {'ident': app.userId, 'key': app.userKey}
                 });
 
                 p.then(

@@ -6,10 +6,11 @@
     var R = window.Rdbhost;
 
     var saveQuery =
+        'SELECT auth.check_authentication(%(ident)s, %(key)s); \n' +
         'INSERT INTO suspend_reason (message_id, reason, post_date, suspender) \n' +
         'SELECT %(message_id), %(reason), NOW(), o.idx \n' +
         '  FROM auth.fedauth_accounts o \n' +
-        ' WHERE o.issuer || o.identifier = %s AND o.key = %s';
+        ' WHERE o.issuer || o.identifier = %(ident)s';
 
 
     // Our basic Message model.
@@ -31,13 +32,13 @@
 
                 case 'create':
 
-                    var q = saveQuery;
+                    var q = saveQuery,
+                        namedParams = $.extend({'ident': app.userId, 'key': app.userKey}, this_.attributes);
 
                     var p = R.preauthPostData({
                         authcode: '-',
                         q: q,
-                        namedParams: model.attributes,
-                        args: [app.userId, app.userKey]
+                        namedParams: namedParams
                     });
                     p.then(function(resp) {
                         console.log('successful save ' + resp.status);

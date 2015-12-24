@@ -7,24 +7,25 @@
 
     var saveQuery =
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +
-        "SELECT * FROM post_msg(%(title), %(body), %s, %s, %(thread_id), %(branch_from)); \n" +
+        "SELECT * FROM post_msg(%(title), %(body), %(ident)s, %(key)s, %(thread_id), %(branch_from)); \n" +
         " -- and lastly, make thread_id match message_id for new threads \n" +
         "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n" +
         "SELECT currval('messages_message_id_seq'::regclass) AS message_id; \n";
 
     var updateQuery =
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +
-        "SELECT * FROM replace_msg(%(title), %(body), %s, %s, %(message_id)); \n" +
+        "SELECT * FROM replace_msg(%(title), %(body), %(ident)s, %(key)s, %(message_id)); \n" +
         "SELECT %(message_id) AS message_id; \n";
 
     var branchingQuery =
+        'SELECT auth.check_authentication(%(ident)s, %(key)s); \n' +
         "-- create new thread from old message \n" +
         "INSERT INTO messages (thread_id, title, author, post_date, branch_from, body) \n" +
         "SELECT NULL, m.title, m.author, m.post_date, %(message_id), \n" +
         "'Este mensaje se antes en [' || (SELECT title FROM messages m1 WHERE m1.message_id = m.thread_id) || \n" +
         "     ']\n\n--------------------\n\n' || m.body \n" +
         "FROM messages m, auth.fedauth_accounts o WHERE m.message_id = %(message_id) \n" +
-        "  AND o.issuer || o.identifier = %s AND o.key = %s; \n" +
+        "  AND o.issuer || o.identifier = %(ident)s; \n" +
         "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n" +
         "SELECT currval('messages_message_id_seq'::regclass) AS message_id; \n";
 
@@ -49,12 +50,14 @@
         sync: function(method, model, options) {
 
             options = options || {};
+            var this_ = this;
 
             switch(method) {
 
                 case 'create':
 
-                    var q = saveQuery;
+                    var q = saveQuery,
+                    namedParams = _.extend({'ident': app.userId, 'key': app.userKey}, this_.attributes);
 
                     if ( _.contains( ['', undefined], model.attributes.thread_id )) {
                         q = q.replace('%(thread_id)', 'NULL');
@@ -63,8 +66,7 @@
                     var p = R.preauthPostData({
                         authcode: '-',
                         q: q,
-                        namedParams: model.attributes,
-                        args: [app.userId, app.userKey]
+                        namedParams: namedParams
                     });
                     p.then(function(resp) {
                         console.log('successful save ' + resp.status);
@@ -80,13 +82,13 @@
 
                 case 'update':
 
-                    var qU = updateQuery;
+                    var qU = updateQuery,
+                        namedParams = _.extend({'ident': app.userId, 'key': app.userKey}, this_.attributes);
 
                     var pU = R.preauthPostData({
                         authcode: '-',
                         q: qU,
-                        namedParams: model.attributes,
-                        args: [app.userId, app.userKey]
+                        namedParams: namedParams
                     });
                     pU.then(function(resp) {
                         console.log('successful save ' + resp.status);
@@ -165,16 +167,17 @@
         unSuppress: function(options) {
 
             var this_ = this,
+                namedParams = _.extend({'ident': app.userId, 'key': app.userKey}, this_.attributes),
                 p = R.preauthPostData({
 
-                    q: 'UPDATE messages m SET suppressed = false \n' +
-                       ' FROM auth.fedauth_accounts o, users u  \n' +
+                    q: 'SELECT auth.check_authentication(%(ident)s, %(key)s); \n' +
+                       'UPDATE messages m SET suppressed = false \n' +
+                       '  FROM auth.fedauth_accounts o, users u  \n' +
                        ' WHERE m.message_id = %(message_id) \n' +
-                       '  AND o.idx = u.idx AND u.admin \n' +
-                       '  AND o.issuer || o.identifier = %s AND o.key = %s',
+                       '   AND o.idx = u.idx AND u.admin \n' +
+                       '   AND o.issuer || o.identifier = %(ident)s',
 
-                    namedParams: this_.attributes,
-                    args: [app.userId, app.userKey]
+                    namedParams: namedParams
                 });
             p.then(function(resp) {
                 if ( options && options.success )
@@ -190,11 +193,11 @@
         branch: function(options) {
 
             var this_ = this,
+                namedParams = _.extend({'ident': app.userId, 'key': app.userKey}, this_.attributes),
                 p = R.preauthPostData({
 
                     q: branchingQuery,
-                    namedParams: this_.attributes,
-                    args: [app.userId, app.userKey]
+                    namedParams: namedParams
                 });
             p.then(function(resp) {
                 console.log('successful branch ' + resp.status);
@@ -216,6 +219,7 @@
             attrs.body = '~ mensaje se ha eliminado ~';
 
             var sql =
+                'SELECT auth.check_authentication(%(ident)s, %(key)s); \n' +
                 "UPDATE messages m SET body = '~1', \n" +
                 "       title = '~2', suppressed = false, branch_from = NULL \n" +
                 " FROM auth.fedauth_accounts o  \n" +
@@ -224,14 +228,14 @@
                 "   AND (u.admin OR \n" +
                 "       (m.post_date > now() - '10 minutes'::interval \n" +
                 "          AND o.idx = m.author) ) \n" +
-                "   AND o.issuer || o.identifier = %s AND o.key = %s";
+                "   AND o.issuer || o.identifier = %(ident)s";
             sql = sql.replace('~2', attrs.title).replace('~1', attrs.body);
 
             var this_ = this,
+                namedParams = _.extend({'ident': app.userId, 'key': app.userKey}, this_.attributes),
                 p = R.preauthPostData({
                     q: sql,
-                    namedParams: this_.attributes,
-                    args: [app.userId, app.userKey]
+                    namedParams: namedParams
                 });
             p.then(function(resp) {
                 if (resp.row_count[0])
@@ -251,16 +255,17 @@
         destroy: function(options) {
 
             var this_ = this,
+                namedParams = _.extend({'ident': app.userId, 'key': app.userKey}, this_.attributes),
                 p = R.preauthPostData({
 
-                    q: 'DELETE FROM messages m  \n' +
+                    q: 'SELECT auth.check_authentication(%(ident)s, %(key)s); \n' +
+                       'DELETE FROM messages m  \n' +
                        ' USING auth.fedauth_accounts o, users u  \n' +
                        ' WHERE m.message_id = %(message_id) \n' +
                        '   AND o.idx = u.idx AND u.admin \n' +
-                       '   AND o.issuer || o.identifier = %s AND o.key = %s',
+                       '   AND o.issuer || o.identifier = %(ident)s',
 
-                    namedParams: this_.attributes,
-                    args: [app.userId, app.userKey]
+                    namedParams: namedParams
                 });
 
             p.then(function(resp) {

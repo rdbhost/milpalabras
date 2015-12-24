@@ -38,23 +38,25 @@
             app.userKey = key;
 
             var p = R.preauthPostData({
-                q:  'SELECT u.idx, handle, email_address, admin, recent_post_ct(u.idx) AS post_ct, \n' +
+                q:  'SELECT auth.check_authentication(%(ident)s, %(key)s); \n' +
+                    'SELECT u.idx, handle, email_address, admin, recent_post_ct(u.idx) AS post_ct, \n' +
                     "   profile::json->>'email' AS fa_email \n" +
                     '  FROM users u JOIN auth.fedauth_accounts o ON u.idx = o.idx \n' +
-                    'WHERE o.issuer || o.identifier = %s AND o.key = %s; ',
-                args: [ident, key]
+                    'WHERE o.issuer || o.identifier = %(ident)s AND o.key = %(key)s; ',
+                namedParams: {'ident': app.userId, 'key': app.userKey}
             });
 
             p.then(
                 function(resp) {
 
-                    if ( resp.row_count[0] && resp.records.rows[0].handle  ) {
+                    if ( resp.result_sets && resp.result_sets[1].row_count[0] && resp.result_sets[1].records.rows[0].handle  ) {
 
-                        app.handle = resp.records.rows[0].handle;
-                        app.isAdmin = resp.records.rows[0].admin;
-                        app.email = resp.records.rows[0].email_address;
-                        var good_email = resp.records.rows[0].fa_email;
-                        app.recentPostCt = resp.records.rows[0].post_ct;
+                        var records = resp.result_sets[1].records;
+                        app.handle = records.rows[0].handle;
+                        app.isAdmin = records.rows[0].admin;
+                        app.email = records.rows[0].email_address;
+                        var good_email = records.rows[0].fa_email;
+                        app.recentPostCt = records.rows[0].post_ct;
                         $('a.loginLink').attr('href', '#!/logout');
                         $('a.loginLink').text('salir');
                         $('a.loginLink').attr('data-help', 'logout');
@@ -65,11 +67,12 @@
                         if (!app.email || good_email !== app.email) {
 
                             var p1 = R.preauthPostData({
-                                q: "UPDATE users u SET email_address = %s  \n" +
+                                q: 'SELECT auth.check_authentication(%(ident)s, %(key)s); \n' +
+                                   "UPDATE users u SET email_address = %(email)s  \n" +
                                    " FROM auth.fedauth_accounts o \n" +
-                                   "WHERE o.issuer || o.identifier = %s AND \n" +
-                                   "      o.key = %s  AND o.idx = u.idx; ",
-                                args: [good_email, ident, key]
+                                   "WHERE o.issuer || o.identifier = %(ident)s AND \n" +
+                                   "      o.idx = u.idx; ",
+                                namedParams: {'ident': ident, 'key': key, 'email': good_email}
                             });
 
                             p1.then(function(resp){
