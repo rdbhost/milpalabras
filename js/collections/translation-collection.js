@@ -81,14 +81,15 @@
 
             var collection = this;
 
-            function getRecords(ltr) {
+            function getRecords(ltrPlain, ltr) {
 
                 var p = R.preauthPostData({
                     q: 'SELECT lemma, definitions, form \n' +
                        "  FROM word_definitions w  WHERE substring(lemma from 1 for 1) = %s \n" +
-                       "                             AND idx <= 1000 \n" +
+                       "                              OR substring(lemma from 1 for 1) = %s \n" +
+                       "                             AND idx <= 1001 \n" +
                        'ORDER BY lemma ASC LIMIT 500;\n',
-                    args: [ltr]
+                    args: [ltrPlain, ltr]
                 });
 
                 p.then(function(resp) {
@@ -113,7 +114,7 @@
 
                 case 'read':
 
-                    getRecords(this.lead);
+                    getRecords(this.lead[0], this.lead[1]);
                     break;
 
                 default:
@@ -135,21 +136,20 @@
     // The collection of words backed by a remote server.
     var DefinitionCollectionAll = DefinitionCollectionFirst1K.extend({
 
-        // Save all of the thread items under the `"threads"` namespace.
-        // localStorage: new Backbone.LocalStorage('threads-backbone'),
         sync: function(method, model, options) {
 
             options = options || {};
 
             var collection = this;
 
-            function getRecords(ltr) {
+            function getRecords(ltrPlain, ltr) {
 
                 var p = R.preauthPostData({
-                    q: 'SELECT lemma, definitions, form \n' +
-                    "  FROM word_definitions w  WHERE substring(lemma from 1 for 3) = %s \n" +
-                    'ORDER BY lemma ASC LIMIT 500;\n',
-                    args: [ltr]
+                    q: 'SELECT lemma, definitions, form, \n' +
+                       "  FROM word_definitions w  WHERE substring(lemma from 1 for 3) = %s \n" +
+                       "                              OR substring(lemma from 1 for 3) = %s \n" +
+                       'ORDER BY lemma ASC LIMIT 500;\n',
+                    args: [ltrPlain, ltr]
                 });
 
                 p.then(function(resp) {
@@ -174,7 +174,7 @@
 
                 case 'read':
 
-                    getRecords(this.lead);
+                    getRecords(this.lead[0], this.lead[1]);
                     break;
 
                 default:
@@ -202,19 +202,22 @@
 
     function createLead(begin) {
 
-        var lead = REMOVE_ACCENT[begin.charAt(0)] || begin.charAt(0);
+        var leadPlain = REMOVE_ACCENT[begin.charAt(0)] || begin.charAt(0),
+            lead = begin.charAt(0);
         if (begin.length === 1)
-            return lead;
+            return [leadPlain, lead];
 
         var letter = REMOVE_ACCENT[begin.charAt(1)] || begin.charAt(1);
-        lead = lead + letter;
+        leadPlain = leadPlain + letter;
+        lead = lead + begin.charAt(1);
         if (begin.length === 2)
-            return lead;
+            return [leadPlain, lead];
 
         letter = REMOVE_ACCENT[begin.charAt(2)] || begin.charAt(2);
-        lead = lead + letter;
+        leadPlain = leadPlain + letter;
+        lead = lead + begin.charAt(2);
 
-        return lead;
+        return [leadPlain, lead];
     }
 
 
@@ -231,7 +234,7 @@
         findingOne: function (word) {
 
             var lead = createLead(word),
-                leadList = this.byThreeLetters[lead],
+                leadList = this.byThreeLetters[lead[0]],
                 p = $.Deferred(),
                 this_ = this,
                 tmp, wc;
@@ -249,7 +252,7 @@
 
                     success: function(list, rsp, opt) {
 
-                        this_.byThreeLetters[tmp.lead] = tmp;
+                        this_.byThreeLetters[tmp.lead[0]] = tmp;
                         var one = tmp.findOne(word);
 
                         p.resolve(one);
@@ -267,7 +270,8 @@
 
         getFirst1KDefCollection: function (ltr) {
 
-            var ltrList = this.byLetter[ltr.charAt(0)],
+            var lead = [REMOVE_ACCENT[ltr], ltr],
+                ltrList = this.byLetter[lead[0]],
                 p = $.Deferred(),
                 that = this,
                 tmp, wc;
@@ -279,12 +283,12 @@
             else {
 
                 tmp = new DefinitionCollectionFirst1K();
-                tmp.lead = ltr.charAt(0);
+                tmp.lead = lead;
                 tmp.fetch({
 
                     success: function(list, rsp, opt) {
 
-                        that.byLetter[tmp.lead] = tmp;
+                        that.byLetter[tmp.lead[0]] = tmp;
                         p.resolve(tmp);
                     },
 

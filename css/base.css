@@ -253,32 +253,23 @@ ul.oops {
 #luform td.lu-none { width: 100%; padding-left: 45px; padding-right: 45px;  }
 #luform td.lu-more { width: 100%; padding-left: 45px; padding-right: 45px; font-size: x-large }
 
+.row-group-spacer { height: 20px; }
 
-.row-group-spacer {
-    height: 20px;
-}
-
-#definition-hover {
-    position: fixed;
-}
-
-#definition-hover-left {
-    position: fixed;
-}
+#definition-hover { position: fixed; }
+#definition-hover ul { margin-top: -5px; margin-bottom: -5px; }
+#definition-hover-left { position: fixed; }
 
 .hover-body {
     padding: 3px;
-    min-height: 45px;
-    width: 350px;
+    min-height: 115px;
+    width: 440px;
     font-size: 12pt;
     background-color: #ffb173;
     border: thin solid #ff7100;
     -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
 }
 
-.wide {
-    width: 650px;
-}
+.wide { width: 650px; }
 
 table.hover th {
     font-size: 10pt;
@@ -299,14 +290,19 @@ table.hover td {
 .hover-rgt {
     float: right;
     padding: 8px;
-    min-height: 45px;
-    width: 250px;
-    bottom: 8px;
+    /* min-height: 75px; */
+    width: 276px;
+    margin: 0;
+    /* bottom: 8px; */
 }
+ol.hover-rgt { -webkit-margin-before: 0; -webkit-margin-after: 0; -webkit-padding-start: 0; }
 
 .hover-lft {
     float: left;
     padding: 8px;
+    /* min-height: 75px; */
+    width: 104px;
+    margin: 0;
 }
 
 span.lemma {
@@ -347,19 +343,11 @@ span.defn {
     margin-top: 2px;
     margin-left: -15px;
 }
-.arrow-right-fat {
-    margin-top: -100px;
-}
-.arrow-left-fat {
-    margin-top: -100px;
-}
-.arrow-right-skinny {
-    margin-top: -32px;
-}
+.arrow-right-fat { margin-top: -100px; }
+.arrow-left-fat { margin-top: -100px; }
+.arrow-right-skinny { margin-top: -32px; }
 
-#help-hover {
-    position: fixed;
-}
+#help-hover { position: fixed; }
 
 .hover-tooltip {
     padding: 5px;

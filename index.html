@@ -702,16 +702,17 @@
                 <div id="definition-hover-left" style="display: none">
                     <div class="hover-body">
                         <div class="hover-lft"><%= word %></div>
-                        <% var d = defs[0]; %>
-                        <ol class="hover-rgt">
-                            <div><%= d.form %><%= d.subform ? ':' : '' %> <%= d.subform %> <span class="lemma"><%= d.lemma %></span></div>
-                            <!-- div >defn:<ol>
-                                <% for (_d in d.definitions) { var di = d.definitions[_d]; %>
-                                    <li class="defn-line"><%= di %></li>
-                                <% }   %></div --></ol>
+                        <% for (_d in _.first(defs, 3)) { var d = defs[_d]; %>
+                        <div class="hover-rgt">
+                            <%= d.form %><%= d.subform ? ':' : '' %> <%= d.subform %> <span class="lemma"><%= d.lemma %></span>
+                            <!-- div >defn:
+                                <% var di = d.definitions[0].substr(0, 75); %>
+                                <li class="defn-line"><%= di %></li>
+                            </div -->
                         </div>
-                        <div style="clear:both"></div>
+                        <% } %>
                     </div>
+                    <!-- div style="clear:both"></div -->
                     <div class="arrow-right"></div>
                 </div>
             </script>
