@@ -53,7 +53,7 @@
                 this.$el.empty();
                 $('#definition-hover-left').hide();
 
-                var p = app.thousand_words.prefixLimited(partialWord, 25);
+                var p = app.thousand_words.prefixLimited(partialWord, 35);
 
                 p.then(function(wordList, rsp, opt) {
 

@@ -145,7 +145,7 @@
             function getRecords(ltrPlain, ltr) {
 
                 var p = R.preauthPostData({
-                    q: 'SELECT lemma, definitions, form, \n' +
+                    q: 'SELECT lemma, definitions, form \n' +
                        "  FROM word_definitions w  WHERE substring(lemma from 1 for 3) = %s \n" +
                        "                              OR substring(lemma from 1 for 3) = %s \n" +
                        'ORDER BY lemma ASC LIMIT 500;\n',

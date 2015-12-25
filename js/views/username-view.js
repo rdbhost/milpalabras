@@ -55,9 +55,9 @@
 
                     q:  'SELECT auth.check_authentication(%(ident)s, %(key)s); \n' +
                         'INSERT INTO users (idx, email_address, handle) \n' +
-                        'SELECT o.idx, NULL, %s FROM auth.fedauth_accounts o \n' +
-                        ' WHERE o.issuer || o.identifier = %s AND o.key = %s; ',
-                    namedParams: {'ident': app.userId, 'key': app.userKey}
+                        'SELECT o.idx, NULL, %(handle)s FROM auth.fedauth_accounts o \n' +
+                        ' WHERE o.issuer || o.identifier = %(ident)s; ',
+                    namedParams: {'ident': app.userId, 'key': app.userKey, 'handle': handle}
                 });
 
                 p.then(
