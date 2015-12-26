@@ -1,17 +1,17 @@
 <!doctype html>
 <html lang="en" data-framework="backbonejs">
-	<head>
+<head>
 		<meta charset="utf-8">
         <meta name="fragment" content="!">
         <title>Mil Palabras</title>
 		<link rel="stylesheet" href="css/base.css">
         <link rel="stylesheet" href="vendor/etch/css/etch.css">
-	</head>
-	<body>
-		<section id="mpapp">
+</head>
+<body>
+    <script id="RDBHOST-SQL-INLINE-ID" type="text/sql" data-sql="SELECT * FROM index_records();" data-role=p0000001392></script>
+        <section id="mpapp">
 
             <header>
-                <!-- h1>Mil Palabras</h1 -->
                 <img src="imgs/logo.png" class="logo">
 
                 <span class="nav">
@@ -381,7 +381,16 @@
                 <div id="new-message" class="editable" data-button-class="new" data-position="#postform"><%= body_md %></div>
 
                 <div style="float: left">
-                    <div id="edit-error"></div>
+                    <div id="edit-error">
+                    <span class='no-title' data-help="Provide a title">Por favor, dar un título.</span>
+                    <span class='no-body' data-help="Provide a message body">Por favor, dar un mensaje.</span>
+                    <span class='excess-quotes' data-help="There is too much quoted text">Hay texto demasiado cotizado.</span>
+                    <span class='too-uncommon' data-help="There are too many less-common words">Hay demasiadas palabras menos comunes. Escribe mas comunes palabras.</span>
+                    <span class='body-errors' data-help="Body has errors.  Please correct">Mensaje tiene errores. Por favor corrija antes de enviarla.</span>
+                    <span class='excess-quotes-title' data-help="There is too much quoted text in title">Hay texto demasiado cotizado en sujecto.</span>
+                    <span class='title-errors' data-help="Title has errors. Please correct.">Sujeto tiene errores. Por favor corrija antes de enviarla.</span>
+                    </div>
+
                     <button id="post-message" data-help="Post">Enviíe</button>
                     <button id="post-cancel" data-help="Cancel">Cancele</button>
                 </div>
@@ -557,7 +566,7 @@
                 <dl>
 
                     <dt><span data-help="¿Dónde están las palabras de 1000?">Where are the 1000 words from?</span></dt>
-                    <dd><p><span data-help="La lista de referencias es de wiktionary:">The reference list is from wiktionary:
+                    <dd><p><span data-help="La lista de referencias es de wiktionary:">The language database is from wiktionary.com:
                         <a href="http://en.wiktionary.org/wiki/Wiktionary:Frequency_lists/Spanish1000">[link]</a></span></p>
                         <p><span data-help="Esa lista se recogió de una gran base de datos de subtítulos de películas y televisión.">That
                         list was collected from a large database of movie and television subtitles.</span> <span data-help="Así, mientras que

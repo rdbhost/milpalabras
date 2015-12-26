@@ -158,9 +158,9 @@ span.busqueda {
     margin-left: 8px;
     line-height: 15px;
 }
-#edit-error {
-    margin-left: 8px;
-}
+#edit-error { margin-left: 8px; }
+#edit-error span { display: none; }
+
 #markLeft { position: absolute; left: 26px; top: -13px; font-size: 2em; color: black; }
 #markRight { position: absolute; right: 41px; top: -13px; font-size: 2em; color: black; }
 #status-bar { width: 300px; padding: 0; position: fixed; bottom: 20px; right: 30px;}
@@ -291,7 +291,7 @@ table.hover td {
     float: right;
     padding: 8px;
     /* min-height: 75px; */
-    width: 276px;
+    width: 296px;
     margin: 0;
     /* bottom: 8px; */
 }
@@ -301,7 +301,7 @@ ol.hover-rgt { -webkit-margin-before: 0; -webkit-margin-after: 0; -webkit-paddin
     float: left;
     padding: 8px;
     /* min-height: 75px; */
-    width: 104px;
+    width: 84px;
     margin: 0;
 }
 

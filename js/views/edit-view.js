@@ -492,7 +492,8 @@
             var rawMsg = this.$('#new-message').text(),
                 rawSubj = this.$('#subject').text(),
                 nmErr = this.errorStats['new-message'],
-                subErr = this.errorStats['subject'];
+                subErr = this.errorStats['subject'],
+                this_ = this;
 
             if ( (! subErr || ! subErr.length) &&  (! nmErr || ! nmErr.length)
                 && rawMsg.length && rawSubj.length) {
@@ -503,34 +504,38 @@
                 this.$el.find('#post-message').attr('disabled', 'disabled');
             }
 
-            var $err = this.$el.find('#edit-error');
+            function error_show(tag) {
+                var $errmsgs = this_.$el.find('#edit-error');
+                $errmsgs.find('span').hide();
+                $errmsgs.find('.'+tag).show();
+            }
 
             if ( ! rawSubj.length ) {
 
-                $err.text('Por favor, dar un título.');
+                error_show('no-title');
             }
             else if ( ! rawMsg.length ) {
 
-                $err.text('Por favor, dar un mensaje.');
+                error_show('no-body');
             }
             else if ( nmErr && nmErr.length ) {
 
                 if ( nmErr[0].type === 'quoted' )
-                    $err.text('Hay texto demasiado cotizado.');
+                    error_show('excess-quotes');
                 else if ( nmErr[0].type === 'next2k' )
-                    $err.text('Hay demasiadas palabras menos comunes. Escribe mas comunes palabras.');
+                    error_show('too-uncommon');
                 else
-                    $err.text('Mensaje tiene errores. Por favor corrija antes de enviarla.');
+                    error_show('body-errors');
             }
             else if ( subErr && subErr.length ) {
 
                 if ( subErr[0].type === 'quoted' )
-                    $err.text('Hay texto demasiado cotizado en sujecto.');
+                    error_show('excess-quotes-title');
                 else
-                    $err.text('Sujeto tiene errores. Por favor corrija antes de enviarla.');
+                    error_show('title-errors');
             }
             else {
-                $err.text('');
+                error_show('');
             }
         },
 

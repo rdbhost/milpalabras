@@ -23,26 +23,34 @@
             switch(method) {
 
                 case 'read':
-                    var p = R.preauthPostData({
-                        q: 'SELECT t.thread_id, topic, start_date, change_date, u.handle AS initiating_user, \n' +
-                           '       suppressed, message_ct, g.avatars \n' +
-                           ' FROM threads t \n' +
-                           '  JOIN users u ON t.initiating_user = u.idx \n' +
-                           '  JOIN avatars g ON t.thread_id = g.thread_id \n' +
-                           ' WHERE (suppressed = false OR suppressed IS NULL) \n' +
-                           "   AND message_ct > 0 \n" +
-                           'ORDER BY change_date DESC LIMIT 50; '
-                    });
 
-                    p.then(function(resp) {
-                        options.success(resp.records.rows);
+                    var $sel = $('#RDBHOST-SQL-INLINE-ID'),
+                        fromInline = $sel.html();
+                    $sel.html('');
+
+                    if (fromInline) {
+
+                        var d = JSON.parse(fromInline);
+                        options.success(d.records.rows);
                         app.trigger('show:index');
-                    });
-                    p.fail(function(err) {
-                        if ( options && options.error )
-                            options.error(err);
-                        console.log('Error ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]));
-                    });
+                    }
+                    else {
+                        var p = R.preauthPostData({
+                            q: 'SELECT thread_id, topic, start_date, change_date, initiating_user, \n' +
+                            '       suppressed, message_ct, avatars from index_records();\n'
+                        });
+
+                        p.then(function(resp) {
+                            options.success(resp.records.rows);
+                            app.trigger('show:index');
+                        });
+                        p.fail(function(err) {
+                            if ( options && options.error )
+                                options.error(err);
+                            console.log('Error ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]));
+                        });
+                    }
+
                     break;
 
                 default:
