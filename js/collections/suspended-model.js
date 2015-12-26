@@ -35,7 +35,7 @@
                     p.then(function(resp) {
                         console.log('successful suspended.read ' + resp.status);
                         if (options.success)
-                            options.success(resp.records.rows);
+                            options.success(resp.result_sets[1].records.rows || []);
                     });
                     p.fail(function(err) {
                         console.log('failing suspended.read ' + err[0] + ' ' + err[1]);

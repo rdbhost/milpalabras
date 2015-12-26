@@ -33,7 +33,7 @@
                 case 'create':
 
                     var q = saveQuery,
-                        namedParams = $.extend({'ident': app.userId, 'key': app.userKey}, this_.attributes);
+                        namedParams = $.extend({'ident': app.userId, 'key': app.userKey}, model.attributes);
 
                     var p = R.preauthPostData({
                         authcode: '-',

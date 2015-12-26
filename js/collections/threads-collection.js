@@ -28,9 +28,10 @@
                         fromInline = $sel.html();
                     $sel.html('');
 
-                    if (fromInline) {
-
+                    if (fromInline)
                         var d = JSON.parse(fromInline);
+
+                    if (fromInline && d.records && d.records.rows) {
                         options.success(d.records.rows);
                         app.trigger('show:index');
                     }

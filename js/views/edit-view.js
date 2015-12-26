@@ -507,7 +507,8 @@
             function error_show(tag) {
                 var $errmsgs = this_.$el.find('#edit-error');
                 $errmsgs.find('span').hide();
-                $errmsgs.find('.'+tag).show();
+                if (tag)
+                    $errmsgs.find('.'+tag).show();
             }
 
             if ( ! rawSubj.length ) {
