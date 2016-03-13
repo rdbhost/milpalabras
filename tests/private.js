@@ -8,14 +8,49 @@
  * To change this template use File | Settings | File Templates.
  */
 
+var private = sessionStorage;
 
-var domain = 'www.rdbhost.com',
-    acct_number = 1355,
-    demo_r_role = 'r0000001355',
-    demo_p_role = 'p0000001355',
-    demo_s_role = 's0000001355',
-    demo_s_authcode = '9Dk924OXgug6izvzy7OYYljxcgcAZRnBNjOaZaIinq9iWjUcfo',
-    demo_email = 'milpalabras@travelbyroad.net',
 
-    user_identifier = 'dkeeney@travelbyroad.net',
-    user_key = '031e0760d54d8080df43fb384bfe7ca0';
+private.setItem('bad_acct_number', 2);
+private.setItem('bad_email', 'demo@travelbyroad.net');
+
+
+private.setItem('domain', 'www.rdbhost.com');
+private.setItem('acct_number', 1392);
+
+private.setItem('demo_email', 'milpalabras@travelbyroad.net');
+if (!private.getItem('demo_pass'))
+    private.setItem('demo_pass', prompt('enter password for milpalabras'));
+
+private.setItem('demo_s_role', 's0000001392');
+private.setItem('demo_p_role', 'p0000001392');
+private.setItem('demo_r_role', 'r0000001392');
+
+
+function get_auth(init, acctnum, email, passwd) {
+
+    var url = 'https://www.rdbhost.com/acct/login/00000000' + acctnum,
+        formData = new FormData();
+
+    formData.append('arg:email', email);
+    formData.append('arg:password', passwd);
+
+    var p = fetch(url, {method: 'post', body: formData} );
+    return p.then(function(resp) {
+        return resp.json().then(function(d) {
+
+            if ( d.error )
+                throw new Error(d.error[1]);
+
+            for ( var i in d.records.rows ) {
+                var row = d.records.rows[i];
+                if ( row.role.substr(0,1) === init.substr(0,1) )
+                    return row;
+
+            }
+            throw new Error('super not found in login records');
+        })
+    });
+}
+var get_super_auth = get_auth.bind(null, 'super');
+
