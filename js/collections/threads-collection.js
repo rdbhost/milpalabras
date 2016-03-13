@@ -37,8 +37,9 @@
                     }
                     else {
                         var p = R.preauthPostData({
-                            q: 'SELECT thread_id, topic, start_date, change_date, initiating_user, \n' +
-                            '       suppressed, message_ct, avatars from index_records();\n'
+//                            q: 'SELECT thread_id, topic, start_date, change_date, initiating_user, \n' +
+//                            '       suppressed, message_ct, avatars from index_records();\n'
+                            q: 'SELECT * FROM index_records();'
                         });
 
                         p.then(function(resp) {
