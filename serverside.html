@@ -125,7 +125,7 @@
             SELECT tbl.wd, wordlst.word, tbl.wd ~ '~quoted' AS quoted, tbl.wd ~ '~nonword' AS nonword,
                      wordlst.first1000 AS first1000
               FROM txt_words tbl
-                   LEFT JOIN (SELECT DISTINCT word, first1000 FROM wordlist_plus) wordlst ON wordlst.word = tbl.wd
+                   LEFT JOIN (SELECT DISTINCT word, first1000 FROM words_cat) wordlst ON wordlst.word = tbl.wd
              WHERE tbl.wd <> '';
 
         -- test that temp tables are ok
