@@ -94,6 +94,8 @@
             rng = rangy.createRange(),
             container;
 
+        var caretPos = getCaretPos($div);
+
         for ( var i=0; i<errs.length; ++i ) {
 
             var err = errs[i];
@@ -211,41 +213,6 @@
         return next2kwords;
     }
 
-    function handleInputErrors($rawDiv, ratioQuotedLimit, ratioN2KLimit) {
-
-        var auditPromise = app.audit_text(app.thousand_words, rangy.innerText($rawDiv.get(0)),
-                                          ratioQuotedLimit, ratioN2KLimit),
-            p = $.Deferred();
-
-        auditPromise.then(function(divEval) {
-
-            var errors = divEval[0],
-                replacements = divEval[1],
-                blueWords = divEval[2],
-                stats = divEval[3];
-
-            $rawDiv.focus();
-
-            var caretPosObj = rangy.saveSelection();
-
-            unMarkErrors($rawDiv);
-            doReplacements($rawDiv, replacements);
-            doBlueMarking($rawDiv, blueWords);
-            markErrors($rawDiv, errors);
-
-            rangy.restoreSelection(caretPosObj);
-
-            p.resolve([errors, stats]);
-        });
-
-        auditPromise.fail(function(err) {
-            p.reject(err);
-        });
-
-        return p.promise();
-    }
-
-
     _.extend(etch.config.buttonClasses, {
         'default': ['bold', 'italic', 'save'],
         /* 'all': ['bold', 'italic', 'unordered-list', 'ordered-list', 'link', 'clear-formatting', 'save'], */
@@ -312,13 +279,13 @@
                 that = this,
                 pM, pS, pM1, pS1, quoteRatio;
 
-            pM = handleInputErrors($rawMsg, app.constants.BODY_RATIO, app.constants.TWOK_RATIO);
+            pM = this.handleInputErrors($rawMsg, app.constants.BODY_RATIO, app.constants.TWOK_RATIO);
             pM1 = pM.then(function(resp) {
                 that.errorStats['new-message'] = resp[0];
                 return resp[1]; // return stats
             });
 
-            pS = handleInputErrors($rawSubj, app.constants.TITLE_RATIO, app.constants.TITLE2K_RATIO);
+            pS = this.handleInputErrors($rawSubj, app.constants.TITLE_RATIO, app.constants.TITLE2K_RATIO);
             pS1 = pS.then(function(resp) {
                 that.errorStats['subject'] = resp[0];
                 return resp[1]; // return stats
@@ -424,6 +391,50 @@
             this._cleanup(ev);
         },
 
+        handleInputErrors: function($rawDiv, ratioQuotedLimit, ratioN2KLimit) {
+ 
+            var this_ = this;
+            this_._queue.length = 0;
+
+            var auditPromise = app.audit_text(app.thousand_words, rangy.innerText($rawDiv.get(0)),
+                                                ratioQuotedLimit, ratioN2KLimit),
+                p = $.Deferred();
+
+            auditPromise.then(function(divEval) {
+
+                if (this_._queue.length > 0) {
+
+                    return this.handleInputErrors($rawDiv, ratioQuotedLimit, ratioN2KLimit)
+                }
+                else {
+                    var errors = divEval[0],
+                        replacements = divEval[1],
+                        blueWords = divEval[2],
+                        stats = divEval[3];
+
+                    if ($rawDiv.get(0) !== document.activeElement)
+                        $rawDiv.focus();
+
+                    var caretPosObj = rangy.saveSelection();
+
+                    unMarkErrors($rawDiv);
+                    doReplacements($rawDiv, replacements);
+                    doBlueMarking($rawDiv, blueWords);
+                    markErrors($rawDiv, errors);
+
+                    rangy.restoreSelection(caretPosObj);
+
+                    p.resolve([errors, stats]);
+                }
+            });
+
+            auditPromise.fail(function(err) {
+                p.reject(err);
+            });
+
+            return p.promise();
+        },
+
         _cleanup: function (ev) {
             this.$el.closest('#postform').hide();
             this.$el.empty();
@@ -445,10 +456,10 @@
 
         onKeyPress: function(ev) {
 
-            if ( ev.charCode )
+            if (ev.charCode)
                 this._queue.push(ev.charCode);
 
-            if ( ev.charCode === app.constants.ENTER_KEY ) {
+            if (ev.charCode === app.constants.ENTER_KEY) {
 
                 var $div = $(ev.target).closest('[contenteditable]');
                 if ($div.attr('id') === 'subject') {
@@ -580,7 +591,7 @@
             if ( ~this._queue.indexOf(app.constants.SPACE_KEY)
                 || ~this._queue.indexOf(app.constants.BACKSPACE_KEY) ) {
 
-                var pS = handleInputErrors($div, quoteRatioLimit, n2kRatioLimit);
+                var pS = this.handleInputErrors($div, quoteRatioLimit, n2kRatioLimit);
                 pS.then(function(resp) {
                     var stats = resp[1];
                     this_.errorStats[divId] = resp[0];
