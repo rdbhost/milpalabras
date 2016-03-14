@@ -94,9 +94,6 @@
             rng = rangy.createRange(),
             container;
 
-        var caretPosObj = rangy.saveSelection(),
-            caretPos = getCaretPos($div);
-
         for ( var i=0; i<errs.length; ++i ) {
 
             var err = errs[i];
@@ -136,7 +133,6 @@
             sel.setSingleRange(rng);
         }
 
-        rangy.restoreSelection(caretPosObj);
         return errs;
     }
 
@@ -145,8 +141,7 @@
         var sel = rangy.getSelection(),
             rng = rangy.createRange();
 
-        var caretPosObj = rangy.saveSelection(window),
-            caretPos = getCaretPos($div);
+        var caretPos = getCaretPos($div);
 
         for ( var i=0; i<replacements.length; ++i ) {
 
@@ -166,7 +161,6 @@
             sel.setSingleRange(rng);
         }
 
-        rangy.restoreSelection(caretPosObj);
         return replacements;
     }
 
@@ -174,8 +168,6 @@
 
         var sel = rangy.getSelection(),
             rng = rangy.createRange();
-
-        var curPos = rangy.saveSelection(window);
 
         var container = $div.get(0);
         rng.selectNodeContents(container);
@@ -186,7 +178,6 @@
         rng.collapse();
         sel.setSingleRange(rng);
 
-        rangy.restoreSelection(curPos);
     }
 
 
@@ -196,8 +187,7 @@
             rng = rangy.createRange(),
             container;
 
-        var caretPosObj = rangy.saveSelection(),
-            caretPos = getCaretPos($div);
+        // var caretPos = getCaretPos($div);
 
         for ( var i=0; i<next2kwords.length; ++i ) {
 
@@ -218,7 +208,6 @@
             sel.setSingleRange(rng);
         }
 
-        rangy.restoreSelection(caretPosObj);
         return next2kwords;
     }
 
@@ -230,12 +219,21 @@
 
         auditPromise.then(function(divEval) {
 
-            var stats = divEval[3], errors = divEval[0];
+            var errors = divEval[0],
+                replacements = divEval[1],
+                blueWords = divEval[2],
+                stats = divEval[3];
+
+            $rawDiv.focus();
+
+            var caretPosObj = rangy.saveSelection();
 
             unMarkErrors($rawDiv);
-            doReplacements($rawDiv, divEval[1]);
-            doBlueMarking($rawDiv, divEval[2]);
+            doReplacements($rawDiv, replacements);
+            doBlueMarking($rawDiv, blueWords);
             markErrors($rawDiv, errors);
+
+            rangy.restoreSelection(caretPosObj);
 
             p.resolve([errors, stats]);
         });
@@ -287,8 +285,10 @@
             data.makeHtml = app.MessageView.markdown.makeHtml;
             app.recentPostCt = app.recentPostCt || 0; // safety
 
-            if (app.recentPostCt < app.constants.DAILY_POST_LIMIT)
+            if (app.recentPostCt < app.constants.DAILY_POST_LIMIT) {
+
                 this.$el.html(this.template(data));
+            }
             else
                 this.$el.html(this.noGoTemplate({}));
 
@@ -588,8 +588,8 @@
                     if ( divId !== 'title' )
                         this_._updateStatusBar(stats);
                 });
-                pS.fail(function(res) {
-                   var _nada = true;
+                pS.fail(function(e) {
+                   throw e;
                 });
             }
 
@@ -608,7 +608,8 @@
                 });
                 p.fail(function(err) {
 
-                   alert(err[0] + ' ' + err[1]);
+                   // alert(err[0] + ' ' + err[1]);
+                    throw err;
                 });
             }
             else {

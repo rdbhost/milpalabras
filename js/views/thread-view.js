@@ -147,7 +147,8 @@
             });
             if (app.editView)
                 app.editView.cleanup();
-            app.editView = new app.EditView({ model: app.cachedMessages[newMsg.messageCacheKey()] || newMsg });
+            var model = app.cachedMessages[newMsg.messageCacheKey()] || newMsg;
+            app.editView = new app.EditView({ model: model });
             app.editView.render();
         },
 
@@ -155,10 +156,18 @@
         showEditMessageForm: function(ev) {
 
             var msgId = parseInt($(ev.target).attr('data-messageid'), 10),
-                msg = app.thread.where({'message_id': msgId})[0];
+                msg = app.thread.where({'message_id': msgId})[0],
+                model;
             if (app.editView)
                 app.editView.cleanup();
-            app.editView = new app.EditView({ model: app.cachedMessages[msg.messageCacheKey()] || msg });
+            if (app.cachedMessages[msg.messageCacheKey()])
+                model = app.cachedMessages[msg.messageCacheKey()];
+            else {
+                model = msg.clone();
+                model.attributes.body = app.MessageView.markdown.makeHtml(msg.attributes.body);
+                model.attributes.title = app.MessageView.markdown.makeHtml(msg.attributes.title);
+            }
+            app.editView = new app.EditView({ model: model });
             app.editView.render();
         },
 

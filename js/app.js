@@ -39,7 +39,7 @@ app.constants = {
     TWOK_RATIO: '0.15',
     TITLE2K_RATIO: '0.5',
 
-    DAILY_POST_LIMIT: '5'
+    DAILY_POST_LIMIT: '15'
 };
 
 _.extend(app.constants, {

@@ -103,7 +103,8 @@
 
             if (app.editView)
                 app.editView.cleanup();
-            app.editView = new app.EditView({ model: app.cachedMessages['t'] || nullMsg });
+            var model = app.cachedMessages['t'] || nullMsg;
+            app.editView = new app.EditView({ model: model });
             app.editView.render();
         },
 
