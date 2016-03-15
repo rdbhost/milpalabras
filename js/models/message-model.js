@@ -238,16 +238,22 @@
                     namedParams: namedParams
                 });
             p.then(function(resp) {
-                if (resp.row_count[0])
+                if (resp.row_count && resp.row_count[0])
                     if ( options && options.success )
                         options.success(resp.records.rows);
+                    else
+                        throw new Error('no success method in options');
                 else
                     if ( options && options.error )
                         options.error(['-', 'authentication error']);
+                    else
+                        throw new Error('no error method in options');
             });
             p.fail(function(err) {
                 if ( options && options.error )
                    options.error(err);
+                else
+                    throw new Error('no error method in options');
                 console.log('ERROR ~1 ~2'.replace('~1', err[0]).replace('~2', err[1]))
             });
         },

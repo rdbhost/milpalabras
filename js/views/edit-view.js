@@ -392,7 +392,7 @@
         },
 
         handleInputErrors: function($rawDiv, ratioQuotedLimit, ratioN2KLimit) {
- 
+
             var this_ = this;
             this_._queue.length = 0;
 
@@ -404,7 +404,7 @@
 
                 if (this_._queue.length > 0) {
 
-                    return this.handleInputErrors($rawDiv, ratioQuotedLimit, ratioN2KLimit)
+                    return this_.handleInputErrors($rawDiv, ratioQuotedLimit, ratioN2KLimit)
                 }
                 else {
                     var errors = divEval[0],
