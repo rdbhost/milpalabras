@@ -398,14 +398,18 @@
                        '       ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts, min(lemma_idx) AS idx \n' +
                        '  FROM wordlist w WHERE word IN \n' +
                        '   ( \n' +
-                       '   SELECT min(word) \n' +
-                        "    FROM wordlist w  WHERE (substring(word from 1 for 1) = %s \n" +
-                        "                            OR substring(word from 1 for 1) = %s) \n" +
+                       '   SELECT min(word) FROM wordlist \n' +
+                       '    WHERE word IN \n' +
+                       '      (SELECT word FROM wordlist w WHERE(substring(word from 1 for 1) = %s \n' +
+                       '                                      OR substring(word from 1 for 1) = %s) \n' +
+                       '           UNION DISTINCT \n' +
+                       '       SELECT word FROM alt_words WHERE (substring(alt from 1 for 1) = %s \n' +
+                       '                                      OR substring(alt from 1 for 1) = %s) ) \n' +
                        '    GROUP BY substring(word from 1 for 3) \n' +
                        '   ) \n' +
                        ' GROUP BY word \n' +
                        ' ORDER BY word ASC LIMIT 1000; \n',
-                    args: [ltr, accented || '']
+                    args: [ltr, accented || '', ltr, accented || '']
                 });
 
                 p.then(function(resp) {
@@ -568,13 +572,17 @@
                 var p = R.preauthPostData({
 
                      q: 'SELECT distinct word, array_agg(lemma) AS lemmas, bool_or(pronoun_suffix) AS suffix, \n' +
-                     '   array_agg(part_of_speech) AS pos, array_agg(part_of_speech_detail) as posd, \n' +
-                     ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts, min(lemma_idx) as idx \n' +
-                     "FROM wordlist w  WHERE (substring(word from 1 for 2) = %s \n" +
-                     "                        OR substring(word from 1 for 2) = %s) \n" +
-                     'GROUP BY word \n' +
-                     'ORDER BY word ASC LIMIT 1000;\n',
-                    args: [lead, accentedLead || '']
+                        '   array_agg(part_of_speech) AS pos, array_agg(part_of_speech_detail) as posd, \n' +
+                        ' ARRAY(SELECT alt FROM alt_words a WHERE a.word = w.word) AS alts, min(lemma_idx) as idx \n' +
+                        '    FROM wordlist w  WHERE word IN  \n' +
+                        '        (SELECT word FROM wordlist w WHERE(substring(word from 1 for 2) = %s \n' +
+                        '                                         OR substring(word from 1 for 2) = %s) \n'+
+                        '           UNION DISTINCT \n' +
+                        '          SELECT word FROM alt_words WHERE (substring(alt from 1 for 2) = %s \n'+
+                        '                                         OR substring(alt from 1 for 2) = %s) ) \n' +
+                        'GROUP BY word \n' +
+                        'ORDER BY word ASC LIMIT 1000;\n',
+                    args: [lead, accentedLead || '', lead, accentedLead || '']
                 });
 
                 p.then(function(resp) {
@@ -764,7 +772,7 @@
 
             function _prefixLimited(list, begin, listCtLimit) {
 
-                var prefixLen = 5,
+                var prefixLen = 9, // 5,
                     listNew, wordItm;
 
                 listNew = _.filter(list.models, function (wd) {
