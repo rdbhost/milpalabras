@@ -25,11 +25,13 @@
             'i': '\u00ed',
             'o': '\u00f3',
             'u': '\u00fa',
+            'n': '\u00f1',
             'A': '\u00c1',
             'E': '\u00c9',
             'I': '\u00cd',
             'O': '\u00d3',
-            'U': '\u00da'
+            'U': '\u00da',
+            'N': '\u00d1'
         },
 
         REMOVE_ACCENT = {
@@ -38,11 +40,13 @@
             '\u00ed': 'i',
             '\u00f3': 'o',
             '\u00fa': 'u',
+            '\u00f1': 'n',
             '\u00c1': 'A',
             '\u00c9': 'E',
             '\u00cd': 'I',
             '\u00d3': 'O',
-            '\u00da': 'U'
+            '\u00da': 'U',
+            '\u00d1': 'N'
         },
 
         x;
@@ -362,6 +366,65 @@
         }
     });
 
+    /*
+     *  function that filters list of okwords, to produce a displayable
+     *     list of word suggestions.
+     *
+     *     @param list: list of TWEntry items
+     *     @param begin: word fragment to match (at beginnig of word)
+     *     @param listCtLimit: max number of word entries to return
+     */
+    function _prefixLimited(list, begin, listCtLimit) {
+
+        var prefixLen = 9;
+
+        var listNew = _.filter(list.models, function (wd) {
+            return  wd.startsWith(begin);
+        });
+        listNew = _.map(listNew, function(v) { return v.clone() }); // ensure listNew is copy
+
+        while (listNew.length > listCtLimit) {
+
+            for (var freqAdj in [false, true]) {
+
+                var prefix = listNew[0].getPrefix(prefixLen),
+                    i = 1;
+
+                while (i < listNew.length && listNew.length > listCtLimit) {
+
+                    if (prefix.length < prefixLen) {
+
+                        // word too short to be similar to previous
+                        prefix = listNew[i].getPrefix(prefixLen);
+                        i++;
+                    }
+                    else if (listNew[i].startsWith(prefix)) {
+
+                        listNew[i-1].setOKMulti('okmulti');
+                        listNew.splice(i,1); // remove ith elem
+                    }
+                    else if (listNew[i].attributes.idx > 1000
+                        && freqAdj
+                        && listNew[i].startsWith(prefix.substr(0,prefix.length-1))) {
+
+                        listNew[i-1].setOKMulti('okmulti');
+                        listNew.splice(i, 1); // remove ith elem
+                    }
+                    else {
+
+                        // no similarity with previous, so continue
+                        listNew[i].setOKMulti('');
+                        prefix = listNew[i].getPrefix(prefixLen);
+                        i++;
+                    }
+                }
+            }
+
+            --prefixLen;
+        }
+
+        return listNew;
+    }
 
     // Dictionary Words Collection
     // ---------------
@@ -770,123 +833,6 @@
                 WordColl = begin.length > 1 ? WordCollectionComplete : WordCollectionQuick,
                 wordLookup = begin.length > 1 ? this_.byTwoLetters : this_.byLetter;
 
-            function _prefixLimited(list, begin, listCtLimit) {
-
-                var prefixLen = 9, // 5,
-                    listNew, wordItm;
-
-                listNew = _.filter(list.models, function (wd) {
-                    return  wd.startsWith(begin);
-                });
-
-                while (listNew.length > listCtLimit) {
-
-                    var prevList = listNew.slice(0),
-                        prefix = prevList[0].getPrefix(prefixLen);
-                    listNew.length = 0;
-                    listNew.push(prevList[0].clone());
-
-                    for (var i = 1; i < prevList.length; ++i) {
-
-                        if (prefix.length < prefixLen || !prevList[i].startsWith(prefix)) {
-
-                            wordItm = prevList[i].clone();
-                            listNew.push(wordItm);
-                            prefix = wordItm.getPrefix(prefixLen);
-                        }
-                        else {
-
-                            wordItm = listNew[listNew.length - 1];
-                            listNew[listNew.length - 1].setOKMulti('okmulti');
-
-                            if (prefix.length < prefixLen && prevList[i].getWordLength() > prefix.length)
-                                prefix = prevList[i].getPrefix(prefixLen)
-                        }
-                    }
-
-                    // if still too long, try limiting to exact matches
-                    if (listNew.length > listCtLimit ) {
-
-                        prevList = listNew.slice(0);
-                        listNew.length = 0;
-                        listNew.push(prevList[0].clone());
-
-                        for ( i=1; i<prevList.length; ++i ) {
-
-                            if ( prefix.length < prefixLen || ! prevList[i].startsWith(prefix, 'exact') ) {
-
-                                wordItm = prevList[i].clone();
-                                listNew.push(wordItm);
-                                prefix = wordItm.getPrefix(prefixLen);
-                            }
-                            else {
-
-                                wordItm = listNew[listNew.length-1];
-                                listNew[listNew.length-1].setOKMulti('okmulti');
-
-                                if ( prefix.length < prefixLen && prevList[i].getWordLength() > prefix.length )
-                                    prefix = prevList[i].getPrefix(prefixLen)
-                            }
-                        }
-
-                        // if exact-match list still too long, revert to fuzzy-match list and reiterate
-                        if (listNew.length > listCtLimit) {
-
-                            listNew = prevList.slice(0);
-                        }
-                    }
-
-                    // if still too long, try limiting to first-1000
-                    if (listNew.length > listCtLimit ) {
-
-                        prevList = listNew.slice(0);
-                        listNew.length = 0;
-                        listNew.push(prevList[0].clone());
-
-                        prevList = _.filter(prevList, function(itm) {
-                           return itm.attributes.idx <= 1000;
-                        });
-
-                        for ( i=1; i<prevList.length; ++i ) {
-
-                            if ( prefix.length < prefixLen || ! prevList[i].startsWith(prefix, 'exact') ) {
-
-                                wordItm = prevList[i].clone();
-                                listNew.push(wordItm);
-                                prefix = wordItm.getPrefix(prefixLen);
-                            }
-                            else {
-
-                                wordItm = listNew[listNew.length-1];
-                                listNew[listNew.length-1].setOKMulti('okmulti');
-
-                                if ( prefix.length < prefixLen && prevList[i].getWordLength() > prefix.length )
-                                    prefix = prevList[i].getPrefix(prefixLen)
-                            }
-                        }
-
-                        // if exact-match list still too long, revert to fuzzy-match list and reiterate
-                        if (listNew.length > listCtLimit) {
-
-                            listNew = prevList.slice(0);
-                        }
-                    }
-
-                    --prefixLen;
-                }
-
-                if (listNew.length === 0 && prefixLen < 4) {
-
-                    prevList = _.first(prevList, listCtLimit);
-                    // mark2K(prevList);
-                    return new WordColl(prevList);
-                }
-                else {
-                    // mark2K(listNew);
-                    return new WordColl(listNew);
-                }
-            }
-
             var lead = createLead(begin),
                 ltrList = wordLookup[lead[0]],
                 p = $.Deferred(),
@@ -900,7 +846,9 @@
                 }
                 else {
 
-                    wc = _prefixLimited(ltrList, begin, lim);
+                    var list = _prefixLimited(ltrList, begin, lim);
+                    wc = new WordColl(list);
+
                     p.resolve(wc);
                 }
             }
