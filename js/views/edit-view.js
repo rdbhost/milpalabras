@@ -391,48 +391,48 @@
             this._cleanup(ev);
         },
 
-        handleInputErrors: function($rawDiv, ratioQuotedLimit, ratioN2KLimit) {
+        handleInputErrors: function($rawDiv) {
 
-            var this_ = this;
+            var this_ = this,
+                ratioQuotedLimit, ratioN2kLimit, divId;
             this_._queue.length = 0;
 
-            var auditPromise = app.audit_text(app.thousand_words, rangy.innerText($rawDiv.get(0)),
-                                                ratioQuotedLimit, ratioN2KLimit),
-                p = $.Deferred();
+            divId = $rawDiv.attr('id');
+            ratioQuotedLimit = divId === 'title' ? app.constants.TITLE_RATIO : app.constants.BODY_RATIO;
+            ratioN2kLimit = divId === 'title' ? app.constants.TITLE2K_RATIO : app.constants.TWOK_RATIO;
 
-            auditPromise.then(function(divEval) {
+            $rawDiv.attr('contenteditable', false);
 
-                if (this_._queue.length > 0) {
+            var auditPromise = app.audit_text(app.thousand_words, this_.found_words,
+                                                rangy.innerText($rawDiv.get(0)),
+                                                ratioQuotedLimit, ratioN2kLimit);
 
-                    return this_.handleInputErrors($rawDiv, ratioQuotedLimit, ratioN2KLimit)
-                }
-                else {
-                    var errors = divEval[0],
-                        replacements = divEval[1],
-                        blueWords = divEval[2],
-                        stats = divEval[3];
+            return auditPromise.then(function(divEval) {
 
-                    if ($rawDiv.get(0) !== document.activeElement)
-                        $rawDiv.focus();
+                var errors = divEval[0],
+                    replacements = divEval[1],
+                    blueWords = divEval[2],
+                    stats = divEval[3];
 
-                    var caretPosObj = rangy.saveSelection();
+                //if ($rawDiv.get(0) !== document.activeElement)
+                //    $rawDiv.focus();
 
-                    unMarkErrors($rawDiv);
-                    doReplacements($rawDiv, replacements);
-                    doBlueMarking($rawDiv, blueWords);
-                    markErrors($rawDiv, errors);
+                var caretPosObj = rangy.saveSelection();
+                $rawDiv.attr('contenteditable', true);
 
-                    rangy.restoreSelection(caretPosObj);
+                unMarkErrors($rawDiv);
+                doReplacements($rawDiv, replacements);
+                doBlueMarking($rawDiv, blueWords);
+                markErrors($rawDiv, errors);
 
-                    p.resolve([errors, stats]);
-                }
+                rangy.restoreSelection(caretPosObj);
+
+                return [errors, stats];
+            })
+            .fail(function(err) {
+                $rawDiv.attr('contenteditable', true);
+                throw err;
             });
-
-            auditPromise.fail(function(err) {
-                p.reject(err);
-            });
-
-            return p.promise();
         },
 
         _cleanup: function (ev) {
@@ -446,23 +446,30 @@
             if (this.attributes && this.attributes.parent)
                 key = 'parent ' + this.attributes.parent.messageCacheKey();
             delete app.cachedMessages[key];
+            this.found_words = {}
         },
 
         cleanup: function(ev) {
             return this._cleanup(ev);
         },
 
-        _queue: [],
+        _queue: [],      // stores chars entered; added to by keypress, removed by keyup
+        found_words: {}, // hash for storing words already used for ready re-validation
 
         onKeyPress: function(ev) {
 
+            // triggers on displayable keystrokes only
             if (ev.charCode)
                 this._queue.push(ev.charCode);
 
+            // mark div getting key-char as 'dirty', in need of checking
+            var $div = $(ev.target).closest('[contenteditable]');
+            $div.data("dirty", true);
+
             if (ev.charCode === app.constants.ENTER_KEY) {
 
-                var $div = $(ev.target).closest('[contenteditable]');
                 if ($div.attr('id') === 'subject') {
+                    // block enter-key in subject field
                     ev.preventDefault();
                 }
             }
@@ -580,18 +587,17 @@
 
         onKeyUp: function(ev) {
 
-            var $div, divId, caretPos, wf, word, p, quoteRatioLimit, n2kRatioLimit,
+            var $selDiv, divId, caretPos, wf, word, p, quoteRatioLimit, n2kRatioLimit,
                 this_ = this;
 
-            $div = $(ev.target).closest('[contenteditable]');
-            divId = $div.attr('id');
-            quoteRatioLimit = divId === 'title' ? app.constants.TITLE_RATIO : app.constants.BODY_RATIO;
-            n2kRatioLimit = divId === 'title' ? app.constants.TITLE2K_RATIO : app.constants.TWOK_RATIO;
+            $selDiv = $(ev.target).closest('[contenteditable]');
+            divId = $selDiv.attr('id');
 
             if ( ~this._queue.indexOf(app.constants.SPACE_KEY)
                 || ~this._queue.indexOf(app.constants.BACKSPACE_KEY) ) {
 
-                var pS = this.handleInputErrors($div, quoteRatioLimit, n2kRatioLimit);
+                var pS = this.handleInputErrors($selDiv);
+
                 pS.then(function(resp) {
                     var stats = resp[1];
                     this_.errorStats[divId] = resp[0];
@@ -599,6 +605,7 @@
                     if ( divId !== 'title' )
                         this_._updateStatusBar(stats);
                 });
+
                 pS.fail(function(e) {
                    throw e;
                 });
@@ -606,8 +613,8 @@
 
             this._queue.length = 0;
 
-            caretPos = getCaretPos($div);
-            wf = WordFinder($div.get(0), caretPos);
+            caretPos = getCaretPos($selDiv);
+            wf = WordFinder($selDiv.get(0), caretPos);
             word = wf.word();
 
             if ( word && word.length ) {

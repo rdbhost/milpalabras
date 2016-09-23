@@ -391,7 +391,7 @@ function audit_test(txt) {
 
     var dict = new app.ThousandWords(),
         that = this,
-        auditPromise = app.audit_text(dict, txt);
+        auditPromise = app.audit_text(dict, {}, txt);
 
     var p2 = auditPromise.then(function(resp) {
         ok(typeof resp === 'object', 'response is object'); // 0th assert

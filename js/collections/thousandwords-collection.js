@@ -67,7 +67,7 @@
      *      elements.
      *   If there is a quoted-ratio error, all quoted portions will be included in error list
      */
-    app.audit_text = function (dict, text, quoteRatioLimit, next2KRatioLimit) {
+    app.audit_text = function (dict, found_words, text, quoteRatioLimit, next2KRatioLimit) {
 
         function trim(wd) {
 
