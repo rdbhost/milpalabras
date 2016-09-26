@@ -20,46 +20,24 @@
                     'melos', 'telos', 'selos', 'melas', 'telas', 'selas' ],
 
         _ADD_ACCENT = {
-            'a': '\u00e1',
-            'e': '\u00e9',
-            'i': '\u00ed',
-            'o': '\u00f3',
-            'u': '\u00fa',
-            'n': '\u00f1',
-            'A': '\u00c1',
-            'E': '\u00c9',
-            'I': '\u00cd',
-            'O': '\u00d3',
-            'U': '\u00da',
-            'N': '\u00d1'
+            'a': '\u00e1', 'A': '\u00c1',
+            'e': '\u00e9', 'E': '\u00c9',
+            'i': '\u00ed', 'I': '\u00cd',
+            'o': '\u00f3', 'O': '\u00d3',
+            'u': '\u00fa', 'U': '\u00da',
+            'n': '\u00f1', 'N': '\u00d1'
         },
 
         REMOVE_ACCENT = {
-            '\u00e1': 'a',
-            '\u00e9': 'e',
-            '\u00ed': 'i',
-            '\u00f3': 'o',
-            '\u00fa': 'u',
-            '\u00f1': 'n',
-            '\u00c1': 'A',
-            '\u00c9': 'E',
-            '\u00cd': 'I',
-            '\u00d3': 'O',
-            '\u00da': 'U',
-            '\u00d1': 'N'
+            '\u00e1': 'a', '\u00c1': 'A',
+            '\u00e9': 'e', '\u00c9': 'E',
+            '\u00ed': 'i', '\u00cd': 'I',
+            '\u00f3': 'o', '\u00d3': 'O',
+            '\u00fa': 'u', '\u00da': 'U',
+            '\u00f1': 'n', '\u00d1': 'N'
         },
 
         x;
-
-    function add_accent(lead) {
-
-        function replace(c) {
-            return _ADD_ACCENT[c];
-        }
-        var newLead = lead.replace(/[aeiouAEIOU]/g, replace);
-        return newLead;
-    }
-
 
     /*
      *  audit text takes body of text from editor and validates it.
@@ -120,14 +98,70 @@
 
         function handleOneWord() {
 
+            var err, n2k, rep;
             wd = textParts.shift();
+
+            function cacheGood(refWd) {
+
+                var key = refWd.attributes.word.toLowerCase();
+
+                found_words[key] = refWd;
+            }
+
+            function _handleOneWord(refWd) {
+
+                err = void 0;
+                if ( ! refWd ) {
+
+                    console.log('word not found: ' + trimmed);
+                    err = {begin: accum + trimmedLeadLen,
+                        end: accum + trimmedLeadLen + trimmed.length,
+                        type: 'not-found'};
+                    errs.push(err);
+                }
+                else if ( refWd.attributes.word !== trimmed.toLowerCase() ) {
+
+                    console.log('replacement: ' + refWd.attributes.word + ' ' + trimmed);
+                    var normRefWord = normalizeWord(trimmed, refWd.attributes.word);
+                    rep = {begin: accum + trimmedLeadLen,
+                        end: accum + trimmedLeadLen + trimmed.length,
+                        newVal: normRefWord,
+                        type: 'replace'};
+                    replacements.push(rep);
+
+                    // handle next2k words
+                    if (refWd.attributes.idx > 1000) {
+                        n2k = {begin: accum + trimmedLeadLen,
+                            end: accum + trimmedLeadLen + normRefWord.length,
+                            type: 'next2k'};
+                        next2kwords.push(n2k);
+                    }
+                }
+                else {
+                    // if word is good, do nothing special
+
+                    // handle next2k words
+                    if (refWd.attributes.idx > 1000) {
+                        n2k = {begin: accum + trimmedLeadLen,
+                            end: accum + trimmedLeadLen + trimmed.length,
+                            type: 'next2k'};
+                        next2kwords.push(n2k);
+                    }
+                }
+
+                accum += wd.length;
+                if (textParts.length)
+                    setTimeout(handleOneWord, 0);
+                else
+                    finalize();
+
+            }
 
             if ( wd.length && ! /\s/.test(wd) ) {
 
                 if ( wd.charAt(0) === '"' ) {
 
                     err = {'start': accum, 'end': accum + wd.length, 'type': 'quoted'};
-                    // quotedParts.push(err);
 
                     accum += wd.length;
                     if (textParts.length)
@@ -143,57 +177,25 @@
                     // skip numbers and other ok non-words
                     if ( trimmed && ! okNonWords.test(trimmed) ) {
 
-                        var p = dict.findingOne(trimmed.toLowerCase());
-                        p.then(function(refWd) {
+                        if (trimmed.toLowerCase() in found_words) {
 
-                            if ( ! refWd ) {
+                            _handleOneWord(found_words[trimmed.toLowerCase()]);
+                        }
+                        else {
 
-                                console.log('word not found: ' + trimmed);
-                                err = {begin: accum + trimmedLeadLen,
-                                       end: accum + trimmedLeadLen + trimmed.length,
-                                       type: 'not-found'};
-                                errs.push(err);
-                            }
-                            else if ( refWd.attributes.word !== trimmed.toLowerCase() ) {
+                            var p = dict.findingOne(trimmed.toLowerCase());
 
-                                console.log('replacement: ' + refWd.attributes.word + ' ' + trimmed);
-                                var normRefWord = normalizeWord(trimmed, refWd.attributes.word);
-                                err = {begin: accum + trimmedLeadLen,
-                                       end: accum + trimmedLeadLen + trimmed.length,
-                                       newVal: normRefWord,
-                                       type: 'replace'};
-                                replacements.push(err);
-
-                                // handle next2k words
-                                if (refWd.attributes.idx > 1000) {
-                                    err = {begin: accum + trimmedLeadLen,
-                                           end: accum + trimmedLeadLen + normRefWord.length,
-                                           type: 'next2k'};
-                                    next2kwords.push(err);
-                                }
-                            }
-                            else {
-                                // if word is good, do nothing special
-
-                                // handle next2k words
-                                if (refWd.attributes.idx > 1000) {
-                                    err = {begin: accum + trimmedLeadLen,
-                                           end: accum + trimmedLeadLen + trimmed.length,
-                                           type: 'next2k'};
-                                    next2kwords.push(err);
-                                }
-                            }
-
-                            accum += wd.length;
-                            if (textParts.length)
-                                setTimeout(handleOneWord, 0);
-                            else
-                                finalize();
-                        });
-                        p.fail(function(err) {
-                            console.log(err[0] + err[1]);
-                            p.reject(err);
-                        })
+                            // findingOne gets TWEntry
+                            p.then(function(rw) {
+                                _handleOneWord(rw);
+                                if ( !err )
+                                    cacheGood(rw);
+                            });
+                            p.fail(function(err) {
+                                console.log(err[0] + err[1]);
+                                p.reject(err);
+                            })
+                        }
                     }
                     else {
 
@@ -281,7 +283,7 @@
             return fromWL;
     }
 
-    // Object for each word in okwords list.
+    // Object for each word in okwords list, and in dictionary
     app.TWEntry = Backbone.Model.extend({
 
         defaults: {
@@ -901,7 +903,6 @@
 
                 tmp = new WordCollectionComplete();
                 tmp.lead = lead;
-                // window.console.log('findingOne [~] fetch '.replace('~', tmp.lead));
                 tmp.fetch({
 
                     success: function(list, rsp, opt) {

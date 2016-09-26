@@ -94,13 +94,13 @@
             rng = rangy.createRange(),
             container;
 
-        var caretPos = getCaretPos($div);
+        // var caretPos = getCaretPos($div);
 
         for ( var i=0; i<errs.length; ++i ) {
 
             var err = errs[i];
-            if ( caretPos >= err.begin && caretPos <= err.end )
-                continue;
+            //if ( caretPos >= err.begin && caretPos <= err.end )
+            //    continue;
 
             if ( err.type === 'blank' ) {
 
@@ -216,7 +216,7 @@
     _.extend(etch.config.buttonClasses, {
         'default': ['bold', 'italic', 'save'],
         /* 'all': ['bold', 'italic', 'unordered-list', 'ordered-list', 'link', 'clear-formatting', 'save'], */
-        'new': ['bold', 'italic', 'unordered-list', 'ordered-list', 'clear-formatting'],
+        'new': ['bold', 'italic', 'unordered-list', 'ordered-list'],
         'title': ['bold', 'italic']
     });
 
@@ -244,6 +244,11 @@
         },
         wordsView: new app.WordListView(),
         lookupView: new app.DefnListView(),
+
+        initialize: function(opts) {
+
+            this.found_words = {};
+        },
 
         // Render the edit box
         render: function () {
@@ -279,15 +284,17 @@
                 that = this,
                 pM, pS, pM1, pS1, quoteRatio;
 
-            pM = this.handleInputErrors($rawMsg, app.constants.BODY_RATIO, app.constants.TWOK_RATIO);
+            pM = this.handleInputErrors($rawMsg);
             pM1 = pM.then(function(resp) {
                 that.errorStats['new-message'] = resp[0];
+                $rawMsg.data('dirty', false);
                 return resp[1]; // return stats
             });
 
-            pS = this.handleInputErrors($rawSubj, app.constants.TITLE_RATIO, app.constants.TITLE2K_RATIO);
+            pS = this.handleInputErrors($rawSubj);
             pS1 = pS.then(function(resp) {
                 that.errorStats['subject'] = resp[0];
+                $rawSubj.data('dirty', false);
                 return resp[1]; // return stats
             });
 
@@ -361,8 +368,7 @@
                     parent.branch({
                         success: function(resp) {
 
-                            var thread_id = resp.message_id;
-                            newModel.attributes.thread_id = thread_id;
+                            newModel.attributes.thread_id = resp.message_id;
                             newModel.save({}, {
                                 success: function(mdl, resp, opt) {
                                     onSuccess(mdl, resp, opt);
@@ -393,8 +399,8 @@
 
         handleInputErrors: function($rawDiv) {
 
-            var this_ = this,
-                ratioQuotedLimit, ratioN2kLimit, divId;
+            var ratioQuotedLimit, ratioN2kLimit, divId,
+                this_ = this;
             this_._queue.length = 0;
 
             divId = $rawDiv.attr('id');
@@ -446,7 +452,7 @@
             if (this.attributes && this.attributes.parent)
                 key = 'parent ' + this.attributes.parent.messageCacheKey();
             delete app.cachedMessages[key];
-            this.found_words = {}
+            // this.found_words = {}
         },
 
         cleanup: function(ev) {
@@ -587,14 +593,17 @@
 
         onKeyUp: function(ev) {
 
-            var $selDiv, divId, caretPos, wf, word, p, quoteRatioLimit, n2kRatioLimit,
-                this_ = this;
+            var $selDiv, divId, caretPos, wf, word, p,
+                this_ = this, c = app.constants;
 
             $selDiv = $(ev.target).closest('[contenteditable]');
             divId = $selDiv.attr('id');
 
-            if ( ~this._queue.indexOf(app.constants.SPACE_KEY)
-                || ~this._queue.indexOf(app.constants.BACKSPACE_KEY) ) {
+            var wordEndKeys = _.intersection(this._queue,
+                [c.BACKSPACE_KEY, c.ENTER_KEY, c.SPACE_KEY, '.'.charCodeAt(0),
+                    ','.charCodeAt(0), ';'.charCodeAt(0), '!'.charCodeAt(0)]);
+
+            if ( wordEndKeys.length ) {
 
                 var pS = this.handleInputErrors($selDiv);
 
@@ -604,6 +613,7 @@
                     this_._manageButtons();
                     if ( divId !== 'title' )
                         this_._updateStatusBar(stats);
+                    $selDiv.data('dirty', false);
                 });
 
                 pS.fail(function(e) {
@@ -643,41 +653,39 @@
 
         onLoseFocus: function(ev) {
 
-            var key = this.model.messageCacheKey(),
-                rawMsg = this.$('#new-message').text(),
-                rawSubj = this.$('#subject').text();
-                //this_ = this,
-                //$div, divId, quoteRatioLimit, n2kRatioLimit;
+            var $div = $(ev.target).closest('[contenteditable]'),
+                divId = $div.attr('id'),
+                this_ = this,
+                key = this.model.messageCacheKey();
 
             if (this.attributes && this.attributes.parent) {
 
                 key = 'parent ' + this.attributes.parent.messageCacheKey();
             }
 
-            this.model.attributes.body = rawMsg;
-            this.model.attributes.title = rawSubj;
             app.cachedMessages[key] = this.model;
+            if ( !$div.data('dirty') )
+                return;
 
+            $div.attr('contenteditable', false);
 
-            // todo - reenable this after finding a way to deal with handleInputErrors reclaiming of focus
-/*
-            $div = $(ev.target).closest('[contenteditable]');
-            divId = $div.attr('id');
-            quoteRatioLimit = divId === 'title' ? app.constants.TITLE_RATIO : app.constants.BODY_RATIO;
-            n2kRatioLimit = divId === 'title' ? app.constants.TITLE2K_RATIO : app.constants.TWOK_RATIO;
+            var pS = this.handleInputErrors($div);
 
-            var pS = handleInputErrors($div, quoteRatioLimit, n2kRatioLimit);
             pS.then(function(resp) {
-                var stats = resp[1];
+
                 this_.errorStats[divId] = resp[0];
                 this_._manageButtons();
                 if ( divId !== 'title' )
-                    this_._updateStatusBar(stats);
+                    this_._updateStatusBar(resp[1]);
+                $div.attr('contenteditable', true);
+                $div.data('dirty', false);
             });
-            pS.fail(function(res) {
-                var _nada = true;
+
+            pS.fail(function(e) {
+
+                $div.data('dirty', false);
+                throw e;
             });
-*/
 
         }
     });
