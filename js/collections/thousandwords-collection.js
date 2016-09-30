@@ -45,7 +45,7 @@
      *      elements.
      *   If there is a quoted-ratio error, all quoted portions will be included in error list
      */
-    app.audit_text = function (dict, found_words, text, quoteRatioLimit, next2KRatioLimit) {
+    app.audit_text = function (dict, found_words, text, caretPos, quoteRatioLimit, next2KRatioLimit) {
 
         function trim(wd) {
 
@@ -101,16 +101,25 @@
             var err, n2k, rep;
             wd = textParts.shift();
 
-            function cacheGood(refWd) {
+            console.log('handleOneWord '+wd);
 
-                var key = refWd.attributes.word.toLowerCase();
+            function cacheGood(word, score) {
 
-                found_words[key] = refWd;
+                found_words[word] = score;
+            }
+
+            function skipToNextWord() {
+
+                accum += wd.length; // only for calculating offsets, not for text size
+                if (textParts.length)
+                    setTimeout(handleOneWord, 0);
+                else
+                    finalize();
             }
 
             function _handleOneWord(refWd) {
 
-                err = void 0;
+                err = rep = void 0;
                 if ( ! refWd ) {
 
                     console.log('word not found: ' + trimmed);
@@ -149,12 +158,34 @@
                     }
                 }
 
-                accum += wd.length;
-                if (textParts.length)
-                    setTimeout(handleOneWord, 0);
-                else
-                    finalize();
+                skipToNextWord();
+            }
 
+            function _handleFoundWord(word) {
+
+                err = void 0;
+                var wdScore = found_words[word];
+
+                if ( wdScore === false ) {
+
+                    err = {begin: accum + trimmedLeadLen,
+                        end: accum + trimmedLeadLen + trimmed.length,
+                        type: 'not-found'};
+                    errs.push(err);
+                }
+                else {
+                    // if word is good, do nothing special
+
+                    // handle next2k words
+                    if (wdScore > 1000) {
+                        n2k = {begin: accum + trimmedLeadLen,
+                            end: accum + trimmedLeadLen + trimmed.length,
+                            type: 'next2k'};
+                        next2kwords.push(n2k);
+                    }
+                }
+
+                skipToNextWord();
             }
 
             if ( wd.length && ! /\s/.test(wd) ) {
@@ -162,12 +193,7 @@
                 if ( wd.charAt(0) === '"' ) {
 
                     err = {'start': accum, 'end': accum + wd.length, 'type': 'quoted'};
-
-                    accum += wd.length;
-                    if (textParts.length)
-                        setTimeout(handleOneWord, 0);
-                    else
-                        finalize();
+                    skipToNextWord();
                 }
                 else {
 
@@ -177,43 +203,50 @@
                     // skip numbers and other ok non-words
                     if ( trimmed && ! okNonWords.test(trimmed) ) {
 
-                        if (trimmed.toLowerCase() in found_words) {
+                        if (trimmed in found_words) {
 
-                            _handleOneWord(found_words[trimmed.toLowerCase()]);
+                            // already known good (or known bad), so handle as such
+                            _handleFoundWord(trimmed);
                         }
                         else {
 
-                            var p = dict.findingOne(trimmed.toLowerCase());
+                            // skip any evaluation of word around cursor
+                            if ( caretPos >= accum && caretPos <= accum+trimmed.length ) {
 
-                            // findingOne gets TWEntry
-                            p.then(function(rw) {
-                                _handleOneWord(rw);
-                                if ( !err )
-                                    cacheGood(rw);
-                            });
-                            p.fail(function(err) {
-                                console.log(err[0] + err[1]);
-                                p.reject(err);
-                            })
+                                skipToNextWord();
+                            }
+                            else {
+
+                                // word is unknown, so search dictionary for match
+                                //
+                                var p = dict.findingOne(trimmed.toLowerCase());
+
+                                // findingOne gets TWEntry
+                                p.then(function(rw) {
+                                    _handleOneWord(rw);
+                                    if ( err )
+                                        cacheGood(trimmed, false);
+                                    else if ( rep )
+                                        cacheGood(rep.newVal, rw.attributes.idx);
+                                    else
+                                        cacheGood(trimmed, rw.attributes.idx);
+                                });
+                                p.fail(function(err) {
+                                    console.log(err[0] + err[1]);
+                                    p.reject(err);
+                                })
+                            }
                         }
                     }
                     else {
 
-                        accum += wd.length;
-                        if (textParts.length)
-                            setTimeout(handleOneWord, 0);
-                        else
-                            finalize();
+                        skipToNextWord();
                     }
                 }
             }
             else {
 
-                accum += wd.length; // only for calculating offsets, not for text size
-                if (textParts.length)
-                    setTimeout(handleOneWord, 0);
-                else
-                    finalize();
+                skipToNextWord();
             }
         }
 
@@ -236,8 +269,7 @@
             var qRatios = quotedRatio(text2, next2kwords);
             if (qRatios[0] > quoteRatioLimit)
                 errs.push({'type': 'quoted'});
-            if (qRatios[1] > next2KRatioLimit)
-                errs = errs.concat(next2kwords);
+            qRatios[2] = (qRatios[1] > next2KRatioLimit);
 
             var flippedParts = getFlippable(text2);
             if ( flippedParts.length )

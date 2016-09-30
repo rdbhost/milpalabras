@@ -8,7 +8,9 @@
         BAR_GOOD_COLOR = 'green',
         BAR_QUOTED_COLOR = 'yellow',
         BAR_NEXT2K_COLOR = 'darkblue',
-        BAR_ERROR_COLOR = 'red';
+        BAR_ERROR_COLOR = 'red',
+
+        errCheckCharCodes = _.map(' .,!;?\r\n'.split(''), function(s) { return s.charCodeAt(0) });
 
     function getCaretPos($div) {
 
@@ -183,31 +185,42 @@
     }
 
 
-    function doBlueMarking($div, next2kwords) {
+    function doBlueMarking($div, next2kwords, tooBlue) {
 
         var sel = rangy.getSelection(),
             rng = rangy.createRange(),
             container;
 
-        // var caretPos = getCaretPos($div);
-
         for ( var i=0; i<next2kwords.length; ++i ) {
 
-            var bWord = next2kwords[i];
+            var bWord = next2kwords[i],
+                blueBegin = bWord.begin;
+
             // if ( caretPos >= bWord.begin && caretPos <= bWord.end )
             //    continue;
 
-            if ( bWord.type === 'next2k' ) {
+            container = $div.get(0);
 
-                container = $div.get(0);
+            if (tooBlue) {
 
-                rng.selectCharacters(container, bWord.begin, bWord.end);
+                rng.selectCharacters(container, bWord.begin, bWord.begin+1);
                 sel.setSingleRange(rng);
-                document.execCommand('forecolor', false, '#00008b');
+                document.execCommand('forecolor', false, 'red');
+                rng.collapse();
+                sel.setSingleRange(rng);
+
+                blueBegin += 1;
             }
 
-            rng.collapse();
-            sel.setSingleRange(rng);
+            if ( blueBegin < bWord.end ) {
+
+                rng.selectCharacters(container, blueBegin, bWord.end);
+                sel.setSingleRange(rng);
+                document.execCommand('forecolor', false, '#00008b');
+
+                rng.collapse();
+                sel.setSingleRange(rng);
+            }
         }
 
         return next2kwords;
@@ -407,28 +420,33 @@
             ratioQuotedLimit = divId === 'title' ? app.constants.TITLE_RATIO : app.constants.BODY_RATIO;
             ratioN2kLimit = divId === 'title' ? app.constants.TITLE2K_RATIO : app.constants.TWOK_RATIO;
 
+            var caretPos = getCaretPos($rawDiv);
             $rawDiv.attr('contenteditable', false);
 
             var auditPromise = app.audit_text(app.thousand_words, this_.found_words,
-                                                rangy.innerText($rawDiv.get(0)),
+                                                rangy.innerText($rawDiv.get(0)), caretPos,
                                                 ratioQuotedLimit, ratioN2kLimit);
 
             return auditPromise.then(function(divEval) {
 
+                if (this_._queue.length > 0)
+                    return this_.handleInputErrors($rawDiv);
+
                 var errors = divEval[0],
                     replacements = divEval[1],
                     blueWords = divEval[2],
-                    stats = divEval[3];
+                    stats = divEval[3],
 
-                //if ($rawDiv.get(0) !== document.activeElement)
-                //    $rawDiv.focus();
+                    tooBlue = stats.pop();
+
+                console.log('audit-promise done ');
 
                 var caretPosObj = rangy.saveSelection();
                 $rawDiv.attr('contenteditable', true);
 
                 unMarkErrors($rawDiv);
                 doReplacements($rawDiv, replacements);
-                doBlueMarking($rawDiv, blueWords);
+                doBlueMarking($rawDiv, blueWords, tooBlue);
                 markErrors($rawDiv, errors);
 
                 rangy.restoreSelection(caretPosObj);
@@ -564,7 +582,10 @@
             }
         },
 
+/*
         onKeyDown: function(ev) {
+
+            return; // TODO - remove this line or the function entirely
 
             if (ev.keyCode === app.constants.TAB_KEY) {
 
@@ -590,18 +611,18 @@
                 this._queue.push(ev.keyCode);
             }
         },
+*/
 
         onKeyUp: function(ev) {
 
             var $selDiv, divId, caretPos, wf, word, p,
-                this_ = this, c = app.constants;
+                this_ = this,
+                c = app.constants;
 
             $selDiv = $(ev.target).closest('[contenteditable]');
             divId = $selDiv.attr('id');
 
-            var wordEndKeys = _.intersection(this._queue,
-                [c.BACKSPACE_KEY, c.ENTER_KEY, c.SPACE_KEY, '.'.charCodeAt(0),
-                    ','.charCodeAt(0), ';'.charCodeAt(0), '!'.charCodeAt(0)]);
+             var wordEndKeys = _.intersection(this._queue, errCheckCharCodes);
 
             if ( wordEndKeys.length ) {
 
@@ -627,8 +648,12 @@
             wf = WordFinder($selDiv.get(0), caretPos);
             word = wf.word();
 
+            console.log('word ' + word);
+            console.log('caret pos ' + caretPos);
+
             if ( word && word.length ) {
 
+                console.log('wordsview '+word);
                 p = app.thousand_words.startingWith(word.toLowerCase());
                 p.then(function(wordCandidates) {
 
@@ -646,8 +671,6 @@
                 this_.wordsView.render(false);
             }
 
-            console.log('word ' + word);
-            console.log('caret pos ' + caretPos);
             ev.preventDefault();
         },
 
@@ -667,7 +690,7 @@
             if ( !$div.data('dirty') )
                 return;
 
-            $div.attr('contenteditable', false);
+            // $div.attr('contenteditable', false);
 
             var pS = this.handleInputErrors($div);
 
@@ -677,7 +700,7 @@
                 this_._manageButtons();
                 if ( divId !== 'title' )
                     this_._updateStatusBar(resp[1]);
-                $div.attr('contenteditable', true);
+                // $div.attr('contenteditable', true);
                 $div.data('dirty', false);
             });
 

@@ -70,7 +70,7 @@
 
                         var _r = this_.render(shorterPartial);
                         this_.$el.addClass('oops');
-                        return _r;
+                        // return _r;
                     }
                 })
             }
