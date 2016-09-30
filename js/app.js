@@ -36,7 +36,7 @@ app.constants = {
 
     BODY_RATIO: '0.10',
     TITLE_RATIO: '0.5',
-    TWOK_RATIO: '0.15',
+    TWOK_RATIO: '0.25',
     TITLE2K_RATIO: '0.5',
 
     DAILY_POST_LIMIT: '15'

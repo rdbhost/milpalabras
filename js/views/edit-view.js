@@ -280,7 +280,7 @@
             this.$el.closest('#postform').show();
             this._manageButtons();
 
-            this.$el.find('#subject').blur(function() {
+            this.$el.find('#title').blur(function() {
                $('.okwords').empty();
             });
             this.$el.find('#new-message').blur(function() {
@@ -293,7 +293,7 @@
         postFunction: function(ev) {
 
             var $rawMsg = this.$('#new-message'),
-                $rawSubj = this.$('#subject'),
+                $rawSubj = this.$('#title'),
                 that = this,
                 pM, pS, pM1, pS1, quoteRatio;
 
@@ -306,7 +306,7 @@
 
             pS = this.handleInputErrors($rawSubj);
             pS1 = pS.then(function(resp) {
-                that.errorStats['subject'] = resp[0];
+                that.errorStats['title'] = resp[0];
                 $rawSubj.data('dirty', false);
                 return resp[1]; // return stats
             });
@@ -421,7 +421,7 @@
             ratioN2kLimit = divId === 'title' ? app.constants.TITLE2K_RATIO : app.constants.TWOK_RATIO;
 
             var caretPos = getCaretPos($rawDiv);
-            $rawDiv.attr('contenteditable', false);
+            // $rawDiv.attr('contenteditable', false);
 
             var auditPromise = app.audit_text(app.thousand_words, this_.found_words,
                                                 rangy.innerText($rawDiv.get(0)), caretPos,
@@ -442,7 +442,7 @@
                 console.log('audit-promise done ');
 
                 var caretPosObj = rangy.saveSelection();
-                $rawDiv.attr('contenteditable', true);
+                // $rawDiv.attr('contenteditable', true);
 
                 unMarkErrors($rawDiv);
                 doReplacements($rawDiv, replacements);
@@ -454,7 +454,7 @@
                 return [errors, stats];
             })
             .fail(function(err) {
-                $rawDiv.attr('contenteditable', true);
+                // $rawDiv.attr('contenteditable', true);
                 throw err;
             });
         },
@@ -492,7 +492,7 @@
 
             if (ev.charCode === app.constants.ENTER_KEY) {
 
-                if ($div.attr('id') === 'subject') {
+                if ($div.attr('id') === 'title') {
                     // block enter-key in subject field
                     ev.preventDefault();
                 }
@@ -532,9 +532,9 @@
         _manageButtons: function() {
 
             var rawMsg = this.$('#new-message').text(),
-                rawSubj = this.$('#subject').text(),
+                rawSubj = this.$('#title').text(),
                 nmErr = this.errorStats['new-message'],
-                subErr = this.errorStats['subject'],
+                subErr = this.errorStats['title'],
                 this_ = this;
 
             if ( (! subErr || ! subErr.length) &&  (! nmErr || ! nmErr.length)

@@ -162,7 +162,7 @@ span.busqueda {
 #edit-error span { display: none; }
 
 #markLeft { position: absolute; left: 26px; top: -13px; font-size: 2em; color: black; }
-#markRight { position: absolute; right: 41px; top: -13px; font-size: 2em; color: black; }
+#markRight { position: absolute; right: 68px; top: -13px; font-size: 2em; color: black; }
 #status-bar { width: 300px; padding: 0; position: fixed; bottom: 20px; right: 30px;}
 #bar-next-2K { height: 0.7em; width: 0; background-color: darkblue; float: left;}
 #bar-quoted { height: 0.7em; width: 0; background-color: yellow; float: left; }
