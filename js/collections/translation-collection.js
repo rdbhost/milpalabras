@@ -270,7 +270,7 @@
 
         getFirst1KDefCollection: function (ltr) {
 
-            var lead = [REMOVE_ACCENT[ltr], ltr],
+            var lead = [REMOVE_ACCENT[ltr] || ltr, ltr],
                 ltrList = this.byLetter[lead[0]],
                 p = $.Deferred(),
                 that = this,

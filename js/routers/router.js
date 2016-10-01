@@ -174,9 +174,8 @@
 
         showAllWordsList: function() {
 
-            var awV = new app.AllWordsView({collection: null});
-            prevView = awV;
-            awV.render();
+            prevView = app.allWordsView;
+            app.allWordsView.render();
         },
 
         showFaq: function() {
@@ -272,6 +271,8 @@
 
     // Create global-view to handle help tooltips everywhere
     app.globalView = new app.GlobalView();
+
+    app.allWordsView = new app.AllWordsView({collection: null});
 
     Backbone.history.start();
 

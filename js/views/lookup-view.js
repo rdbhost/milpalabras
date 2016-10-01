@@ -125,16 +125,16 @@
             this.$list.append(defnView.render().el);
         },
 
-        tmpAllWordsView: new app.AllWordsView({collection: null}),
+        // tmpAllWordsView: new app.AllWordsView({collection: null}),
 
         hoverhelpIn: function(ev) {
 
-            this.tmpAllWordsView.hoverhelpIn.call(this, ev);
+            app.allWordsView.hoverhelpIn.call(this, ev);
         },
 
         hoverhelpOut: function(ev) {
 
-            this.tmpAllWordsView.hoverhelpOut.call(this, ev);
+            app.allWordsView.hoverhelpOut.call(this, ev);
         },
 
         wordHelp: function(ev) {
@@ -144,7 +144,7 @@
                 word = $defn.find('.lu-lemma span').text(),
                 form = $defn.find('.lu-form').text();
 
-            this.tmpAllWordsView._wordHelp.call(this, $tgt, word, form);
+            app.allWordsView._wordHelp.call(this, $tgt, word, form);
         },
 
         _setPosition: function($hover, posX, posY, hgt) {
