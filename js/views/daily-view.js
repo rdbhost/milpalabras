@@ -27,14 +27,10 @@
         headerTemplate: _.template($('#daily-header-template').html()),
         nullTemplate: _.template($('#daily-null-template').html()),
 
-        hoverTemplate: _.template($('#allwords-hover-misc-template').html()),
+        //hoverTemplate: _.template($('#allwords-hover-misc-template').html()),
 
         // The DOM events specific to an item.
-        events: {
-            'mouseenter .DL':   'hoverhelpIn',
-            'mouseleave .DL':   'hoverhelpOut',
-            'translateHelp':    'translateHelp'
-        },
+        events: {},
 
         initialize: function () {
 
@@ -42,7 +38,6 @@
             this.$main = this.$('#daily');
             this.$tMain = this.$('#daily-main');
 
-            this.listenTo(this, 'translateHelp', this.translateHelp);
         },
 
 		// Render the page.
@@ -109,24 +104,7 @@
             }
 
 			return this;
-		},
-
-        hoverTimer: null,
-        hoverHideTimer: null,
-        hoverhelpIn: function(ev) {
-
-            app.GlobalView.prototype.hoverhelpIn.call(this, ev);
-        },
-        hoverhelpOut: function(ev) {
-
-            app.GlobalView.prototype.hoverhelpOut.call(this, ev);
-        },
-
-        translateHelp: function(ev) {
-
-            app.GlobalView.prototype.translateHelp.call(this, ev);
-        }
-
+		}
 
     });
 })(jQuery);

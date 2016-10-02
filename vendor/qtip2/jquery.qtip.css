@@ -450,15 +450,19 @@
  */
 .qtip-bootstrap{
 	/** Taken from Bootstrap body */
-	font-size: 14px;
+	font-size: 12pt;
+	/* font-size: 14px; */
 	line-height: 20px;
 	color: #333333;
 
 	/** Taken from Bootstrap .popover */
 	padding: 1px;
-	background-color: #ffffff;
-	border: 1px solid #ccc;
-	border: 1px solid rgba(0, 0, 0, 0.2);
+	background-color: #ffb173;
+	/* background-color: #ffffff; */
+	border: thin solid #ff7100;
+	/* border: 1px solid #ccc;
+	border: 1px solid rgba(0, 0, 0, 0.2); */
+	/* -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px; */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
 	border-radius: 6px;
