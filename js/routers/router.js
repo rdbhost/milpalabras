@@ -4,7 +4,8 @@
 	'use strict';
 
     var R = window.Rdbhost,
-        prevView = null;
+        prevView = null,
+        session = sessionStorage;
 
     // MilPalabras Router
     // ----------
@@ -241,6 +242,8 @@
         logout: function() {
 
             window.console.log('logged out as ' + app.userId);
+
+            session.removeItem('loginCredentials');
 
             app.userId = app.userKey = app.handle = undefined;
             $.cookie(app.constants.myKeyName, '');

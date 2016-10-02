@@ -2,7 +2,8 @@
 (function ($) {
     'use strict';
 
-    var R = window.Rdbhost;
+    var R = window.Rdbhost,
+        session = window.sessionStorage;
 
     var $ooi = $('#other-openid'),
         $ooibtn = $('#other');
@@ -30,12 +31,12 @@
     //
     function login(ident, key) {
 
-        var handleForm = new app.UsernameView();
-
         if ( ident ) {
 
             app.userId = ident;
             app.userKey = key;
+
+            session.setItem('loginCredentials', JSON.stringify([ident, key]));
 
             var p = R.preauthPostData({
                 q:  'SELECT auth.check_authentication(%(ident)s, %(key)s); \n' +
@@ -87,6 +88,7 @@
                     else {
 
                         // check for no results, and put up username form
+                        var handleForm = new app.UsernameView();
                         handleForm.render();
                         app.recentPostCt = 0;
                     }
@@ -99,5 +101,14 @@
         }
     }
 
+
+    if ( !app.userId ) {
+
+        var t = session.getItem('loginCredentials');
+        if (t) {
+            t = JSON.parse(t);
+            login(t[0], t[1]);
+        }
+    }
 
 })(jQuery);
