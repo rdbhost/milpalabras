@@ -2,10 +2,11 @@
 <html lang="en" data-framework="backbonejs">
 <head>
 		<meta charset="utf-8">
-        <meta name="fragment" content="!">
-        <title>Mil Palabras</title>
+    <meta name="fragment" content="!">
+    <title>Mil Palabras</title>
 		<link rel="stylesheet" href="css/base.css">
-        <link rel="stylesheet" href="vendor/etch/css/etch.css">
+    <link rel="stylesheet" href="vendor/etch/css/etch.css">
+    <link rel="stylesheet" href="vendor/qtip2/jquery.qtip.css">
 </head>
 <body>
     <script id="RDBHOST-SQL-INLINE-ID" type="text/sql" data-sql="SELECT * FROM index_records();" data-role=p0000001392></script>
@@ -726,24 +727,24 @@
             </script>
 
             <script type="text/template" id="global-hover-misc-template">
-                <div id="help-hover" class="hover" style="display: none">
+                <div style="display: none">
                     <div class="hover-tooltip"><%= wordstr %></div>
                 </div>
             </script>
 
             <script type="text/template" id="allwords-hover-misc-template">
-                <div id="help-hover" class="hover" style="display: none">
-                    <div class="hover-tooltip"><%= wordstr %></div>
-                    <div class="arrow-right-skinny"></div>
+                <div style="display: inline-block">
+                    <div><%= wordstr %></div>
+                    <!-- div class="arrow-right-skinny"></div -->
                 </div>
             </script>
 
             <script type="text/template" id="allwords-hover-verb-template">
-                <div id="help-hover" class="hover" style="display: none">
-                    <div class="hover-body wide">
-                        <div class="hover-lft"><%= a['infinitive'] %></div>
+                <div style="display: inline-block">
+                    <div>
+                        <div><%= a['infinitive'] %></div>
                         <div style="clear:both"></div>
-                        <table class="hover">
+                        <table>
                             <tbody>
                             <tr>
                                 <th></th><th>yo</th><th>tu</th><th>el</th><th></th><th>nosotros</th><th>ellos</th>
@@ -774,7 +775,7 @@
                             </tbody>
                         </table>
 
-                        <table class="hover">
+                        <table>
                             <tbody>
                             <tr>
                                 <th></th><th></th><th></th><th></th><th></th>
@@ -790,19 +791,19 @@
 
                         <div style="clear:both"></div>
                     </div>
-                    <div class="arrow-right-fat"></div>
+                    <div></div>
                 </div>
             </script>
 
             <script type="text/template" id="lookup-hover-misc-template">
-                <div id="help-hover" class="hover" style="display: none">
+                <div style="display: none">
                     <div class="arrow-left"></div>
                     <div class="hover-tooltip"><%= wordstr %></div>
                 </div>
             </script>
 
             <script type="text/template" id="lookup-hover-verb-template">
-                <div id="help-hover" class="hover" style="display: none">
+                <div style="display: none">
                     <div class="hover-body wide">
                         <div class="hover-lft"><%= a['infinitive'] %></div>
                         <div style="clear:both"></div>
@@ -915,6 +916,8 @@
 
         <script src="vendor/etch/js/etch.js"></script>
         <script src="vendor/to-markdown/js/to-markdown.js"></script>
+
+        <script src="vendor/qtip2/jquery.qtip.min.js"></script>
 
         <script src="js/app.js"></script>
         <script src="js/views/username-view.js"></script>

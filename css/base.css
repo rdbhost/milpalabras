@@ -358,6 +358,30 @@ span.defn {
     -webkit-border-radius: 6px; -moz-border-radius: 6px; border-radius: 6px;
 }
 
+/*.tooltip {
+    font-size: 14px;
+    line-height: 20px;
+    color: #333;
+    padding: 1px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0,0,0,.2);
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+    -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+    box-shadow: 0 5px 10px rgba(0,0,0,.2);
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding;
+    background-clip: padding-box;
+    font-size: 12pt;
+    line-height: 20pt;
+    color: #ff7100;
+    background-color: #ffb173;
+    border: thin solid #ff7100;
+} */
+
 #suspend {
     position: fixed;
     left: 150px;

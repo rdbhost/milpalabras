@@ -13,9 +13,7 @@
 
         // The DOM events specific to an item.
         events: {
-            'click li':               'showByLetter',
-            'mouseenter .WL':         'hoverhelpIn',
-            'mouseleave .WL':         'hoverhelpOut'
+            'click li':               'showByLetter'
         },
 
         initialize: function(opts) {
@@ -23,7 +21,31 @@
             this.$rightCol = this.$el.find('.right-col');
 
             this.collection = null;
-            this.listenTo(this, 'wordHelp', this.wordHelp);
+            var this_ = this;
+
+            $(document).on('mouseover', '.WL', function(ev) {
+                $(this).qtip({
+                    content: {
+                        text: function(ev, api) {
+
+                                this_.wordHelp(ev, api);
+                                return 'loading...';
+                            }
+                    },
+                    style: {classes: 'qtip-bootstrap'},
+                    show: {
+                        solo: true,
+                        ready: true,
+                        delay: 150
+                    },
+                    position: {
+                        my: 'top right',
+                        at: 'bottom left',
+                        adjust: {method: 'shift'},
+                        target: 'event'
+                    }
+                }, ev);
+            });
         },
 
         // Re-render the words list
@@ -57,97 +79,54 @@
             })
         },
 
-        hoverTimer: null,
-        hoverhelpIn: function(ev) {
-
-            var that = this;
-            this.hoverTimer = setTimeout(function() {
-                that.trigger('wordHelp', ev);
-                that.hoverTimer = null;
-            }, 500);
-        },
-        hoverhelpOut: function(ev) {
-
-            if (this.hoverTimer) {
-
-                window.clearTimeout(this.hoverTimer);
-                this.hoverTimer = null;
-            }
-            else {
-
-                var $hover = $('#help-hover');
-                // window.console.log('hiding hover (hhO)');
-                $hover.hide();
-            }
-        },
-
-        wordHelp: function(ev) {
+        wordHelp: function(ev, api) {
 
             var $tgt = $(ev.target),
                 $defcont = $tgt.closest('div.defcontainer'),
                 $lemma = $defcont.prevAll('.lemma').first(),
-                form = $defcont.find('span').text(),
-                word = $lemma.text();
+                form = $tgt.text(),
+                word = $lemma.text(),
+                this_ = this;
 
-            this._wordHelp($tgt, word, form);
-        },
+            setTimeout(function() {
 
-        _setPosition: function($hover, posX, posY, sizeH, sizeW) {
-            var offset = (sizeH > 100) ? 95 : 55;
-            $hover.css({'top': Math.round(posY)-sizeH+offset, 'left': Math.round(posX-sizeW)});
-        },
+                if (word) {
 
-        _wordHelp: function($tgt, word, form) {
+                    var p = app.translations.getFormsByLemma(word);
 
-            var that = this,
-                posY = $tgt.offset().top - $(document).scrollTop(),
-                posX = $tgt.offset().left;
+                    p.then(function(wordHash) {
 
-            function poll() {
+                            var dom,
+                                wordFormHash = wordHash[form];
 
-                that.hoverHideTimer = setTimeout(function() {
-                    if ($tgt.is(':visible'))
+                            if ( !wordFormHash ) {
 
-                        poll();
+                                api.set('content.text', '~not found~');
+                                return;
+                            }
 
-                    else {
-                        $hover.hide();
-                        window.clearTimeout(that.hoverHideTimer);
-                        that.hoverHideTimer = null;
-                    }
-                }, 100);
-            }
+                            if (form === 'verb') {
+                                var withDefaults = app.complete_verb_table(wordFormHash);
+                                dom = this_.hoverVerbTemplate({a: withDefaults});
+                            }
+                            else {
+                                var wordstr = _.values(wordFormHash).join(', ');
+                                dom = this_.hoverMiscTemplate({'wordstr': wordstr});
+                            }
 
-            if (word) {
+                            api.set('content.text', dom);
 
-                var $hover = $('#help-hover'),
-                    p = app.translations.getFormsByLemma(word);
+                        })
+                        .fail(function(err) {
 
-                p.then(function(wordHash) {
-
-                    var dom, $hover,
-                        wordFormHash = wordHash[form];
-
-                    if (form === 'verb') {
-                        var withDefaults = app.complete_verb_table(wordFormHash);
-                        dom = that.hoverVerbTemplate({a: withDefaults});
-                    }
-                    else {
-                        var wordstr = _.values(wordFormHash).join(', ');
-                        dom = that.hoverMiscTemplate({'wordstr': wordstr});
-                    }
-
-                    $('#help-hover').remove();
-                    $('body').append(dom);
-                    $hover = $('#help-hover');
-
-                    that._setPosition($hover, posX, posY, $hover.height(), $hover.width());
-                    $hover.show();
-
-                    poll();
-                });
-            }
+                            api.set('content.text', 'ERROR '+err);
+                            //
+                        });
+                }
+                else {
+                        api.set('content.text', 'ERROR');
+                }
+            }, 5);
         }
-
     });
 })(jQuery);
