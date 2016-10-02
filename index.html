@@ -692,7 +692,7 @@
               hover templates, for various hover help/tooltip things.
             -->
             <script type="text/template" id="hover-template">
-                <div id="definition-hover" style="display: inline-block">
+                <div style="display: inline-block">
                     <!-- div class="arrow-up"></div -->
                     <!-- div class="hover-body" -->
                         <div class="hover-lft"><%= word %></div>
@@ -708,7 +708,7 @@
             </script>
 
             <script type="text/template" id="hover-left-template">
-                <div id="definition-hover-left" style="display: inline-block">
+                <div style="display: inline-block">
                     <!-- div class="hover-body" -->
                         <div class="hover-lft"><%= word %></div>
                         <% for (_d in _.first(defs, 3)) { var d = defs[_d]; %>
