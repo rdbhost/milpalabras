@@ -87,7 +87,7 @@
             // this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
             var this_ = this;
 
-            $(document).on('mouseover', '.DL', function(ev) {
+            this.$tMain.on('mouseover', '.DL', function(ev) {
                 $(this).qtip({
                     content: {
                         text: function(ev, api) {

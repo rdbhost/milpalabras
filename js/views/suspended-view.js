@@ -22,11 +22,6 @@
             return this;
         }
     });
-/*    { // class properties
-
-        markdown: new Showdown.converter()
-    })*/
-
 
     // Suspended View
 	// --------------
@@ -38,6 +33,7 @@
         el: '#suspended',
 
         headerTemplate: _.template($('#suspended-header-template').html()),
+        hoverTemplate: _.template($('#hover-template').html()),
 
         nullTemplate: _.template($('#null-message-template').html()),
 
@@ -45,10 +41,7 @@
         // The DOM events specific to an item.
         events: {
             'click .delete':        'deleteMsg',
-            'click .unflag':        'unflagMsg',
-            'mouseenter .DL':       'hoverhelpIn',
-            'mouseleave .DL':       'hoverhelpOut',
-            'dictionaryHelp':       'dictionaryHelp'
+            'click .unflag':        'unflagMsg'
         },
 
 
@@ -62,8 +55,34 @@
             this.$main = this.$('#user');
             this.$tMain = $('#suspended-main');
 
-            this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
-		},
+            // this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
+            var this_ = this;
+
+            this.$tMain.on('mouseover', '.DL', function(ev) {
+                $(this).qtip({
+                    content: {
+                        text: function(ev, api) {
+
+                            this_.dictionaryHelp(ev, api);
+                            return 'loading...';
+                        }
+                    },
+                    style: {classes: 'qtip-bootstrap'},
+                    show: {
+                        solo: true,
+                        ready: true,
+                        delay: 150
+                    },
+                    position: {
+                        my: 'top left',
+                        at: 'bottom right',
+                        adjust: {method: 'shift'},
+                        target: 'event'
+                    }
+                }, ev);
+            });
+
+        },
 
 		// Re-render the titles of the thread item.
 		render: function () {
@@ -148,23 +167,10 @@
             return false;
         },
 
-        hoverTimer: null,
-        hoverHideTimer: null,
-        hoverhelpIn: function(ev) {
+        dictionaryHelp: function(ev, api) {
 
-            app.ThreadView.prototype.hoverhelpIn.call(this, ev);
-        },
-        hoverhelpOut: function(ev) {
-
-            app.ThreadView.prototype.hoverhelpOut.call(this, ev);
-        },
-
-        dictionaryHelp: function(ev) {
-
-            app.ThreadView.prototype.dictionaryHelp.call(this, ev);
+            return app.ThreadView.prototype.dictionaryHelp.call(this, ev, api);
         }
-
-
 
     });
 })(jQuery);
