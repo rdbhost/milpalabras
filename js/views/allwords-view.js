@@ -85,8 +85,14 @@
                 $defcont = $tgt.closest('div.defcontainer'),
                 $lemma = $defcont.prevAll('.lemma').first(),
                 form = $tgt.text(),
-                word = $lemma.text(),
-                this_ = this;
+                word = $lemma.text();
+
+            return this._wordHelp($tgt, word, form, api);
+        },
+
+        _wordHelp: function($tgt, word, form, api) {
+
+            var this_ = this;
 
             setTimeout(function() {
 
@@ -96,27 +102,27 @@
 
                     p.then(function(wordHash) {
 
-                            var dom,
-                                wordFormHash = wordHash[form];
+                        var dom,
+                            wordFormHash = wordHash[form];
 
-                            if ( !wordFormHash ) {
+                        if ( !wordFormHash ) {
 
-                                api.set('content.text', '~not found~');
-                                return;
-                            }
+                            api.set('content.text', '~not found~');
+                            return;
+                        }
 
-                            if (form === 'verb') {
-                                var withDefaults = app.complete_verb_table(wordFormHash);
-                                dom = this_.hoverVerbTemplate({a: withDefaults});
-                            }
-                            else {
-                                var wordstr = _.values(wordFormHash).join(', ');
-                                dom = this_.hoverMiscTemplate({'wordstr': wordstr});
-                            }
+                        if (form === 'verb') {
+                            var withDefaults = app.complete_verb_table(wordFormHash);
+                            dom = this_.hoverVerbTemplate({a: withDefaults});
+                        }
+                        else {
+                            var wordstr = _.values(wordFormHash).join(', ');
+                            dom = this_.hoverMiscTemplate({'wordstr': wordstr});
+                        }
 
-                            api.set('content.text', dom);
+                        api.set('content.text', dom);
 
-                        })
+                    })
                         .fail(function(err) {
 
                             api.set('content.text', 'ERROR '+err);
@@ -124,7 +130,7 @@
                         });
                 }
                 else {
-                        api.set('content.text', 'ERROR');
+                    api.set('content.text', 'ERROR');
                 }
             }, 5);
         }

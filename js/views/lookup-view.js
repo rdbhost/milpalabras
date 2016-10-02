@@ -33,9 +33,7 @@
 
         // The DOM events specific to an item.
         events: {
-            'keyup .luinput':   'onChange',
-            'mouseenter .DL':   'hoverhelpIn',
-            'mouseleave .DL':   'hoverhelpOut'
+            'keyup .luinput':   'onChange'
         },
 
         hoverMiscTemplate: _.template($('#lookup-hover-misc-template').html()),
@@ -48,7 +46,32 @@
 
             this.$list = this.$el.find('tbody.luwords');
             this.$form = this.$el.find('.luinput');
-            this.listenTo(this, 'wordHelp', this.wordHelp);
+
+            var this_ = this;
+
+            $('#luform').on('mouseover', '.DL', function(ev) {
+                $(this).qtip({
+                    content: {
+                        text: function(ev, api) {
+
+                            this_.wordHelp(ev, api);
+                            return 'loading...';
+                        }
+                    },
+                    style: {classes: 'qtip-bootstrap'},
+                    show: {
+                        solo: true,
+                        ready: true,
+                        delay: 150
+                    },
+                    position: {
+                        my: 'top left',
+                        at: 'bottom right',
+                        adjust: {method: 'shift'},
+                        target: 'event'
+                    }
+                }, ev);
+            });
         },
 
         // Re-render the words in the wordlist
@@ -125,32 +148,14 @@
             this.$list.append(defnView.render().el);
         },
 
-        // tmpAllWordsView: new app.AllWordsView({collection: null}),
-
-        hoverhelpIn: function(ev) {
-
-            app.allWordsView.hoverhelpIn.call(this, ev);
-        },
-
-        hoverhelpOut: function(ev) {
-
-            app.allWordsView.hoverhelpOut.call(this, ev);
-        },
-
-        wordHelp: function(ev) {
+        wordHelp: function(ev, api) {
 
             var $tgt = $(ev.target),
                 $defn = $tgt.closest('tr'),
                 word = $defn.find('.lu-lemma span').text(),
                 form = $defn.find('.lu-form').text();
 
-            app.allWordsView._wordHelp.call(this, $tgt, word, form);
-        },
-
-        _setPosition: function($hover, posX, posY, hgt) {
-            var offset = (hgt > 100) ? -5 : 25;
-            $hover.css({'top': Math.round(posY)-hgt+offset, 'left': Math.round(posX)+70});
+            app.allWordsView._wordHelp.call(this, $tgt, word, form, api);
         }
-
     });
 })(jQuery);

@@ -567,7 +567,7 @@
 
                     <dt><span data-help="¿Dónde están las palabras de 1000?">Where are the 1000 words from?</span></dt>
                     <dd><p><span data-help="La lista de referencias es de wiktionary:">The language database is from wiktionary.com:
-                        <a href="http://en.wiktionary.org/wiki/Wiktionary:Frequency_lists/Spanish1000">[link]</a></span></p>
+                        <a href="//en.wiktionary.org/wiki/Wiktionary:Frequency_lists/Spanish1000">[link]</a></span></p>
                         <p><span data-help="Esa lista se recogió de una gran base de datos de subtítulos de películas y televisión.">That
                         list was collected from a large database of movie and television subtitles.</span> <span data-help="Así, mientras que
                          es una base de datos de texto, los recuentos de frecuencia reflejan el uso en el español hablado.">So while it
@@ -692,9 +692,9 @@
               hover templates, for various hover help/tooltip things.
             -->
             <script type="text/template" id="hover-template">
-                <div id="definition-hover" style="display: none">
-                    <div class="arrow-up"></div>
-                    <div class="hover-body">
+                <div id="definition-hover" style="display: inline-block">
+                    <!-- div class="arrow-up"></div -->
+                    <!-- div class="hover-body" -->
                         <div class="hover-lft"><%= word %></div>
                         <% for (_d in defs) { var d = defs[_d]; %>
                         <div class="hover-rgt">
@@ -703,13 +703,13 @@
                         </div>
                         <% }   %>
                         <div style="clear:both"></div>
-                    </div>
+                    <!-- /div -->
                 </div>
             </script>
 
             <script type="text/template" id="hover-left-template">
-                <div id="definition-hover-left" style="display: none">
-                    <div class="hover-body">
+                <div id="definition-hover-left" style="display: inline-block">
+                    <!-- div class="hover-body" -->
                         <div class="hover-lft"><%= word %></div>
                         <% for (_d in _.first(defs, 3)) { var d = defs[_d]; %>
                         <div class="hover-rgt">
@@ -720,15 +720,15 @@
                             </div -->
                         </div>
                         <% } %>
-                    </div>
+                    <!-- /div -->
                     <!-- div style="clear:both"></div -->
-                    <div class="arrow-right"></div>
+                    <!-- div class="arrow-right"></div -->
                 </div>
             </script>
 
             <script type="text/template" id="global-hover-misc-template">
-                <div style="display: none">
-                    <div class="hover-tooltip"><%= wordstr %></div>
+                <div style="display: inline-block">
+                    <!-- div class="hover-tooltip" --><%= wordstr %><!-- /div -->
                 </div>
             </script>
 
@@ -741,7 +741,7 @@
 
             <script type="text/template" id="allwords-hover-verb-template">
                 <div style="display: inline-block">
-                    <div>
+                    <!-- div -->
                         <div><%= a['infinitive'] %></div>
                         <div style="clear:both"></div>
                         <table>
@@ -789,22 +789,22 @@
                             </tbody>
                         </table>
 
-                        <div style="clear:both"></div>
-                    </div>
-                    <div></div>
+                        <!-- div style="clear:both"></div -->
+                    <!-- /div>
+                    <div></div -->
                 </div>
             </script>
 
             <script type="text/template" id="lookup-hover-misc-template">
-                <div style="display: none">
-                    <div class="arrow-left"></div>
-                    <div class="hover-tooltip"><%= wordstr %></div>
+                <div style="display: inline-block">
+                    <!-- div class="arrow-left"></div -->
+                    <!-- div class="hover-tooltip" --><%= wordstr %><!-- /div -->
                 </div>
             </script>
 
             <script type="text/template" id="lookup-hover-verb-template">
-                <div style="display: none">
-                    <div class="hover-body wide">
+                <div style="display: inline-block">
+                    <!-- div class="hover-body wide" -->
                         <div class="hover-lft"><%= a['infinitive'] %></div>
                         <div style="clear:both"></div>
                         <table class="hover">
@@ -871,13 +871,13 @@
                         </table>
 
                         <div style="clear:both"></div>
-                    </div>
-                    <div class="arrow-left-fat"></div>
+                    <!-- /div -->
+                    <!-- div class="arrow-left-fat"></div -->
                 </div>
             </script>
 
             <script type="text/template" id="daily-hover-misc-template">
-                <div id="help-hover" class="hover" style="display: none">
+                <div id="help-hover" class="hover" style="display: inline-block">
                     <div class="hover-tooltip"><%= wordstr %></div>
                 </div>
             </script>
@@ -887,32 +887,32 @@
         <footer>
             <a href="#!/intro" data-help="introduction">introducción</a>
             <a href="#!/daily/today" data-help="word of the day">palabra del dia</a>
-            <a href="#!/faq" data-help="frequent questions">preguntas frecuentes</a>
+            <a href="#!/faq" data-help="frequent questions">preguntas frecuentes</a><br/>
             <a href="#!/video" data-help="introductory video">video introductorio</a>
             <a href="#!/allwords" data-help="all permissible words">todas las palabras permisibles</a>
         </footer>
         <footer class="centered">
-            <span style="float: left">powered by <a href="http://www.rdbhost.com" class="hostname">Rdbhost</a>.</span>
+            <span style="float: left">powered by <a href="//www.rdbhost.com" class="hostname">Rdbhost</a>.</span>
             <span style="float: right"><a href="mailto:dkeeney@rdbhost.com">dkeeney@rdbhost.com</a> site owner.</span>
         </footer>
 
         <!--
         load everything
         -->
-        <script src="https://www.rdbhost.com/vendor/Modernizr/2.6/modernizr.js"></script>
-		    <script src="https://www.rdbhost.com/vendor/jquery/1.8/jquery-1.8.3.js"></script>
-        <script src="https://www.rdbhost.com/js/jquery.cookie.js"></script>
-		    <script src="https://www.rdbhost.com/vendor/underscore/1.5/underscore.js"></script>
-		    <script src="https://www.rdbhost.com/vendor/backbone/1.1/backbone.js"></script>
-        <script src="https://www.rdbhost.com/vendor/rdbhost/1.3/jquery.rdbhost.js"></script>
-        <script src="https://www.rdbhost.com/vendor/showdown/0.3/src/showdown.js"></script>
+        <script src="//www.rdbhost.com/vendor/Modernizr/2.6/modernizr.js"></script>
+		    <script src="//www.rdbhost.com/vendor/jquery/1.8/jquery-1.8.3.js"></script>
+        <script src="//www.rdbhost.com/js/jquery.cookie.js"></script>
+		    <script src="//www.rdbhost.com/vendor/underscore/1.5/underscore.js"></script>
+		    <script src="//www.rdbhost.com/vendor/backbone/1.1/backbone.js"></script>
+        <script src="//www.rdbhost.com/vendor/rdbhost/1.3/jquery.rdbhost.js"></script>
+        <script src="//www.rdbhost.com/vendor/showdown/0.3/src/showdown.js"></script>
 
-        <script src="https://www.rdbhost.com/vendor/moment/2.7/moment.min.js"></script>
-        <script src="https://www.rdbhost.com/vendor/moment/2.7/langs/es.js"></script>
+        <script src="//www.rdbhost.com/vendor/moment/2.7/moment.min.js"></script>
+        <script src="//www.rdbhost.com/vendor/moment/2.7/langs/es.js"></script>
 
-        <script src="https://www.rdbhost.com/vendor/rangy/1.3/uncompressed/rangy-core.js"></script>
-        <script src="https://www.rdbhost.com/vendor/rangy/1.3/uncompressed/rangy-textrange.js"></script>
-        <script src="https://www.rdbhost.com/vendor/rangy/1.3/uncompressed/rangy-selectionsaverestore.js"></script>
+        <script src="//www.rdbhost.com/vendor/rangy/1.3/uncompressed/rangy-core.js"></script>
+        <script src="//www.rdbhost.com/vendor/rangy/1.3/uncompressed/rangy-textrange.js"></script>
+        <script src="//www.rdbhost.com/vendor/rangy/1.3/uncompressed/rangy-selectionsaverestore.js"></script>
 
         <script src="vendor/etch/js/etch.js"></script>
         <script src="vendor/to-markdown/js/to-markdown.js"></script>
