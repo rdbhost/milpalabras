@@ -708,21 +708,22 @@
             </script>
 
             <script type="text/template" id="hover-left-template">
-                <div style="display: inline-block">
-                    <!-- div class="hover-body" -->
-                        <div class="hover-lft"><%= word %></div>
+                <div style="display: inline-block;">
+                    <div class="hover-lft"><%= word %></div>
+                    <div style="float: right">
                         <% for (_d in _.first(defs, 3)) { var d = defs[_d]; %>
-                        <div class="hover-rgt">
+                        <div class="hover-rgt" style="float: left;">
                             <%= d.form %><%= d.subform ? ':' : '' %> <%= d.subform %> <span class="lemma"><%= d.lemma %></span>
-                            <!-- div >defn:
+                            <% if (d.definitions.length) { %>
+                            <div >defn:
                                 <% var di = d.definitions[0].substr(0, 75); %>
                                 <li class="defn-line"><%= di %></li>
-                            </div -->
+                            </div>
+                            <% } %>
                         </div>
+                        <div style="clear:both"></div>
                         <% } %>
-                    <!-- /div -->
-                    <!-- div style="clear:both"></div -->
-                    <!-- div class="arrow-right"></div -->
+                    </div>
                 </div>
             </script>
 

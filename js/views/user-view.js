@@ -21,11 +21,7 @@
 
             return this;
         }
-    }/* ,
-    { // class properties
-
-        markdown: new Showdown.converter()
-    }*/);
+    });
 
     // User View
 	// --------------
@@ -43,11 +39,7 @@
         hoverTemplate: _.template($('#hover-template').html()),
 
         // The DOM events specific to an item.
-        events: {
-            'mouseenter .DL':         'hoverhelpIn',
-            'mouseleave .DL':         'hoverhelpOut',
-            'dictionaryHelp':         'dictionaryHelp'
-        },
+        events: { },
 
         // The ThreadView listens for changes to its model, re-rendering. Since there's
 		// a one-to-one correspondence between a **Thread** and a **ThreadView** in this
@@ -57,9 +49,34 @@
             this.$header = this.$('header h1');
             this.$footer = this.$('footer');
             this.$main = this.$('#user');
-            this.$tMain = $('#user-main');
+            this.$uMain = $('#user-main');
 
-            this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
+            // this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
+            var this_ = this;
+
+            this.$uMain.on('mouseover', '.DL', function(ev) {
+                $(this).qtip({
+                    content: {
+                        text: function(ev, api) {
+
+                            this_.dictionaryHelp(ev, api);
+                            return 'loading...';
+                        }
+                    },
+                    style: {classes: 'qtip-bootstrap'},
+                    show: {
+                        solo: true,
+                        ready: true,
+                        delay: 150
+                    },
+                    position: {
+                        my: 'top left',
+                        at: 'bottom right',
+                        adjust: {method: 'shift'},
+                        target: 'event'
+                    }
+                }, ev);
+            });
 
         },
 
@@ -76,8 +93,8 @@
                 // Add all items in the **threads** collection at once.
                 var user = app.thread.models[0].get('author'),
                     hd = this.subHeaderTemplate({'user': user});
-                this.$tMain.empty();
-                this.$tMain.append(hd);
+                this.$uMain.empty();
+                this.$uMain.append(hd);
                 app.thread.each(this.addOneMessageToDisplay, this);
 
                 this.$header.html(this.headerTemplate({
@@ -90,8 +107,8 @@
                 });
             }
             else  {
-                this.$tMain.empty();
-                this.$tMain.html(this.nullTemplate());
+                this.$uMain.empty();
+                this.$uMain.html(this.nullTemplate());
             }
 
             // this.$el.html(this.template(this.model.toJSON()));
@@ -102,23 +119,12 @@
         // appending its element to the `<ul>`.
         addOneMessageToDisplay: function (message) {
             var msgView = new app.UserMessageView({ model: message });
-            this.$tMain.append(msgView.render().el);
+            this.$uMain.append(msgView.render().el);
         },
 
-        hoverTimer: null,
-        hoverHideTimer: null,
-        hoverhelpIn: function(ev) {
+        dictionaryHelp: function(ev, api) {
 
-            app.ThreadView.prototype.hoverhelpIn.call(this, ev);
-        },
-        hoverhelpOut: function(ev) {
-
-            app.ThreadView.prototype.hoverhelpOut.call(this, ev);
-        },
-
-        dictionaryHelp: function(ev) {
-
-            app.ThreadView.prototype.dictionaryHelp.call(this, ev);
+            app.ThreadView.prototype.dictionaryHelp.call(this, ev, api);
         }
 
     });

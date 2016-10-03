@@ -84,7 +84,6 @@
 
             this.listenTo(app.thread, 'reset', this.render);
 
-            // this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
             var this_ = this;
 
             this.$tMain.on('mouseover', '.DL', function(ev) {
@@ -319,12 +318,7 @@
                             var tpl = that.hoverTemplate(data);
 
                             api.set('content.text', tpl);
-                            /*                        $('#definition-hover').remove();
-                             $('body').append(tpl);
-                             var $hover = $('#definition-hover');
-                             $hover.css({'top': posY+15, 'left': posX-40});
-                             $hover.show();
-                             */                    });
+                        });
                         pMaster.fail(function(err) {
 
                             api.set('content.text', 'ERROR '+err);
@@ -339,6 +333,5 @@
                 });
             }, 1);
         }
-
     });
 })(jQuery);

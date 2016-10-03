@@ -29,18 +29,39 @@
 		//... is a list tag.
         el: 'ul.okwords',
 
-        initialize: function () {
-            this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
-        },
-
         // The DOM events specific to an item.
-		events: {
-            'mouseenter .DL':         'hoverhelpIn',
-            'mouseleave .DL':         'hoverhelpOut',
-            'dictionaryHelp':         'dictionaryHelp'
-		},
+		events: { },
 
         hoverTemplate: _.template($('#hover-left-template').html()),
+
+        initialize: function () {
+
+            var this_ = this;
+
+            this.$el.on('mouseover', '.DL', function(ev) {
+                $(this).qtip({
+                    content: {
+                        text: function(ev, api) {
+
+                            this_.dictionaryHelp(ev, api);
+                        }
+                    },
+                    style: {classes: 'qtip-bootstrap'},
+                    show: {
+                        solo: true,
+                        ready: true,
+                        delay: 150,
+                        effect: false
+                    },
+                    position: {
+                        my: 'center right',
+                        at: 'center left',
+                        adjust: {method: 'shift'},
+                        target: 'event'
+                    }
+                }, ev);
+            });
+        },
 
         // Re-render the words in the wordlist
 		render: function (partialWord) {
@@ -51,7 +72,6 @@
 
                 this.$el.closest('ul').show();
                 this.$el.empty();
-                $('#definition-hover-left').hide();
 
                 var p = app.thousand_words.prefixLimited(partialWord, 35);
 
@@ -70,7 +90,6 @@
 
                         var _r = this_.render(shorterPartial);
                         this_.$el.addClass('oops');
-                        // return _r;
                     }
                 })
             }
@@ -89,100 +108,78 @@
             this.$el.append(wordView.render().el);
         },
 
-        hoverTimer: null,
-        hoverhelpIn: function(ev) {
-
-            var that = this;
-            this.hoverTimer = setTimeout(function() {
-                that.trigger('dictionaryHelp', ev);
-                that.hoverTimer = null;
-            }, 500);
-        },
-        hoverhelpOut: function(ev) {
-
-            if (this.hoverTimer) {
-                window.clearTimeout(this.hoverTimer);
-                this.hoverTimer = null;
-            }
-            else {
-
-                var $hover = $('#definition-hover-left');
-                $hover.hide();
-            }
-        },
-
-        dictionaryHelp: function(ev) {
+        dictionaryHelp: function(ev, api) {
 
             var word = $(ev.target).text(),
-                posY = $(ev.target).offset().top - $(document).scrollTop(),
                 that = this;
 
-            var pw = app.thousand_words.findingOne(word.toLowerCase());
-            pw.then(function(resp) {
+            setTimeout(function() {
 
-                if (resp) {
+                var pw = app.thousand_words.findingOne(word.toLowerCase());
+                pw.then(function (resp) {
 
-                    var lemmas = resp.attributes.lemmas,
-                        forms = resp.attributes.pos,
-                        subForms = resp.attributes.posd,
-                        subPromises = [], pt, pMaster;
+                    if (resp) {
 
-                    _.each(lemmas, function(lemma, i) {
+                        var lemmas = resp.attributes.lemmas,
+                            forms = resp.attributes.pos,
+                            subForms = resp.attributes.posd,
+                            subPromises = [], pt, pMaster;
 
-                        var def = $.Deferred(),
-                            form = forms[i],
-                            subForm = subForms[i],
-                            ptmp = app.translations.findingOne(lemma.toLowerCase());
+                        _.each(lemmas, function (lemma, i) {
 
-                        ptmp.then(function(resp) {
+                            var def = $.Deferred(),
+                                form = forms[i],
+                                subForm = subForms[i],
+                                ptmp = app.translations.findingOne(lemma.toLowerCase());
 
-                            if (resp) {
+                            ptmp.then(function (resp) {
 
-                                var attrs = _.clone(resp.attributes),
-                                    formItem = _.findWhere(attrs.forms, {'form': form});
-                                attrs.form = form;
-                                attrs.subform = subForm;
-                                attrs.definitions = formItem.definitions;
-                                delete attrs.forms;
-                                def.resolve(attrs);
-                            }
-                            else {
-                                def.resolve({});
-                            }
+                                if (resp) {
+
+                                    var attrs = _.clone(resp.attributes),
+                                        formItem = _.findWhere(attrs.forms, {'form': form});
+                                    attrs.form = form;
+                                    attrs.subform = subForm;
+                                    attrs.definitions = formItem.definitions;
+                                    delete attrs.forms;
+                                    def.resolve(attrs);
+                                }
+                                else {
+                                    def.resolve({});
+                                }
+                            });
+
+                            subPromises.push(def.promise());
                         });
+                        pMaster = $.when.apply($, subPromises);
 
-                        subPromises.push(def.promise());
-                    });
-                    pMaster = $.when.apply($, subPromises);
+                        pMaster.then(function () {
 
-                    pMaster.then(function() {
+                            var data = {'word': word, defs: []};
+                            _.each(arguments, function (attrs) {
 
-                        var data = {'word': word, defs: []};
-                        _.each(arguments, function(attrs) {
+                                if (attrs)
+                                    data.defs.push(attrs);
+                            });
 
-                            if (attrs)
-                                data.defs.push(attrs);
+                            var tpl = that.hoverTemplate(data);
+
+                            api.set('content.text', tpl);
+
                         });
+                        pMaster.fail(function (err) {
 
-                        var tpl = that.hoverTemplate(data);
-                        $('#definition-hover-left').remove();
-                        $('body').append(tpl);
-                        var $hover = $('#definition-hover-left'),
-                            size = $hover.height();
-                        $hover.css({'top': Math.round(posY-size+44), 'right': 683});
-                        $hover.show();
-                    });
-                    pMaster.fail(function(err) {
+                            api.set('content.text', 'ERROR ' + err);
+                            alert('fail ' + err[0] + ' ' + err[1]);
+                        })
+                    }
+                });
+                pw.fail(function (err) {
 
-                        alert('fail ' + err[0] + ' ' + err[1]);
-                    })
-                }
-            });
-            pw.fail(function(err) {
-
-                alert('fail ' + err[0] + ' ' + err[1]);
-            });
+                    api.set('content.text', 'ERROR ' + err);
+                    alert('fail ' + err[0] + ' ' + err[1]);
+                });
+            }, 1);
         }
-
     });
 })(jQuery);
