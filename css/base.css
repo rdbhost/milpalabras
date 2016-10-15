@@ -291,7 +291,7 @@ table.hover td {
     float: right;
     padding: 8px;
     /* min-height: 75px; */
-    width: 296px;
+    /* width: 296px; */
     margin: 0;
     /* bottom: 8px; */
 }
@@ -299,9 +299,9 @@ ol.hover-rgt { -webkit-margin-before: 0; -webkit-margin-after: 0; -webkit-paddin
 
 .hover-lft {
     float: left;
-    padding: 8px;
+    /* padding: 1em; */
     /* min-height: 75px; */
-    width: 84px;
+    /* width: 84px; */
     margin: 0;
 }
 

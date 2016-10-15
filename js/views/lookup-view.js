@@ -36,8 +36,8 @@
             'keyup .luinput':   'onChange'
         },
 
-        hoverMiscTemplate: _.template($('#lookup-hover-misc-template').html()),
-        hoverVerbTemplate: _.template($('#lookup-hover-verb-template').html()),
+        hoverMiscTemplate: _.template($('#hover-misc-template').html()),
+        hoverVerbTemplate: _.template($('#hover-verb-template').html()),
 
         moreTemplate: _.template($('#lookup-more-template').html()),
         noneTemplate: _.template($('#lookup-none-template').html()),

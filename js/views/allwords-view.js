@@ -8,8 +8,8 @@
         el: '#allwords',
 
         template: _.template($('#allwords-word-template').html()),
-        hoverMiscTemplate: _.template($('#allwords-hover-misc-template').html()),
-        hoverVerbTemplate: _.template($('#allwords-hover-verb-template').html()),
+        hoverMiscTemplate: _.template($('#hover-misc-template').html()),
+        hoverVerbTemplate: _.template($('#hover-verb-template').html()),
 
         // The DOM events specific to an item.
         events: {

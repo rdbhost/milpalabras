@@ -32,7 +32,7 @@
         // The DOM events specific to an item.
 		events: { },
 
-        hoverTemplate: _.template($('#hover-left-template').html()),
+        hoverTemplate: _.template($('#hover-template').html()),
 
         initialize: function () {
 

@@ -298,7 +298,8 @@
                                     formItem = _.findWhere(attrs.forms, {'form': form});
                                 attrs.form = form;
                                 attrs.subform = subForm;
-                                attrs.definitions = '<ul><li>' + formItem.definitions.join('<li>') + '</ul>';
+                                // attrs.definitions = '<ul><li>' + formItem.definitions.join('<li>') + '</ul>';
+                                attrs.definitions = formItem.definitions;
                                 delete attrs.forms;
                                 def.resolve(attrs);
                             });

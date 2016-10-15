@@ -204,7 +204,6 @@
                     <h1></h1>
                 </header>
                 <div id="suspended-main"></div>
-                <!-- footer></footer -->
             </div>
 
             <script type="text/template" id="suspended-header-template">
@@ -445,10 +444,6 @@
                     <span></span></a>
                 <a href="#" class="etch-editor-button etch-ordered-list" title="ordered list">
                     <span></span></a>
-                <!-- a href="#" class="etch-editor-button etch-link" title="link">
-                    <span></span></a -->
-                <!-- a href="#" class="etch-editor-button etch-clear-formatting" title="clear formatting">
-                    <span></span></a -->
             </script>
 
             <!--
@@ -693,193 +688,80 @@
             -->
             <script type="text/template" id="hover-template">
                 <div style="display: inline-block">
-                    <!-- div class="arrow-up"></div -->
-                    <!-- div class="hover-body" -->
-                        <div class="hover-lft"><%= word %></div>
-                        <% for (_d in defs) { var d = defs[_d]; %>
-                        <div class="hover-rgt">
-                            <div><%= d.form %><%= d.subform ? ':' : '' %> <%= d.subform %> <span class="lemma"><%= d.lemma %></span></div>
-                            <div >defn: <span class="defn"><%= d.definitions %></span></div>
-                        </div>
-                        <% }   %>
-                        <div style="clear:both"></div>
-                    <!-- /div -->
-                </div>
-            </script>
-
-            <script type="text/template" id="hover-left-template">
-                <div style="display: inline-block;">
                     <div class="hover-lft"><%= word %></div>
                     <div style="float: right">
                         <% for (_d in _.first(defs, 3)) { var d = defs[_d]; %>
-                        <div class="hover-rgt" style="float: left;">
-                            <%= d.form %><%= d.subform ? ':' : '' %> <%= d.subform %> <span class="lemma"><%= d.lemma %></span>
-                            <% if (d.definitions.length) { %>
-                            <div >defn:
-                                <% var di = d.definitions[0].substr(0, 75); %>
-                                <li class="defn-line"><%= di %></li>
-                            </div>
-                            <% } %>
+                        <div class="hover-rgt" style="float: left; width: 100%">
+                          <%= d.form %><%= d.subform ? ':' : '' %> <%= d.subform %> <span class="lemma"><%= d.lemma %></span>
+                          <div style="padding-left: 1em">definitions:
+                          <% for (_df in _.first(d.definitions, 3)) { var df = d.definitions[_df]; %>
+                            <% var di = df.substr(0, 76); %>
+                            <% if (di.length > 75) di = di.substr(0, 71)+' ...' %>
+                            <li class="defn-line"><%= di %></li>
+                          <% } %>
+                          </div>
                         </div>
                         <div style="clear:both"></div>
-                        <% } %>
+                        <% }   %>
                     </div>
                 </div>
             </script>
 
-            <script type="text/template" id="global-hover-misc-template">
+            <script type="text/template" id="hover-misc-template">
                 <div style="display: inline-block">
-                    <!-- div class="hover-tooltip" --><%= wordstr %><!-- /div -->
+                    <%= wordstr %>
                 </div>
             </script>
 
-            <script type="text/template" id="allwords-hover-misc-template">
+            <script type="text/template" id="hover-verb-template">
                 <div style="display: inline-block">
-                    <div><%= wordstr %></div>
-                    <!-- div class="arrow-right-skinny"></div -->
-                </div>
-            </script>
+                    <div><%= a['infinitive'] %></div>
+                    <div style="clear:both"></div>
+                    <table>
+                        <tbody>
+                        <tr>
+                            <th></th><th>yo</th><th>tu</th><th>el</th><th></th><th>nosotros</th><th>ellos</th>
+                        </tr>
+                        <tr>
+                            <th>Presente</th><td><%= a['indicative present (yo)'] %></td><td><%= a['indicative present (tú)'] %></td><td><%= a['indicative present (él)'] %></td>
+                            <th></th><td><%= a['indicative present (nosotros)'] %></td><td><%= a['indicative present (ellos)'] %></td>
+                        </tr>
+                        <tr>
+                            <th>Futuro</th><td><%= a['indicative future (yo)'] %></td><td><%= a['indicative future (tú)'] %></td><td><%= a['indicative future (él)'] %></td>
+                            <th></th><td><%= a['indicative future (nosotros)'] %></td><td><%= a['indicative future (ellos)'] %></td>
+                        </tr>
+                        <tr>
+                            <th>Pretérito</th><td><%= a['indicative preterite (yo)'] %></td><td><%= a['indicative preterite (tú)'] %></td><td><%= a['indicative preterite (él)'] %></td>
+                            <th></th><td><%= a['indicative preterite (nosotros)'] %></td><td><%= a['indicative preterite (ellos)'] %></td>
+                        </tr>
+                        <tr>
+                            <th>Imperfectivo</th><td><%= a['indicative imperfect (yo)'] %></td><td><%= a['indicative imperfect (tú)'] %></td><td><%= a['indicative imperfect (él)'] %></td>
+                            <th></th><td><%= a['indicative imperfect (nosotros)'] %></td><td><%= a['indicative imperfect (ellos)'] %></td>
+                        </tr>
+                        </tbody>
 
-            <script type="text/template" id="allwords-hover-verb-template">
-                <div style="display: inline-block">
-                    <!-- div -->
-                        <div><%= a['infinitive'] %></div>
-                        <div style="clear:both"></div>
-                        <table>
-                            <tbody>
-                            <tr>
-                                <th></th><th>yo</th><th>tu</th><th>el</th><th></th><th>nosotros</th><th>ellos</th>
-                            </tr>
-                            <tr>
-                                <th>Presente</th><td><%= a['indicative present (yo)'] %></td><td><%= a['indicative present (tú)'] %></td><td><%= a['indicative present (él)'] %></td>
-                                <th></th><td><%= a['indicative present (nosotros)'] %></td><td><%= a['indicative present (ellos)'] %></td>
-                            </tr>
-                            <tr>
-                                <th>Futuro</th><td><%= a['indicative future (yo)'] %></td><td><%= a['indicative future (tú)'] %></td><td><%= a['indicative future (él)'] %></td>
-                                <th></th><td><%= a['indicative future (nosotros)'] %></td><td><%= a['indicative future (ellos)'] %></td>
-                            </tr>
-                            <tr>
-                                <th>Pretérito</th><td><%= a['indicative preterite (yo)'] %></td><td><%= a['indicative preterite (tú)'] %></td><td><%= a['indicative preterite (él)'] %></td>
-                                <th></th><td><%= a['indicative preterite (nosotros)'] %></td><td><%= a['indicative preterite (ellos)'] %></td>
-                            </tr>
-                            <tr>
-                                <th>Imperfectivo</th><td><%= a['indicative imperfect (yo)'] %></td><td><%= a['indicative imperfect (tú)'] %></td><td><%= a['indicative imperfect (él)'] %></td>
-                                <th></th><td><%= a['indicative imperfect (nosotros)'] %></td><td><%= a['indicative imperfect (ellos)'] %></td>
-                            </tr>
-                            </tbody>
+                        <tbody>
+                        <tr>
+                            <th>Imperativo</th><td>-</td><td><%= a['imperative affirmative (tú)'] %></td><td><%= a['imperative affirmative (usted)'] %></td>
+                            <th></th><td><%= a['imperative affirmative (nosotros)'] %></td><td><%= a['imperative affirmative (usteds)'] %></td>
+                        </tr>
+                        </tbody>
+                    </table>
 
-                            <tbody>
-                            <tr>
-                                <th>Imperativo</th><td>-</td><td><%= a['imperative affirmative (tú)'] %></td><td><%= a['imperative affirmative (usted)'] %></td>
-                                <th></th><td><%= a['imperative affirmative (nosotros)'] %></td><td><%= a['imperative affirmative (usteds)'] %></td>
-                            </tr>
-                            </tbody>
-                        </table>
+                    <table>
+                        <tbody>
+                        <tr>
+                            <th></th><th></th><th></th><th></th><th></th>
+                        </tr>
+                        <tr>
+                            <th>Gerundio</th><td><%= a['present participle'] %></td><td></td><td></td><td></td>
+                        </tr>
+                        <tr>
+                            <th>Participio Pasado</th><td><%= a['past participle (m)'] %></td><td><%= a['past participle (f)'] %></td><td><%= a['past participle (m pl)'] %></td><td><%= a['past participle (f pl)'] %></td>
+                        </tr>
+                        </tbody>
+                    </table>
 
-                        <table>
-                            <tbody>
-                            <tr>
-                                <th></th><th></th><th></th><th></th><th></th>
-                            </tr>
-                            <tr>
-                                <th>Gerundio</th><td><%= a['present participle'] %></td><td></td><td></td><td></td>
-                            </tr>
-                            <tr>
-                                <th>Participio Pasado</th><td><%= a['past participle (m)'] %></td><td><%= a['past participle (f)'] %></td><td><%= a['past participle (m pl)'] %></td><td><%= a['past participle (f pl)'] %></td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                        <!-- div style="clear:both"></div -->
-                    <!-- /div>
-                    <div></div -->
-                </div>
-            </script>
-
-            <script type="text/template" id="lookup-hover-misc-template">
-                <div style="display: inline-block">
-                    <!-- div class="arrow-left"></div -->
-                    <!-- div class="hover-tooltip" --><%= wordstr %><!-- /div -->
-                </div>
-            </script>
-
-            <script type="text/template" id="lookup-hover-verb-template">
-                <div style="display: inline-block">
-                    <!-- div class="hover-body wide" -->
-                        <div class="hover-lft"><%= a['infinitive'] %></div>
-                        <div style="clear:both"></div>
-                        <table class="hover">
-                            <tbody>
-                            <tr>
-                                <th>Indicative</th><th>yo</th><th>tu</th><th>el</th><th></th><th>nosotros</th><th>ellos</th>
-                            </tr>
-                            <tr>
-                                <th>Presente</th><td><%= a['indicative present (yo)'] %></td><td><%= a['indicative present (tú)'] %></td><td><%= a['indicative present (él)'] %></td>
-                                <th></th><td><%= a['indicative present (nosotros)'] %></td><td><%= a['indicative present (ellos)'] %></td>
-                            </tr>
-                            <tr>
-                                <th>Futuro</th><td><%= a['indicative future (yo)'] %></td><td><%= a['indicative future (tú)'] %></td><td><%= a['indicative future (él)'] %></td>
-                                <th></th><td><%= a['indicative future (nosotros)'] %></td><td><%= a['indicative future (ellos)'] %></td>
-                            </tr>
-                            <tr>
-                                <th>Pretérito</th><td><%= a['indicative preterite (yo)'] %></td><td><%= a['indicative preterite (tú)'] %></td><td><%= a['indicative preterite (él)'] %></td>
-                                <th></th><td><%= a['indicative preterite (nosotros)'] %></td><td><%= a['indicative preterite (ellos)'] %></td>
-                            </tr>
-                            <tr>
-                                <th>Imperfectivo</th><td><%= a['indicative imperfect (yo)'] %></td><td><%= a['indicative imperfect (tú)'] %></td><td><%= a['indicative imperfect (él)'] %></td>
-                                <th></th><td><%= a['indicative imperfect (nosotros)'] %></td><td><%= a['indicative imperfect (ellos)'] %></td>
-                            </tr>
-                            </tbody>
-
-                            <tbody>
-                            <tr>
-                                <th>Subjunctive</th><th>yo</th><th>tu</th><th>el</th><th></th><th>nosotros</th><th>ellos</th>
-                            </tr>
-                            <tr>
-                                <th>Presente</th><td><%= a['subjunctive present (yo)'] %></td><td><%= a['subjunctive present (tú)'] %></td><td><%= a['subjunctive present (él)'] %></td>
-                                <th></th><td><%= a['subjunctive present (nosotros)'] %></td><td><%= a['subjunctive present (ellos)'] %></td>
-                            </tr>
-                            <tr>
-                                <th>Futuro</th><td><%= a['subjunctive future (yo)'] %></td><td><%= a['subjunctive future (tú)'] %></td><td><%= a['subjunctive future (él)'] %></td>
-                                <th></th><td><%= a['subjunctive future (nosotros)'] %></td><td><%= a['subjunctive future (ellos)'] %></td>
-                            </tr>
-                            <tr>
-                                <th>Imperfectivo</th><td><%= a['subjunctive imperfect (yo)'] %></td><td><%= a['subjunctive imperfect (tú)'] %></td><td><%= a['subjunctive imperfect (él)'] %></td>
-                                <th></th><td><%= a['subjunctive imperfect (nosotros)'] %></td><td><%= a['subjunctive imperfect (ellos)'] %></td>
-                            </tr>
-                            </tbody>
-
-                            <tbody>
-                            <tr>
-                                <th>Imperativo</th><td>-</td><td><%= a['imperative affirmative (tú)'] %></td><td><%= a['imperative affirmative (usted)'] %></td>
-                                <th></th><td><%= a['imperative affirmative (nosotros)'] %></td><td><%= a['imperative affirmative (ustedes)'] %></td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                        <table class="hover">
-                            <tbody>
-                            <tr>
-                                <th></th><th></th><th></th><th></th><th></th>
-                            </tr>
-                            <tr>
-                                <th>Gerundio</th><td><%= a['present participle'] %></td><td></td><td></td><td></td>
-                            </tr>
-                            <tr>
-                                <th>Participio Pasado</th><td><%= a['past participle (m)'] %></td><td><%= a['past participle (f)'] %></td><td><%= a['past participle (m pl)'] %></td><td><%= a['past participle (f pl)'] %></td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                        <div style="clear:both"></div>
-                    <!-- /div -->
-                    <!-- div class="arrow-left-fat"></div -->
-                </div>
-            </script>
-
-            <script type="text/template" id="daily-hover-misc-template">
-                <div id="help-hover" class="hover" style="display: inline-block">
-                    <div class="hover-tooltip"><%= wordstr %></div>
                 </div>
             </script>
 

@@ -27,8 +27,6 @@
         headerTemplate: _.template($('#daily-header-template').html()),
         nullTemplate: _.template($('#daily-null-template').html()),
 
-        //hoverTemplate: _.template($('#allwords-hover-misc-template').html()),
-
         // The DOM events specific to an item.
         events: {},
 
