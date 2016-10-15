@@ -498,7 +498,7 @@
                 }
             }
 
-            console.log('keypress ' + ev.charCode);
+            // console.log('keypress ' + ev.charCode);
         },
 
         errorStats: {},
@@ -582,37 +582,6 @@
             }
         },
 
-/*
-        onKeyDown: function(ev) {
-
-            return; // TODO - remove this line or the function entirely
-
-            if (ev.keyCode === app.constants.TAB_KEY) {
-
-                var $div = $(ev.target).closest('[contenteditable]'),
-                    divId = $div.attr('id'),
-                    newDivId = null;
-
-                if (divId === 'subject') {
-
-                    newDivId = 'new-message';
-                }
-                else if (divId === 'new-message') {
-
-                    newDivId = 'subject';
-                }
-                if (newDivId)
-                    $('#'+newDivId).mousedown();
-
-                ev.stopImmediatePropagation();
-            }
-            else if (ev.keyCode === app.constants.BACKSPACE_KEY) {
-
-                this._queue.push(ev.keyCode);
-            }
-        },
-*/
-
         onKeyUp: function(ev) {
 
             var $selDiv, divId, caretPos, wf, word, p,
@@ -648,8 +617,8 @@
             wf = WordFinder($selDiv.get(0), caretPos);
             word = wf.word();
 
-            console.log('word ' + word);
-            console.log('caret pos ' + caretPos);
+            // console.log('word ' + word);
+            // console.log('caret pos ' + caretPos);
 
             if ( word && word.length ) {
 

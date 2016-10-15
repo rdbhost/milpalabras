@@ -4,7 +4,7 @@
 	'use strict';
 
     var MAX_THREAD_LEN = 50,
-        wordRe = new RegExp('<?/?[a-zA-Z' + app.constants.FANCY_WORD_CHARS + ']+', 'g');
+        wordRe = new RegExp('<?/?[a-zA-Z"' + app.constants.FANCY_WORD_CHARS + ']+', 'g');
 
     function generateHtml(md) {
 
@@ -12,6 +12,10 @@
 
             if (f.charAt(0) === '<')
                 return f;
+
+            if (f.charAt(0) === '"')
+                return "<span>" + f + "</span>";
+
             return "<span class='DL'>" + f + "</span>";
         }
 

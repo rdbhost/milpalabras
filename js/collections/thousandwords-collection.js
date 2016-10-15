@@ -101,7 +101,7 @@
             var err, n2k, rep;
             wd = textParts.shift();
 
-            console.log('handleOneWord '+wd);
+            // console.log('handleOneWord '+wd);
 
             function cacheGood(word, score) {
 
@@ -122,7 +122,7 @@
                 err = rep = void 0;
                 if ( ! refWd ) {
 
-                    console.log('word not found: ' + trimmed);
+                    // console.log('word not found: ' + trimmed);
                     err = {begin: accum + trimmedLeadLen,
                         end: accum + trimmedLeadLen + trimmed.length,
                         type: 'not-found'};
@@ -130,7 +130,7 @@
                 }
                 else if ( refWd.attributes.word !== trimmed.toLowerCase() ) {
 
-                    console.log('replacement: ' + refWd.attributes.word + ' ' + trimmed);
+                    // console.log('replacement: ' + refWd.attributes.word + ' ' + trimmed);
                     var normRefWord = normalizeWord(trimmed, refWd.attributes.word);
                     rep = {begin: accum + trimmedLeadLen,
                         end: accum + trimmedLeadLen + trimmed.length,
@@ -533,7 +533,7 @@
 
                 case 'read':
 
-                    console.log('getInitialRecords:read '+this.lead);
+                    // console.log('getInitialRecords:read '+this.lead);
                     getInitialRecords(this.lead);
                     break;
 
@@ -744,7 +744,7 @@
 
                 case 'read':
 
-                    console.log('getCompleteRecords:read '+this.lead);
+                    // console.log('getCompleteRecords:read '+this.lead);
                     getCompleteRecords(this.lead);
                     break;
 
