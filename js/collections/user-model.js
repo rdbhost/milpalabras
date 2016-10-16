@@ -19,7 +19,7 @@
                 case 'read':
 
                     var q = 'SELECT m.message_id, m.thread_id, m.title, m.body, m.post_date, \n' +
-                            '      u.handle AS author, m0.title as topic \n' +
+                            '      u.handle AS author, m0.title AS topic, m.next2k_words AS next2k \n' +
                             'FROM messages m JOIN messages m0 ON m.thread_id = m0.message_id \n' +
                             '  JOIN users u ON u.idx = m.author \n' +
                             'WHERE (not m.suppressed OR m.suppressed IS NULL) \n' +

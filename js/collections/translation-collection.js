@@ -186,19 +186,7 @@
 
     });
 
-    var REMOVE_ACCENT = {
-        '\u00e1': 'a',
-        '\u00e9': 'e',
-        '\u00ed': 'i',
-        '\u00f3': 'o',
-        '\u00fa': 'u',
-        '\u00c1': 'A',
-        '\u00c9': 'E',
-        '\u00cd': 'I',
-        '\u00d3': 'O',
-        '\u00da': 'U'
-    };
-
+    var REMOVE_ACCENT = app.constants['REMOVE_ACCENT'];
 
     function createLead(begin) {
 

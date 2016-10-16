@@ -19,14 +19,14 @@
                     'melo', 'telo', 'selo', 'mela', 'tela', 'sela',
                     'melos', 'telos', 'selos', 'melas', 'telas', 'selas' ],
 
-        _ADD_ACCENT = {
+ /*       _ADD_ACCENT = {
             'a': '\u00e1', 'A': '\u00c1',
             'e': '\u00e9', 'E': '\u00c9',
             'i': '\u00ed', 'I': '\u00cd',
             'o': '\u00f3', 'O': '\u00d3',
             'u': '\u00fa', 'U': '\u00da',
             'n': '\u00f1', 'N': '\u00d1'
-        },
+        }, */
 
         REMOVE_ACCENT = {
             '\u00e1': 'a', '\u00c1': 'A',
@@ -38,6 +38,8 @@
         },
 
         x;
+
+    _.extend(app.constants, {'REMOVE_ACCENT': REMOVE_ACCENT});
 
     /*
      *  audit text takes body of text from editor and validates it.

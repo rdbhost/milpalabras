@@ -19,7 +19,7 @@
                 case 'read':
 
                     var q = 'SELECT auth.check_authentication(%(ident)s, %(key)s); \n' +
-                            'SELECT m.message_id, m.thread_id, m.title, m.body, m.post_date, \n' +
+                            'SELECT m.message_id, m.thread_id, m.title, m.body, m.post_date, m.next2k_words as next2k, \n' +
                             '      u.handle AS author, sr.reason, sr.post_date, u2.handle AS suspender \n' +
                             ' FROM messages m LEFT JOIN suspend_reason sr ON m.message_id = sr.message_id \n' +
                             '      LEFT JOIN users u ON u.idx = m.author \n' +
