@@ -370,9 +370,9 @@
             </div>
 
             <script type="text/template" id="postform-template">
-                <% var title_md = makeHtml(title, next2k);
+                <% var title_md = makeHtml(title, []);
                 title_md = title_md.replace(/<\/?p>/g, '');
-                var body_md = makeHtml(body, next2k);
+                var body_md = makeHtml(body, []);
                 %>
 
                 <h3 class="escribe">Escribe</h3>

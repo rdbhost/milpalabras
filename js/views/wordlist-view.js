@@ -3,6 +3,8 @@
 (function ($) {
 	'use strict';
 
+    var OK_WORDS_LIMIT = 24;
+
     // Word Item View
     // --------------
 
@@ -73,7 +75,7 @@
                 this.$el.closest('ul').show();
                 this.$el.empty();
 
-                var p = app.thousand_words.prefixLimited(partialWord, 35);
+                var p = app.thousand_words.prefixLimited(partialWord, OK_WORDS_LIMIT);
 
                 p.then(function(wordList, rsp, opt) {
 

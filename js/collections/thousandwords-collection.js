@@ -417,28 +417,63 @@
         });
         listNew = _.map(listNew, function(v) { return v.clone() }); // ensure listNew is copy
 
+        var intCol = new Intl.Collator('es');
+        function wordCompare(a, b) {
+            return intCol.compare(a.attributes.word, b.attributes.word);
+        }
+        listNew.sort(wordCompare);
+
         while (listNew.length > listCtLimit) {
 
-            for (var freqAdj in [false, true]) {
+            var prefix = listNew[0].getPrefix(prefixLen),
+                i = 1;
 
-                var prefix = listNew[0].getPrefix(prefixLen),
-                    i = 1;
+            while (i < listNew.length && listNew.length > listCtLimit) {
 
+                if (prefix.length < prefixLen) {
+
+                    // word too short to be similar to previous
+                    prefix = listNew[i].getPrefix(prefixLen);
+                    i++;
+                }
+                else if (listNew[i].startsWith(prefix)) {
+
+                    listNew[i-1].setOKMulti('okmulti');
+                    listNew.splice(i,1); // remove ith elem
+                }
+                else {
+
+                    // no similarity with previous, so continue
+                    prefix = listNew[i].getPrefix(prefixLen);
+                    i++;
+                }
+            }
+
+            if (listNew.length < listCtLimit*4) {
+
+                prefix = listNew[0].getPrefix(prefixLen);
+                i = 1;
                 while (i < listNew.length && listNew.length > listCtLimit) {
 
-                    if (prefix.length < prefixLen) {
+                    if (REMOVE_ACCENT[listNew[i].attributes.word.substr(prefix.length-1,1)]
+                        === prefix.substr(prefix.length-1,1)) {
 
-                        // word too short to be similar to previous
+                        listNew[i-1].setOKMulti('okmulti');
+                        listNew.splice(i, 1); // remove ith elem
+                    }
+                    else {
+
+                        // no similarity with previous, so continue
                         prefix = listNew[i].getPrefix(prefixLen);
                         i++;
                     }
-                    else if (listNew[i].startsWith(prefix)) {
+                }
 
-                        listNew[i-1].setOKMulti('okmulti');
-                        listNew.splice(i,1); // remove ith elem
-                    }
-                    else if (listNew[i].attributes.idx > 1000
-                        && freqAdj
+                prefix = listNew[0].getPrefix(prefixLen);
+                i = 1;
+                while (i < listNew.length && listNew.length > listCtLimit) {
+
+                    if (listNew[i].attributes.idx > 1000
                         && listNew[i].startsWith(prefix.substr(0,prefix.length-1))) {
 
                         listNew[i-1].setOKMulti('okmulti');
@@ -447,7 +482,6 @@
                     else {
 
                         // no similarity with previous, so continue
-                        listNew[i].setOKMulti('');
                         prefix = listNew[i].getPrefix(prefixLen);
                         i++;
                     }
