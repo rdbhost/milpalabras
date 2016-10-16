@@ -32,15 +32,8 @@
 
             if (prevView) {
                 prevView.undelegateEvents();
-                if (prevView.hoverTimer)
-                    window.clearTimeout(prevView.hoverTimer);
-                if (prevView.hoverHideTimer)
-                    window.clearTimeout(prevView.hoverHideTimer);
-
-                $('#definition-hover-left').hide();
-                $('#definition-hover').hide();
-                $('#help-hover').hide();
             }
+            $('.qtip').hide();
             cb.apply(this, args);
         },
 

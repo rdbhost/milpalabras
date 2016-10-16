@@ -13,7 +13,8 @@
 
 <script type="text/template" id="post_msg">
     CREATE OR REPLACE FUNCTION "post_msg"
-        (IN ttl text, IN bdy text, IN identr varchar, IN ikey varchar, IN thdid int8, IN branchfrom int8)
+        (IN ttl text, IN bdy text, IN identr varchar, IN ikey varchar,
+         IN thdid int8, IN branchfrom int8, IN next2k VARCHAR[])
     RETURNS varchar
     AS $$
     DECLARE
@@ -43,8 +44,8 @@
             RAISE EXCEPTION 'post count limit exceeded' USING ERRCODE = 'RD004';
         END IF;
 
-        INSERT INTO messages (thread_id, title, body, post_date, author, branch_from)
-            SELECT thdid, ttl, bdy, NOW(), uid::BIGINT, branchfrom;
+        INSERT INTO messages (thread_id, title, body, post_date, author, branch_from, next2k_words)
+            SELECT thdid, ttl, bdy, NOW(), uid::BIGINT, branchfrom, next2k::VARCHAR[];
 
         RETURN NULL;
     END;
@@ -56,7 +57,7 @@
 
 <script type="text/template" id="replace_msg">
     CREATE OR REPLACE FUNCTION "replace_msg"
-        (IN ttl text, IN bdy text, IN identr varchar, IN ikey varchar, IN msgid int8)
+        (IN ttl text, IN bdy text, IN identr varchar, IN ikey varchar, IN msgid int8, IN next2k VARCHAR[])
     RETURNS varchar
     AS $$
     DECLARE
@@ -80,7 +81,7 @@
         RAISE EXCEPTION 'bad login %', identr USING ERRCODE = 'RD003';
     END IF;
 
-    UPDATE messages SET title = ttl, body = bdy
+    UPDATE messages SET title = ttl, body = bdy, next2k_words = next2k::VARCHAR[]
         WHERE message_id = msgid AND author = uid;
 
     RETURN NULL;

@@ -255,10 +255,6 @@ ul.oops {
 
 .row-group-spacer { height: 20px; }
 
-#definition-hover { position: fixed; }
-#definition-hover ul { margin-top: -5px; margin-bottom: -5px; }
-#definition-hover-left { position: fixed; }
-
 .hover-body {
     padding: 3px;
     min-height: 115px;
@@ -295,7 +291,11 @@ table.hover td {
     margin: 0;
     /* bottom: 8px; */
 }
-ol.hover-rgt { -webkit-margin-before: 0; -webkit-margin-after: 0; -webkit-padding-start: 0; }
+.hover-rgt div {
+/*    -webkit-margin-before: 0; -webkit-margin-after: 0; -webkit-padding-start: 0; */
+    width: 100%;
+    float: left;
+}
 
 .hover-lft {
     float: left;
@@ -309,6 +309,7 @@ span.lemma {
     text-align: right;
     float: right;
     color: #1d7471;
+    margin-left: 8px;
 }
 span.defn {
     color: #006561;
@@ -347,7 +348,6 @@ span.defn {
 .arrow-left-fat { margin-top: -100px; }
 .arrow-right-skinny { margin-top: -32px; }
 
-#help-hover { position: fixed; }
 
 .hover-tooltip {
     padding: 5px;
