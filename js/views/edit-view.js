@@ -189,17 +189,26 @@
 
         var sel = rangy.getSelection(),
             rng = rangy.createRange(),
+            blueWords = [],
             container;
 
         for ( var i=0; i<next2kwords.length; ++i ) {
 
-            var bWord = next2kwords[i],
-                blueBegin = bWord.begin;
+            var bWord = next2kwords[i];
 
             // if ( caretPos >= bWord.begin && caretPos <= bWord.end )
             //    continue;
 
             container = $div.get(0);
+
+            rng.selectCharacters(container, bWord.begin, bWord.end);
+            sel.setSingleRange(rng);
+            document.execCommand('forecolor', false, '#00008b');
+
+            blueWords.push(sel.toString());
+
+            rng.collapse();
+            sel.setSingleRange(rng);
 
             if (tooBlue) {
 
@@ -208,22 +217,11 @@
                 document.execCommand('forecolor', false, 'red');
                 rng.collapse();
                 sel.setSingleRange(rng);
-
-                blueBegin += 1;
             }
 
-            if ( blueBegin < bWord.end ) {
-
-                rng.selectCharacters(container, blueBegin, bWord.end);
-                sel.setSingleRange(rng);
-                document.execCommand('forecolor', false, '#00008b');
-
-                rng.collapse();
-                sel.setSingleRange(rng);
-            }
         }
 
-        return next2kwords;
+        return blueWords;
     }
 
     _.extend(etch.config.buttonClasses, {
@@ -297,25 +295,28 @@
                 that = this,
                 pM, pS, pM1, pS1, quoteRatio;
 
-            pM = this.handleInputErrors($rawMsg);
+            pM = this.handleInputMarking($rawMsg);
             pM1 = pM.then(function(resp) {
+
                 that.errorStats['new-message'] = resp[0];
                 $rawMsg.data('dirty', false);
-                return resp[1]; // return stats
+                return [resp[1], resp[2]]; // return stats and n2kwords
             });
 
-            pS = this.handleInputErrors($rawSubj);
+            pS = this.handleInputMarking($rawSubj);
             pS1 = pS.then(function(resp) {
+
                 that.errorStats['title'] = resp[0];
                 $rawSubj.data('dirty', false);
-                return resp[1]; // return stats
+                return [resp[1], resp[2]]; // return stats and n2kwords
             });
 
             var pAll = $.when(pS1, pM1);
             pAll.then(function (respS1, respM1) {
 
+                var n2kwords = _.union(respS1[1], respM1[1]);
                 that._manageButtons();
-                saveMessage();
+                saveMessage(n2kwords);
             });
             pAll.fail(function(err) {
 
@@ -324,7 +325,7 @@
             });
 
 
-            function saveMessage() {
+            function saveMessage(n2kwords) {
 
                 var rawMsg = $rawMsg.html().replace(/div>/g, 'p>'),
                     rawSubj = $rawSubj.html().replace(/div>/g, 'p>'),
@@ -360,17 +361,21 @@
                     alert('fail ' + err[0] + err[1] );
                 }
 
+                var n2k = '{' + _.map(n2kwords, function(i) {return '"' + i + '"';}).join(',') + '}';
+
                 var newModel = new app.Message({
                     body: msg,
                     title: subj,
                     thread_id: that.model.attributes.thread_id,
                     message_id: that.model.attributes.message_id,
+                    next2k_words: n2k,
                     author: app.userId
                 });
 
                 if (newModel.attributes.thread_id) {
 
                     newModel.save({}, {
+
                         success: onSuccess,
                         error: onError
                     });
@@ -387,6 +392,7 @@
                                     onSuccess(mdl, resp, opt);
                                     app.milPalabrasRouter.navigate('#!/t/'+mdl.attributes.thread_id, {trigger: true});
                                 },
+
                                 error: onError
                             });
                         },
@@ -410,7 +416,7 @@
             this._cleanup(ev);
         },
 
-        handleInputErrors: function($rawDiv) {
+        handleInputMarking: function($rawDiv) {
 
             var ratioQuotedLimit, ratioN2kLimit, divId,
                 this_ = this;
@@ -421,7 +427,6 @@
             ratioN2kLimit = divId === 'title' ? app.constants.TITLE2K_RATIO : app.constants.TWOK_RATIO;
 
             var caretPos = getCaretPos($rawDiv);
-            // $rawDiv.attr('contenteditable', false);
 
             var auditPromise = app.audit_text(app.thousand_words, this_.found_words,
                                                 rangy.innerText($rawDiv.get(0)), caretPos,
@@ -430,31 +435,29 @@
             return auditPromise.then(function(divEval) {
 
                 if (this_._queue.length > 0)
-                    return this_.handleInputErrors($rawDiv);
+                    return this_.handleInputMarking($rawDiv);
 
                 var errors = divEval[0],
                     replacements = divEval[1],
                     blueWords = divEval[2],
                     stats = divEval[3],
-
-                    tooBlue = stats.pop();
+                    tooBlue = stats.pop(),
+                    n2kwords;
 
                 console.log('audit-promise done ');
 
                 var caretPosObj = rangy.saveSelection();
-                // $rawDiv.attr('contenteditable', true);
 
                 unMarkErrors($rawDiv);
                 doReplacements($rawDiv, replacements);
-                doBlueMarking($rawDiv, blueWords, tooBlue);
+                n2kwords = doBlueMarking($rawDiv, blueWords, tooBlue);
                 markErrors($rawDiv, errors);
 
                 rangy.restoreSelection(caretPosObj);
 
-                return [errors, stats];
+                return [errors, stats, n2kwords];
             })
             .fail(function(err) {
-                // $rawDiv.attr('contenteditable', true);
                 throw err;
             });
         },
@@ -470,7 +473,6 @@
             if (this.attributes && this.attributes.parent)
                 key = 'parent ' + this.attributes.parent.messageCacheKey();
             delete app.cachedMessages[key];
-            // this.found_words = {}
         },
 
         cleanup: function(ev) {
@@ -595,9 +597,9 @@
 
             if ( wordEndKeys.length ) {
 
-                var pS = this.handleInputErrors($selDiv);
-
+                var pS = this.handleInputMarking($selDiv);
                 pS.then(function(resp) {
+
                     var stats = resp[1];
                     this_.errorStats[divId] = resp[0];
                     this_._manageButtons();
@@ -607,6 +609,7 @@
                 });
 
                 pS.fail(function(e) {
+
                    throw e;
                 });
             }
@@ -630,7 +633,6 @@
                 });
                 p.fail(function(err) {
 
-                   // alert(err[0] + ' ' + err[1]);
                     throw err;
                 });
             }
@@ -659,17 +661,13 @@
             if ( !$div.data('dirty') )
                 return;
 
-            // $div.attr('contenteditable', false);
-
-            var pS = this.handleInputErrors($div);
-
+            var pS = this.handleInputMarking($div);
             pS.then(function(resp) {
 
                 this_.errorStats[divId] = resp[0];
                 this_._manageButtons();
                 if ( divId !== 'title' )
                     this_._updateStatusBar(resp[1]);
-                // $div.attr('contenteditable', true);
                 $div.data('dirty', false);
             });
 

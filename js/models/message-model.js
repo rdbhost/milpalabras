@@ -7,14 +7,15 @@
 
     var saveQuery =
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +
-        "SELECT * FROM post_msg(%(title), %(body), %(ident)s, %(key)s, %(thread_id), %(branch_from)); \n" +
+        "SELECT * FROM \n" +
+        "  post_msg(%(title), %(body), %(ident)s, %(key)s, %(thread_id), %(branch_from), %(next2k_words)::VARCHAR[]); \n" +
         " -- and lastly, make thread_id match message_id for new threads \n" +
         "UPDATE messages SET thread_id = message_id WHERE thread_id IS NULL; \n" +
         "SELECT currval('messages_message_id_seq'::regclass) AS message_id; \n";
 
     var updateQuery =
         "-- primary query that inserts provided fields, contingent on various tests passing \n" +
-        "SELECT * FROM replace_msg(%(title), %(body), %(ident)s, %(key)s, %(message_id)); \n" +
+        "SELECT * FROM replace_msg(%(title), %(body), %(ident)s, %(key)s, %(message_id), %(next2k_words)::VARCHAR[]); \n" +
         "SELECT %(message_id) AS message_id; \n";
 
     var branchingQuery =

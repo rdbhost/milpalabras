@@ -6,7 +6,7 @@
     var MAX_THREAD_LEN = 50,
         wordRe = new RegExp('<?/?[a-zA-Z"' + app.constants.FANCY_WORD_CHARS + ']+', 'g');
 
-    function generateHtml(md) {
+    function generateHtml(md, n2kWords) {
 
         function newVal(f) {
 
@@ -15,6 +15,9 @@
 
             if (f.charAt(0) === '"')
                 return "<span>" + f + "</span>";
+
+            if (n2kWords.indexOf(f) > -1)
+                return "<span class='DL next2k'>" + f + "</span>";
 
             return "<span class='DL'>" + f + "</span>";
         }
@@ -191,8 +194,8 @@
                 model = app.cachedMessages[msg.messageCacheKey()];
             else {
                 model = msg.clone();
-                model.attributes.body = app.MessageView.markdown.makeHtml(msg.attributes.body);
-                model.attributes.title = app.MessageView.markdown.makeHtml(msg.attributes.title);
+                model.attributes.body = app.MessageView.markdown.makeHtml(msg.attributes.body, msg.attributes.next2k);
+                model.attributes.title = app.MessageView.markdown.makeHtml(msg.attributes.title, msg.attributes.next2k);
             }
             app.editView = new app.EditView({ model: model });
             app.editView.render();

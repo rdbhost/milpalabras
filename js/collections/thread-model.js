@@ -28,7 +28,7 @@
 
                            '(SELECT m.thread_id, m.message_id, m.title, m.post_date, m.body, m.branch_from, \n' +
                            '       u.handle AS author, ua.user_pic, m.suppressed, mt.message_id AS branch_to, \n' +
-                           '       mf.thread_id AS branched_from, mf.title AS title_from \n' +
+                           '       mf.thread_id AS branched_from, mf.title AS title_from, m.next2k_words AS next2k \n' +
                            ' FROM messages m \n' +
                            '  LEFT JOIN messages mt ON mt.branch_from = m.message_id \n' +
                            '  LEFT JOIN messages mf ON mf.message_id = m.branch_from \n' +
@@ -40,7 +40,7 @@
 
                            "SELECT m.thread_id, m.message_id, '~ oculta temporalmente ~' AS title, m.post_date, \n" +
                            "       '' AS body, m.branch_from, u.handle AS author, ua.user_pic, m.suppressed, \n" +
-                           '       NULL AS branch_to, NULL AS branched_from, NULL AS title_from \n' +
+                           '       NULL AS branch_to, NULL AS branched_from, NULL AS title_from, m.next2k_words AS next2k \n' +
                            ' FROM messages m \n' +
                            '  JOIN user_avatars ua ON m.author = ua.idx \n' +
                            '  JOIN users u ON m.author = u.idx \n' +
