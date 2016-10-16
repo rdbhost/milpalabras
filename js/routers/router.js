@@ -65,6 +65,9 @@
             }
 
             param = parseInt(param, 10);
+            if (!app.thread)
+                app.milPalabrasRouter.navigate('', {trigger: true});  // if page reloaded on #!/br url
+
             var models = app.thread.where({'message_id': param});
 
             if (models.length) {

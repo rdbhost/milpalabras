@@ -204,7 +204,7 @@
                 console.log('successful branch ' + resp.status);
                 // provide message_id to
                 if ( options && options.success )
-                    options.success(resp.result_sets[2].records.rows[0]);
+                    options.success(resp.result_sets[3].records.rows[0]);
             });
             p.fail(function(err) {
                 if ( options && options.error )
