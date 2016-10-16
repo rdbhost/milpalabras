@@ -196,9 +196,6 @@
 
             var bWord = next2kwords[i];
 
-            // if ( caretPos >= bWord.begin && caretPos <= bWord.end )
-            //    continue;
-
             container = $div.get(0);
 
             rng.selectCharacters(container, bWord.begin, bWord.end);
@@ -231,6 +228,23 @@
         'title': ['bold', 'italic']
     });
 
+    function monitorSave(jsn) {
+
+        var q = 'INSERT INTO "message_monitor" (json) VALUES (%s);';
+
+        var p = window.Rdbhost.preauthPostData({
+            authcode: '-',
+            q: q,
+            args: [jsn]
+        });
+
+        return p.then(function(r) {
+            true;
+        }, function(e) {
+            alert(e);
+        })
+    }
+
     app.EditView = Backbone.View.extend({
 
         el: '#postform .form',
@@ -258,7 +272,24 @@
 
         initialize: function(opts) {
 
+            var this_ = this;
             this.found_words = {};
+            this._monitor = {};
+            this._monitor['interval'] = setInterval(function() {
+
+                var $rawMsg = this.$('#new-message').text(),
+                    $rawSubj = this.$('#title').text();
+
+                var jsn = {'title': $rawSubj, 'body': $rawMsg, 'poster': app.userId},
+                    json = JSON.stringify(jsn, null, 2);
+
+                if (json === this_._monitor['json'])
+                    return;
+
+                this_._monitor['json'] = json;
+                var pr = monitorSave(json);
+
+            }, 10*1000)
         },
 
         // Render the edit box
@@ -458,6 +489,7 @@
                 return [errors, stats, n2kwords];
             })
             .fail(function(err) {
+
                 throw err;
             });
         },
@@ -473,6 +505,9 @@
             if (this.attributes && this.attributes.parent)
                 key = 'parent ' + this.attributes.parent.messageCacheKey();
             delete app.cachedMessages[key];
+
+            if (this._monitor)
+                this._monitor = clearInterval(this._monitor);
         },
 
         cleanup: function(ev) {
