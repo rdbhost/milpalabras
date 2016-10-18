@@ -277,6 +277,8 @@
             this._monitor = {};
             this._monitor['interval'] = setInterval(function() {
 
+                // this function periodically saves raw message to server, for
+                //  analysis, not publication
                 var $rawMsg = this.$('#new-message').text(),
                     $rawSubj = this.$('#title').text();
 
@@ -347,12 +349,17 @@
 
                 var n2kwords = _.union(respS1[1], respM1[1]);
                 that._manageButtons();
-                saveMessage(n2kwords);
+                that.$el.find('#post-message').attr('disabled', 'disabled');
+                var pr = saveMessage(n2kwords);
+                pr.then(function() {
+                    this.$el.find('#post-message').removeAttr('disabled');
+                })
             });
             pAll.fail(function(err) {
 
                 that._manageButtons();
                 alert('message not saved ' + err[0] + ' ' + err[1]);
+                this.$el.find('#post-message').removeAttr('disabled');
             });
 
 
@@ -362,7 +369,8 @@
                     rawSubj = $rawSubj.html().replace(/div>/g, 'p>'),
                     msg, subj,
                     tagRe = /<[^>]*>/g,
-                    htmlEntityRe = /&[a-zA-Z]+;/g;
+                    htmlEntityRe = /&[a-zA-Z]+;/g,
+                    defer = $.Deferred();
 
                 rawMsg = rawMsg.replace(/<i>\s+/g, '<i>').replace(/\s+<\/i>/g, '</i>').replace('<i><br></i>', '<br>')
                                .replace(/<b>\s+/g, '<b>').replace(/\s+<\/b>/g, '</b>').replace('<b><br></b>', '<br>');
@@ -387,9 +395,13 @@
                         app.thread.fetch({ reset: true });
                     that._cleanup(ev);
                     app.recentPostCt += 1;
+
+                    defer.resolve(that.model.attributes.message_id);
                 }
                 function onError(mdl, err, opt) {
                     alert('fail ' + err[0] + err[1] );
+
+                    defer.reject(new Error(err));
                 }
 
                 var n2k = '{' + _.map(n2kwords, function(i) {return '"' + i + '"';}).join(',') + '}';
