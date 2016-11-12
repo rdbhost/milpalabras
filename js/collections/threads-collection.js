@@ -3,6 +3,8 @@
 (function () {
 	'use strict';
 
+    window.app = window.app || _.extend({ userId: undefined, userKey: undefined, cachedMessages: {} }, Backbone.Events);
+
     var R = window.Rdbhost;
 
     // Thread Collection
@@ -84,5 +86,8 @@
 			return thread.get('order');
 		}
 	});
+
+    // Create our global collection of **Threads**.
+    app.threads = new app.Threads();
 
 })();

@@ -3,29 +3,7 @@
 (function ($) {
 	'use strict';
 
-    var MAX_THREAD_LEN = 50,
-        wordRe = new RegExp('<?/?[a-zA-Z"' + app.constants.FANCY_WORD_CHARS + ']+', 'g');
-
-    function generateHtml(md, n2kWords) {
-
-        function newVal(f) {
-
-            if (f.charAt(0) === '<')
-                return f;
-
-            if (f.charAt(0) === '"')
-                return "<span>" + f + "</span>";
-
-            if (n2kWords.indexOf(f) > -1)
-                return "<span class='DL next2k'>" + f + "</span>";
-
-            return "<span class='DL'>" + f + "</span>";
-        }
-
-        var mkdn = app.MessageView.markdown.makeHtml(md);
-
-        return mkdn.replace(wordRe, newVal);
-    }
+    var MAX_THREAD_LEN = 50;
 
     app.MessageView = Backbone.View.extend({
 
@@ -42,18 +20,13 @@
             var data = this.model.toJSON();
             data.not_first = notFirst;
 
-            data.makeHtml = generateHtml;
+            data.makeHtml = app.TopicView.markdown.makeHtml;
 
             this.$el.html(this.template(data));
             this.$el.show();
 
             return this;
         }
-    },
-    { // class properties
-
-        markdown: new Showdown.converter(),
-        htmlGenerator: generateHtml
     });
 
     // Thread Item View
@@ -194,8 +167,8 @@
                 model = app.cachedMessages[msg.messageCacheKey()];
             else {
                 model = msg.clone();
-                model.attributes.body = app.MessageView.markdown.makeHtml(msg.attributes.body, msg.attributes.next2k);
-                model.attributes.title = app.MessageView.markdown.makeHtml(msg.attributes.title, msg.attributes.next2k);
+                model.attributes.body = app.TopicView.markdown.makeHtml(msg.attributes.body, msg.attributes.next2k);
+                model.attributes.title = app.TopicView.markdown.makeHtml(msg.attributes.title, msg.attributes.next2k);
             }
             app.editView = new app.EditView({ model: model });
             app.editView.render();

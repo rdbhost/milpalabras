@@ -134,7 +134,7 @@
 
         showIndex: function () {
 
-            app.threadsView = new app.ThreadsView();
+            //app.threadsView = new app.ThreadsView();
             prevView = app.threadsView;
 
             // Suppresses 'add' events with {reset: true} and prevents the app view
@@ -266,9 +266,11 @@
     app.translations = new app.Translations();
 
     // Create our global collection of **Threads**.
-    app.threads = new app.Threads();
+    //app.threads = new app.Threads();
 
     app.allWordsView = new app.AllWordsView({collection: null});
+
+    app.threadsView = new app.ThreadsView();
 
     Backbone.history.start();
 

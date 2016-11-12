@@ -3,6 +3,8 @@
 (function () {
 	'use strict';
 
+    window.app = window.app || _.extend({ userId: undefined, userKey: undefined, cachedMessages: {} }, Backbone.Events);
+
     var R = window.Rdbhost;
 
     var saveQuery =

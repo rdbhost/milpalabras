@@ -11,7 +11,8 @@ if ( ! ~window.location.host.indexOf('localhost') && window.location.protocol.su
     window.location.protocol = 'https';
 
 // create app object, for use in other modules
-var app = _.extend({ userId: undefined, userKey: undefined, cachedMessages: {} }, Backbone.Events);
+window.app = window.app || _.extend({ userId: undefined, userKey: undefined, cachedMessages: {} }, Backbone.Events);
+// var app = _.extend({ userId: undefined, userKey: undefined, cachedMessages: {} }, Backbone.Events);
 
 app.constants = {
 

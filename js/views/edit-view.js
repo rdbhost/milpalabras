@@ -298,7 +298,7 @@
         render: function () {
 
             var data = this.model.toJSON();
-            data.makeHtml = app.MessageView.markdown.makeHtml;
+            data.makeHtml = app.TopicView.markdown.makeHtml;
             app.recentPostCt = app.recentPostCt || 0; // safety
 
             if (app.recentPostCt < app.constants.DAILY_POST_LIMIT) {

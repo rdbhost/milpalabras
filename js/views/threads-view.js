@@ -4,6 +4,31 @@
 
 	'use strict';
 
+    var wordRe = new RegExp('<?/?[a-zA-Z"' + app.constants.FANCY_WORD_CHARS + ']+', 'g');
+
+    window.app = window.app || _.extend({ userId: undefined, userKey: undefined, cachedMessages: {} }, Backbone.Events);
+
+    function generateHtml(md, n2kWords) {
+
+        function newVal(f) {
+
+            if (f.charAt(0) === '<')
+                return f;
+
+            if (f.charAt(0) === '"')
+                return "<span>" + f + "</span>";
+
+            if (n2kWords.indexOf(f) > -1)
+                return "<span class='DL next2k'>" + f + "</span>";
+
+            return "<span class='DL'>" + f + "</span>";
+        }
+
+        var mkdn = app.TopicView.markdown.makeHtml(md);
+
+        return mkdn.replace(wordRe, newVal);
+    }
+
     app.TopicView = Backbone.View.extend({
 
         tagName: 'tr',
@@ -14,13 +39,18 @@
         render: function () {
 
             var data = this.model.toJSON();
-            data.makeHtml = app.MessageView.markdown.makeHtml;
+            data.makeHtml = app.TopicView.markdown.makeHtml;
 
             this.$el.html(this.template(data));
             this.$el.show();
 
             return this;
         }
+    },
+    { // class properties
+
+        markdown: new Showdown.converter(),
+        htmlGenerator: generateHtml
     });
 
 
@@ -124,4 +154,7 @@
 		}
 
 	});
+
+    app.threadsView = new app.ThreadsView();
+
 })(jQuery);
