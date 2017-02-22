@@ -54,28 +54,12 @@
             // this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
             var this_ = this;
 
-            this.$uMain.on('mouseover', '.DL', function(ev) {
-                $(this).qtip({
-                    content: {
-                        text: function(ev, api) {
+            this.$tMain.tooltip({
+                items: '.DL',
+                content: function(resp) {
 
-                            this_.dictionaryHelp(ev, api);
-                            return 'loading...';
-                        }
-                    },
-                    style: {classes: 'qtip-bootstrap'},
-                    show: {
-                        solo: true,
-                        ready: true,
-                        delay: 150
-                    },
-                    position: {
-                        my: 'top left',
-                        at: 'bottom right',
-                        adjust: {method: 'shift'},
-                        target: 'event'
-                    }
-                }, ev);
+                    return this_.dictionaryHelp(this, resp);
+                }
             });
 
         },
@@ -122,9 +106,9 @@
             this.$uMain.append(msgView.render().el);
         },
 
-        dictionaryHelp: function(ev, api) {
+        dictionaryHelp: function(this_, resp) {
 
-            app.ThreadView.prototype.dictionaryHelp.call(this, ev, api);
+            app.ThreadView.prototype.dictionaryHelp.call(this, this_, resp);
         }
 
     });

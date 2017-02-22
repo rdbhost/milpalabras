@@ -6,7 +6,18 @@
     <title>Mil Palabras</title>
 		<link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="vendor/etch/css/etch.css">
-    <link rel="stylesheet" href="vendor/qtip2/jquery.qtip.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <!-- link rel="stylesheet" href="vendor/qtip2/jquery.qtip.css"> -->
+
+  <style>
+    div.ui-tooltip {
+      max-width: 700px;
+      background-color: lightgoldenrodyellow;
+    }
+    div.ui-tooltip table td {
+      padding: 6px;
+    }
+  </style>
 </head>
 <body>
     <script id="RDBHOST-SQL-INLINE-ID" type="text/sql" data-sql="SELECT * FROM index_records();" data-role=p0000001392></script>
@@ -41,7 +52,7 @@
                         <tr>
                             <th><span data-help="topic">tema</span>
                             <th><span data-help="owner">propietario</span></th>
-                            <th><span data-help="when changed">cuando cambiado</span></th>
+                            <!-- th><span data-help="when changed">cuando cambiado</span></th -->
                             <th><span data-help="size">tamaño</span></th>
                         </tr>
                     </thead>
@@ -60,19 +71,21 @@
             %>
             <td class="topic">
               <a href="#!/t/<%- thread_id %>"><%= topic_md %></a>
-              <% for (var _g in avatars) { var avatar = avatars[_g]; %>
+              <% for (var _g in avatars) { var avatar = avatars[_g].replace('http:', 'https:'); %>
               <img src="<%= avatar %>" class="avatar-small">
               <% } %>
             </td>
             <td class="inituser"><%- initiating_user %></td>
-            <td class="startdate rgt"><time class="timeago" datetime="<%- change_date %>z"></time></td>
-            <% var barWidth = parseInt(Math.sqrt(message_ct)*9, 10);  %>
+            <!-- td class="startdate rgt"><time class="timeago" datetime="<%- change_date %>z"></time></td -->
+            <% var barWidth = parseInt(Math.sqrt(message_ct)*25, 10);  %>
             <td class="msgct"><div><%- message_ct %></div><div class="msgct-bar" style="width: <%= barWidth %>px;">&nbsp;</div></td>
           </script>
 
           <!-- ======================================== -->
             <script src="//www.rdbhost.com/vendor/Modernizr/2.6/modernizr.js"></script>
-            <script src="//www.rdbhost.com/vendor/jquery/1.8/jquery-1.8.3.js"></script>
+            <!-- script src="//www.rdbhost.com/vendor/jquery/1.8/jquery-1.8.3.js"></script -->
+            <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+            <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
             <script src="//www.rdbhost.com/js/jquery.cookie.js"></script>
             <script src="//www.rdbhost.com/vendor/showdown/0.3/src/showdown.js"></script>
             <script src="//www.rdbhost.com/vendor/underscore/1.5/underscore.js"></script>
@@ -815,7 +828,7 @@
         <script src="vendor/etch/js/etch.js"></script>
         <script src="vendor/to-markdown/js/to-markdown.js"></script>
 
-        <script src="vendor/qtip2/jquery.qtip.min.js"></script>
+        <!-- script src="vendor/qtip2/jquery.qtip.min.js"></script> -->
 
         <script src="js/views/username-view.js"></script>
         <script src="js/routers/login.js"></script>

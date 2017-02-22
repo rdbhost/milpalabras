@@ -245,7 +245,7 @@ BEGIN
             t := (_row.profile)::json->>'id';
             RETURN 'https://graph.facebook.com/' || t || '/picture';
         WHEN 'Twitter' THEN
-            RETURN (_row.profile)::json->>'profile_image_url';
+            RETURN (_row.profile)::json->>'profile_image_url_https';
         ELSE
             RETURN '';
     END CASE;

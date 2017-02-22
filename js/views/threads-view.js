@@ -39,7 +39,7 @@
         render: function () {
 
             var data = this.model.toJSON();
-            data.makeHtml = app.TopicView.markdown.makeHtml;
+            data.makeHtml = app.TopicView.htmlGenerator;
 
             this.$el.html(this.template(data));
             this.$el.show();

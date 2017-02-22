@@ -40,28 +40,12 @@
 
             var this_ = this;
 
-            this.$el.on('mouseover', '.DL', function(ev) {
-                $(this).qtip({
-                    content: {
-                        text: function(ev, api) {
+            this.$el.tooltip({
 
-                            this_.dictionaryHelp(ev, api);
-                        }
-                    },
-                    style: {classes: 'qtip-bootstrap'},
-                    show: {
-                        solo: true,
-                        ready: true,
-                        delay: 150,
-                        effect: false
-                    },
-                    position: {
-                        my: 'center right',
-                        at: 'center left',
-                        adjust: {method: 'shift'},
-                        target: 'event'
-                    }
-                }, ev);
+                items: '.DL',
+                content: function(resp) {
+                    this_.dictionaryHelp(this, resp);
+                }
             });
         },
 
@@ -110,9 +94,9 @@
             this.$el.append(wordView.render().el);
         },
 
-        dictionaryHelp: function(ev, api) {
+        dictionaryHelp: function(this_, api) {
 
-            var word = $(ev.target).text(),
+            var word = $(this_).text(),
                 that = this;
 
             setTimeout(function() {
@@ -166,19 +150,19 @@
 
                             var tpl = that.hoverTemplate(data);
 
-                            api.set('content.text', tpl);
+                            api( tpl);
 
                         });
                         pMaster.fail(function (err) {
 
-                            api.set('content.text', 'ERROR ' + err);
+                            api( 'ERROR ' + err);
                             alert('fail ' + err[0] + ' ' + err[1]);
                         })
                     }
                 });
                 pw.fail(function (err) {
 
-                    api.set('content.text', 'ERROR ' + err);
+                    api( 'ERROR ' + err);
                     alert('fail ' + err[0] + ' ' + err[1]);
                 });
             }, 1);

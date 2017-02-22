@@ -49,28 +49,11 @@
 
             var this_ = this;
 
-            $('#luform').on('mouseover', '.DL', function(ev) {
-                $(this).qtip({
-                    content: {
-                        text: function(ev, api) {
-
-                            this_.wordHelp(ev, api);
-                            return 'loading...';
-                        }
-                    },
-                    style: {classes: 'qtip-bootstrap'},
-                    show: {
-                        solo: true,
-                        ready: true,
-                        delay: 150
-                    },
-                    position: {
-                        my: 'top left',
-                        at: 'bottom right',
-                        adjust: {method: 'shift'},
-                        target: 'event'
-                    }
-                }, ev);
+            $('#luform').tooltip({
+                items: '.DL',
+                content: function (resp) {
+                    this_.wordHelp(this, resp);
+                }
             });
         },
 
@@ -148,14 +131,14 @@
             this.$list.append(defnView.render().el);
         },
 
-        wordHelp: function(ev, api) {
+        wordHelp: function(this_, resp) {
 
-            var $tgt = $(ev.target),
+            var $tgt = $(this_),
                 $defn = $tgt.closest('tr'),
                 word = $defn.find('.lu-lemma span').text(),
                 form = $defn.find('.lu-form').text();
 
-            app.allWordsView._wordHelp.call(this, $tgt, word, form, api);
+            app.allWordsView._wordHelp.call(this, $tgt, word, form, resp);
         }
     });
 })(jQuery);

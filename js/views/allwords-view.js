@@ -13,7 +13,7 @@
 
         // The DOM events specific to an item.
         events: {
-            'click li':               'showByLetter'
+            'click li': 'showByLetter'
         },
 
         initialize: function(opts) {
@@ -23,28 +23,11 @@
             this.collection = null;
             var this_ = this;
 
-            $(document).on('mouseover', '.WL', function(ev) {
-                $(this).qtip({
-                    content: {
-                        text: function(ev, api) {
-
-                                this_.wordHelp(ev, api);
-                                return 'loading...';
-                            }
-                    },
-                    style: {classes: 'qtip-bootstrap'},
-                    show: {
-                        solo: true,
-                        ready: true,
-                        delay: 150
-                    },
-                    position: {
-                        my: 'top right',
-                        at: 'bottom left',
-                        adjust: {method: 'shift'},
-                        target: 'event'
-                    }
-                }, ev);
+            $('#allwords').tooltip({
+                items:  '.WL',
+                content: function(resp) {
+                    this_.wordHelp(this, resp);
+                }
             });
         },
 
@@ -79,18 +62,18 @@
             })
         },
 
-        wordHelp: function(ev, api) {
+        wordHelp: function(this_, resp) {
 
-            var $tgt = $(ev.target),
+            var $tgt = $(this_),
                 $defcont = $tgt.closest('div.defcontainer'),
                 $lemma = $defcont.prevAll('.lemma').first(),
                 form = $tgt.text(),
                 word = $lemma.text();
 
-            return this._wordHelp($tgt, word, form, api);
+            return this._wordHelp($tgt, word, form, resp);
         },
 
-        _wordHelp: function($tgt, word, form, api) {
+        _wordHelp: function($tgt, word, form, resp) {
 
             var this_ = this;
 
@@ -107,7 +90,7 @@
 
                         if ( !wordFormHash ) {
 
-                            api.set('content.text', '~not found~');
+                            resp('~not found~');
                             return;
                         }
 
@@ -120,17 +103,17 @@
                             dom = this_.hoverMiscTemplate({'wordstr': wordstr});
                         }
 
-                        api.set('content.text', dom);
+                        resp(dom);
 
                     })
                         .fail(function(err) {
 
-                            api.set('content.text', 'ERROR '+err);
+                            resp('ERROR '+err);
                             //
                         });
                 }
                 else {
-                    api.set('content.text', 'ERROR');
+                    resp('ERROR');
                 }
             }, 5);
         }

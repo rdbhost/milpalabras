@@ -298,7 +298,7 @@
         render: function () {
 
             var data = this.model.toJSON();
-            data.makeHtml = app.TopicView.markdown.makeHtml;
+            data.makeHtml = app.TopicView.htmlGenerator;
             app.recentPostCt = app.recentPostCt || 0; // safety
 
             if (app.recentPostCt < app.constants.DAILY_POST_LIMIT) {
@@ -449,6 +449,8 @@
                         error: onError
                     });
                 }
+
+                return defer;
             }
 
             ev.stopImmediatePropagation();
@@ -519,7 +521,7 @@
             delete app.cachedMessages[key];
 
             if (this._monitor)
-                this._monitor = clearInterval(this._monitor);
+                this._monitor = clearInterval(this._monitor['interval']);
         },
 
         cleanup: function(ev) {

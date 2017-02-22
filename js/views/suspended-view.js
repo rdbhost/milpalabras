@@ -58,29 +58,38 @@
             // this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
             var this_ = this;
 
-            this.$tMain.on('mouseover', '.DL', function(ev) {
-                $(this).qtip({
-                    content: {
-                        text: function(ev, api) {
-
-                            this_.dictionaryHelp(ev, api);
-                            return 'loading...';
-                        }
-                    },
-                    style: {classes: 'qtip-bootstrap'},
-                    show: {
-                        solo: true,
-                        ready: true,
-                        delay: 150
-                    },
-                    position: {
-                        my: 'top left',
-                        at: 'bottom right',
-                        adjust: {method: 'shift'},
-                        target: 'event'
-                    }
-                }, ev);
+            this.$tMain.tooltip({
+                items:  '.DL',
+                content: function(resp) {
+                    this_.dictionaryHelp(this, resp);
+                }
             });
+
+            /*
+                        this.$tMain.on('mouseover', '.DL', function(ev) {
+                            $(this).qtip({
+                                content: {
+                                    text: function(ev, api) {
+
+                                        this_.dictionaryHelp(ev, api);
+                                        return 'loading...';
+                                    }
+                                },
+                                style: {classes: 'qtip-bootstrap'},
+                                show: {
+                                    solo: true,
+                                    ready: true,
+                                    delay: 150
+                                },
+                                position: {
+                                    my: 'top left',
+                                    at: 'bottom right',
+                                    adjust: {method: 'shift'},
+                                    target: 'event'
+                                }
+                            }, ev);
+                        });
+            */
 
         },
 

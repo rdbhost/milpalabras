@@ -20,7 +20,7 @@
             var data = this.model.toJSON();
             data.not_first = notFirst;
 
-            data.makeHtml = app.TopicView.markdown.makeHtml;
+            data.makeHtml = app.TopicView.htmlGenerator;
 
             this.$el.html(this.template(data));
             this.$el.show();
@@ -66,30 +66,13 @@
 
             var this_ = this;
 
-            this.$tMain.on('mouseover', '.DL', function(ev) {
-                $(this).qtip({
-                    content: {
-                        text: function(ev, api) {
+            this.$tMain.tooltip({
 
-                            this_.dictionaryHelp(ev, api);
-                            return 'loading...';
-                        }
-                    },
-                    style: {classes: 'qtip-bootstrap'},
-                    show: {
-                        solo: true,
-                        ready: true,
-                        delay: 150
-                    },
-                    position: {
-                        my: 'top left',
-                        at: 'bottom right',
-                        adjust: {method: 'shift'},
-                        target: 'event'
-                    }
-                }, ev);
+                items: '.DL',
+                content: function(resp) {
+                    return this_.dictionaryHelp(this, resp);
+                }
             });
-
         },
 
 		// Re-render the titles of the thread item.
@@ -167,8 +150,8 @@
                 model = app.cachedMessages[msg.messageCacheKey()];
             else {
                 model = msg.clone();
-                model.attributes.body = app.TopicView.markdown.makeHtml(msg.attributes.body, msg.attributes.next2k);
-                model.attributes.title = app.TopicView.markdown.makeHtml(msg.attributes.title, msg.attributes.next2k);
+                model.attributes.body = app.TopicView.htmlGenerator(msg.attributes.body, msg.attributes.next2k);
+                model.attributes.title = app.TopicView.htmlGenerator(msg.attributes.title, msg.attributes.next2k);
             }
             app.editView = new app.EditView({ model: model });
             app.editView.render();
@@ -247,9 +230,9 @@
             }
         },
 
-        dictionaryHelp: function(ev, api) {
+        dictionaryHelp: function(this_, api) {
 
-            var word = $(ev.target).text(),
+            var word = $(this_).text(),
                 that = this;
 
             setTimeout(function() {
@@ -298,18 +281,18 @@
 
                             var tpl = that.hoverTemplate(data);
 
-                            api.set('content.text', tpl);
+                            api( tpl);
                         });
                         pMaster.fail(function(err) {
 
-                            api.set('content.text', 'ERROR '+err);
+                            api( 'ERROR '+err);
                             alert('fail ' + err[0] + ' ' + err[1]);
                         })
                     }
                 });
                 pw.fail(function(err) {
 
-                    api.set('content.text', 'ERROR '+err);
+                    api( 'ERROR '+err);
                     alert('fail ' + err[0] + ' ' + err[1]);
                 });
             }, 1);
