@@ -86,7 +86,7 @@
             <!-- script src="//www.rdbhost.com/vendor/jquery/1.8/jquery-1.8.3.js"></script -->
             <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
             <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-            <script src="//www.rdbhost.com/js/jquery.cookie.js"></script>
+            <script src="//www.rdbhost.com/mbr-assets/js/jquery.cookie.js"></script>
             <script src="//www.rdbhost.com/vendor/showdown/0.3/src/showdown.js"></script>
             <script src="//www.rdbhost.com/vendor/underscore/1.5/underscore.js"></script>
             <script src="//www.rdbhost.com/vendor/backbone/1.1/backbone.js"></script>
@@ -409,9 +409,9 @@
             </div>
 
             <script type="text/template" id="postform-template">
-                <% var title_md = makeHtml(title, []);
+                <% var title_md = makeHtml(title, [], 'edit');
                 title_md = title_md.replace(/<\/?p>/g, '');
-                var body_md = makeHtml(body, []);
+                var body_md = makeHtml(body, [], 'edit');
                 %>
 
                 <h3 class="escribe">Escribe</h3>

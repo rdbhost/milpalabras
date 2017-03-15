@@ -8,20 +8,25 @@
 
     window.app = window.app || _.extend({ userId: undefined, userKey: undefined, cachedMessages: {} }, Backbone.Events);
 
-    function generateHtml(md, n2kWords) {
+    function generateHtml(md, n2kWords, for_edit) {
 
         function newVal(f) {
 
             if (f.charAt(0) === '<')
                 return f;
 
-            if (f.charAt(0) === '"')
-                return "<span>" + f + "</span>";
+            if (!for_edit) {
 
-            if (n2kWords.indexOf(f) > -1)
-                return "<span class='DL next2k'>" + f + "</span>";
+                if (f.charAt(0) === '"')
+                    return "<span>" + f + "</span>";
 
-            return "<span class='DL'>" + f + "</span>";
+                if (n2kWords.indexOf(f) > -1)
+                    return "<span class='DL next2k'>" + f + "</span>";
+
+                return "<span class='DL'>" + f + "</span>";
+            }
+
+            return f;
         }
 
         var mkdn = app.TopicView.markdown.makeHtml(md);

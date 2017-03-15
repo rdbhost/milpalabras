@@ -326,7 +326,7 @@
             var $rawMsg = this.$('#new-message'),
                 $rawSubj = this.$('#title'),
                 that = this,
-                pM, pS, pM1, pS1, quoteRatio;
+                pM, pS, pM1, pS1;
 
             pM = this.handleInputMarking($rawMsg);
             pM1 = pM.then(function(resp) {
