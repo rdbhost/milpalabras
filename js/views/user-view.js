@@ -54,7 +54,7 @@
             // this.listenTo(this, 'dictionaryHelp', this.dictionaryHelp);
             var this_ = this;
 
-            this.$tMain.tooltip({
+            this.$uMain.tooltip({
                 items: '.DL',
                 content: function(resp) {
 
