@@ -94,7 +94,7 @@
 <button id="replace_msg_btn" value="update" >Update replace_msg</button>
 
 <script type="text/template" id="word_lister">
-    DROP FUNCTION IF EXISTS words_listed(text);
+    DROP FUNCTION IF EXISTS word_lister(text);
 
     CREATE OR REPLACE FUNCTION "word_lister" (IN txt text)
       RETURNS TABLE(wd text, word text, quoted boolean, nonword boolean, first1000 boolean)
@@ -120,14 +120,10 @@
             SELECT tbl.wd, wordlst.word, tbl.wd ~ '~quoted' AS quoted, tbl.wd ~ '~nonword' AS nonword,
                      wordlst.first1000 AS first1000
               FROM txt_words tbl
-                   LEFT JOIN (SELECT DISTINCT word, first1000 FROM words_cat) wordlst ON wordlst.word = tbl.wd
-             WHERE tbl.wd <> '';
-            SELECT tbl.wd, wordlst.word, tbl.wd ~ '"' AS quoted, tbl.wd ~ '"' AS nonword,
-                     wordlst.first1000 AS first1000
-              FROM txt_words tbl
                    LEFT JOIN (SELECT DISTINCT wc.word, wc.first1000 FROM words_cat wc) wordlst ON wordlst.word = tbl.wd
              WHERE tbl.wd <> '';
-    RETURN;
+
+        RETURN;
     END
 $$
 LANGUAGE plpgsql;
