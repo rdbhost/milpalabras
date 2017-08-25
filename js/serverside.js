@@ -54,3 +54,5 @@ $('#recent_post_ct_btn').click(clickHandler);
 $('#authcheck_btn').click(clickHandler);
 
 $('#profile_read_btn').click(clickHandler);
+
+$('#word_lister_btn').click(clickHandler);
