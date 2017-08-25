@@ -93,6 +93,49 @@
 </script>
 <button id="replace_msg_btn" value="update" >Update replace_msg</button>
 
+<script type="text/template" id="word_lister">
+DROP FUNCTION IF EXISTS words_listed(text);
+
+CREATE OR REPLACE FUNCTION "word_lister" (IN txt text)
+    RETURNS TABLE(wd text, word text, quoted boolean, nonword boolean, first1000 boolean)
+    AS $$
+    DECLARE
+        tmp RECORD;
+        txt_noquotes TEXT;
+    BEGIN
+        -- make copy of text without quoted-parts
+        txt_noquotes := regexp_replace(txt, '~quoted', ' ', 'g');
+
+        DROP TABLE IF EXISTS txt_words CASCADE;
+
+        CREATE TEMPORARY TABLE txt_words AS
+           SELECT w.wd FROM (SELECT regexp_replace(regexp_split_to_table(lower(txt_noquotes), '~wordsplit'),
+                    '~trimre', '', 'g') AS wd) AS w WHERE w.wd > '';
+
+        -- we add quoted-parts back in here, so they don't get split by word-split above
+        INSERT INTO txt_words
+            SELECT unnest(regexp_matches(txt, '~quoted', 'g')) AS wd;
+
+        CREATE TEMPORARY VIEW words AS
+            SELECT tbl.wd, wordlst.word, tbl.wd ~ '~quoted' AS quoted, tbl.wd ~ '~nonword' AS nonword,
+                     wordlst.first1000 AS first1000
+              FROM txt_words tbl
+                   LEFT JOIN (SELECT DISTINCT word, first1000 FROM words_cat) wordlst ON wordlst.word = tbl.wd
+             WHERE tbl.wd <> '';
+            SELECT tbl.wd, wordlst.word, tbl.wd ~ '"' AS quoted, tbl.wd ~ '"' AS nonword,
+                     wordlst.first1000 AS first1000
+              FROM txt_words tbl
+                   LEFT JOIN (SELECT DISTINCT word, first1000 FROM words_cat) wordlst ON wordlst.word = tbl.wd
+             WHERE tbl.wd <> '';
+
+        RETURN QUERY SELECT * FROM words;
+
+    RETURN;
+ END
+$$
+LANGUAGE plpgsql;
+</script>
+<button id="word_lister_btn" value="update" >Update word_lister</button>
 
 <script type="text/template" id="test_msg">
     CREATE OR REPLACE FUNCTION "test_msg"
